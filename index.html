@@ -1,0 +1,1658 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4B4E6D">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Space Words">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>
+html { background: #4B4E6D; }
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; font: 14px/1.4 system-ui, -apple-system, sans-serif; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<title>Eushin's Space Words</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Fredoka:wght@500;600&family=Nunito:wght@500;700&family=Gowun+Dodum&family=Jua&display=swap">
+<style>
+/* Layout: one calm night-sky screen; soft paper panels float on it. Home = character + planet journey + game shelf. */
+:root {
+  color-scheme: light;
+  --space: #4B4E6D;
+  --space-deep: #3F4260;
+  --space-line: #5E6286;
+  --mint: #B8F2E6;
+  --teal: #4AC7A8;
+  --sun: #FFE08A;
+  --berry: #FF8C94;
+  --paper: #FFFDF6;
+  --paper-2: #F4F1E6;
+  --ink: #34374F;
+  --ink-soft: #6C6F8C;
+  --on-space: #F4F3FF;
+  --on-space-soft: #C9CBE6;
+  --berry-soft: #FFD3D6;
+  --teal-soft: #CDEFE6;
+  --sun-soft: #FFF1C4;
+  --lilac: #DCDDF2;
+  --f-display: "Fredoka", "Jua", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-body: "Nunito", "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-word: "Andika", "Comic Neue", "Trebuchet MS", system-ui, sans-serif;
+  --r-lg: 28px;
+  --r-md: 18px;
+}
+html, body { height: 100%; }
+body {
+  background: var(--space);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
+
+.sky { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.sky i { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: var(--on-space); opacity: .45; }
+.sky i.tw { animation: twinkle 7s ease-in-out infinite; }
+.sky i.big { width: 5px; height: 5px; background: var(--sun); opacity: .7; }
+@keyframes twinkle { 0%,100% { opacity: .25 } 50% { opacity: .85 } }
+
+#app { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding-inline: 16px; padding-block: 14px 40px; display: flex; flex-direction: column; gap: 18px; }
+
+/* top bar */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; flex-direction: column; min-width: 0; }
+.brand-ko { font-family: var(--f-display); font-size: 24px; color: var(--on-space); line-height: 1.15; }
+.brand-en { font-family: var(--f-word); font-size: 13px; color: var(--on-space-soft); letter-spacing: .06em; }
+.top-r { display: flex; align-items: center; gap: 8px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; background: var(--paper); color: var(--ink); border-radius: 999px; padding: 6px 14px 6px 8px; font-family: var(--f-display); font-size: 20px; font-variant-numeric: tabular-nums; }
+.pill.bump { animation: bump .5s ease; }
+@keyframes bump { 40% { transform: scale(1.18) } }
+.icon-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--space-deep); display: grid; place-items: center; color: var(--on-space-soft); border: 2px solid var(--space-line); }
+.icon-btn svg { width: 22px; height: 22px; }
+.icon-btn.off { opacity: .55; }
+
+/* hero */
+.hero { display: flex; align-items: center; gap: 14px; }
+.coco-wrap { width: 128px; flex: none; }
+.coco { width: 100%; height: auto; display: block; overflow: visible; }
+.coco .body-g { transform-origin: 60px 100px; animation: float 4.5s ease-in-out infinite; }
+.coco .eyes-happy, .coco .mouth-happy { display: none; }
+.coco.happy .eyes-happy, .coco.happy .mouth-happy { display: inline; }
+.coco.happy .eyes-open, .coco.happy .mouth-calm { display: none; }
+.coco.happy .body-g { animation: hop .55s ease 2; }
+.coco.think .body-g { animation: tilt 1.2s ease; }
+@keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
+@keyframes hop { 0%,100% { transform: translateY(0) } 40% { transform: translateY(-14px) scale(1.03,.97) } }
+@keyframes tilt { 30% { transform: rotate(-6deg) } 70% { transform: rotate(4deg) } }
+
+.bubble { position: relative; flex: 1; min-width: 0; background: var(--paper); border-radius: 22px; padding: 14px 18px; font-family: var(--f-display); font-size: 21px; line-height: 1.35; color: var(--ink); text-wrap: balance; }
+.bubble::before { content: ""; position: absolute; left: -9px; top: 50%; width: 18px; height: 18px; background: var(--paper); transform: translateY(-50%) rotate(45deg); border-radius: 3px; }
+.bubble small { display: block; font-family: var(--f-word); font-size: 15px; color: var(--ink-soft); margin-top: 2px; }
+
+/* journey */
+.journey { background: var(--space-deep); border-radius: var(--r-lg); padding: 14px 16px 12px; border: 2px solid var(--space-line); }
+.j-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; color: var(--on-space); }
+.j-head h2 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 18px; }
+.j-head p { margin: 0; font-size: 14px; color: var(--on-space-soft); }
+.track-scroll { overflow-x: auto; margin-top: 10px; padding-bottom: 4px; scrollbar-width: thin; }
+.track { position: relative; display: flex; gap: 6px; min-width: 620px; padding: 22px 4px 0; }
+.track::before { content: ""; position: absolute; left: 34px; right: 34px; top: 52px; border-top: 3px dashed var(--space-line); }
+.stop { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.planet { position: relative; width: 44px; height: 44px; border-radius: 50%; }
+.planet.lock { filter: grayscale(.9) brightness(.7); opacity: .55; }
+.planet .ring { position: absolute; left: -12px; right: -12px; top: 50%; height: 12px; margin-top: -6px; border-radius: 50%; border: 3px solid var(--sun); transform: rotate(-16deg); opacity: .85; }
+.stop .nm { font-family: var(--f-display); font-size: 14px; color: var(--on-space); }
+.stop .need { font-size: 12px; color: var(--on-space-soft); display: inline-flex; gap: 3px; align-items: center; font-variant-numeric: tabular-nums; }
+.stop .rocket { position: absolute; top: -24px; width: 30px; height: 30px; animation: float 3s ease-in-out infinite; }
+
+/* games */
+.sec-title { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 19px; color: var(--on-space); }
+.games { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.game-card { text-align: left; border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 10px; color: var(--ink); min-height: 132px; transition: transform .15s ease; }
+.game-card:hover { transform: translateY(-3px); }
+.game-card:active { transform: scale(.97); }
+.game-card[disabled] { opacity: .5; cursor: not-allowed; transform: none; }
+.game-card .mark { width: 52px; height: 52px; border-radius: 50%; background: var(--paper); display: grid; place-items: center; font-family: var(--f-word); font-weight: 700; font-size: 18px; color: var(--ink); }
+.game-card .mark svg { width: 26px; height: 26px; }
+.game-card b { font-family: var(--f-display); font-weight: 600; font-size: 20px; }
+.game-card span { font-size: 14px; color: var(--ink-soft); margin-top: -6px; }
+
+.shelf { background: var(--paper); border-radius: var(--r-lg); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.shelf-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.shelf h3 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 18px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; background: var(--paper-2); border-radius: 999px; padding: 6px 12px 6px 8px; }
+.chip .em { font-size: 20px; line-height: 1; }
+.chip .w { font-family: var(--f-word); font-weight: 700; font-size: 17px; }
+.chip .ms { display: inline-flex; gap: 1px; }
+.sample-note { background: var(--sun-soft); border-radius: 14px; padding: 8px 12px; font-size: 14px; color: var(--ink); }
+.sent-list { display: flex; flex-direction: column; gap: 6px; border-top: 2px dashed var(--paper-2); padding-top: 10px; }
+.sent-list p { margin: 0; font-family: var(--f-word); font-size: 17px; }
+.sent-list p small { font-family: var(--f-body); color: var(--ink-soft); font-size: 14px; margin-left: 6px; }
+
+/* shared buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 54px; padding: 0 22px; border-radius: 999px; font-family: var(--f-display); font-size: 19px; background: var(--teal); color: var(--ink); transition: transform .12s ease; }
+.btn:active { transform: scale(.96); }
+.btn.sun { background: var(--sun); }
+.btn.ghost { background: var(--paper-2); }
+.btn.berry { background: var(--berry); }
+.btn svg { width: 22px; height: 22px; }
+.btn.sm { min-height: 42px; font-size: 16px; padding: 0 16px; }
+
+/* game screen */
+.game-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.back { font-family: var(--f-display); font-size: 17px; color: var(--on-space); background: var(--space-deep); border: 2px solid var(--space-line); border-radius: 999px; padding: 8px 16px; }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--space-line); }
+.dots i.done { background: var(--sun); }
+.dots i.now { background: var(--mint); box-shadow: 0 0 0 3px var(--space-deep), 0 0 0 5px var(--mint); }
+.guide { display: flex; align-items: center; gap: 12px; }
+.guide .coco-wrap { width: 92px; }
+.guide .bubble { font-size: 19px; }
+
+.play { background: var(--paper); border-radius: var(--r-lg); padding: 22px 18px 24px; display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+.game-name { font-family: var(--f-display); font-size: 15px; color: var(--ink-soft); letter-spacing: .04em; }
+.prompt { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.pic { font-size: 76px; line-height: 1.1; }
+.ko { font-family: var(--f-display); font-size: 24px; color: var(--ink); }
+.say-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--teal-soft); border-radius: 999px; padding: 8px 16px; font-family: var(--f-display); font-size: 17px; }
+.say-btn svg { width: 20px; height: 20px; }
+
+.slots { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.slot { width: 52px; height: 64px; border-radius: 16px; border: 3px dashed var(--ink-soft); display: grid; place-items: center; font-family: var(--f-word); font-weight: 700; font-size: 40px; color: var(--ink); background: var(--paper); position: relative; }
+.slot .ghost { color: var(--ink-soft); opacity: .28; }
+.slot.next { border-color: var(--teal); border-style: solid; background: var(--teal-soft); }
+.slot.filled { border-style: solid; border-color: var(--teal); background: var(--mint); }
+.slot.filled .ghost { display: none; }
+.slot.pop { animation: pop .35s ease; }
+.gap { width: 18px; font-family: var(--f-word); font-size: 40px; display: grid; place-items: end center; height: 64px; color: var(--ink); }
+@keyframes pop { 50% { transform: scale(1.15) } }
+
+.tiles { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 520px; }
+.tile { width: 62px; height: 62px; border-radius: 18px; background: var(--sun); font-family: var(--f-word); font-weight: 700; font-size: 34px; color: var(--ink); box-shadow: 0 4px 0 #E2C46D; transition: transform .12s ease, opacity .2s; }
+.tile:active { transform: translateY(3px); box-shadow: 0 1px 0 #E2C46D; }
+.tile.used { opacity: 0; pointer-events: none; transform: scale(.6); }
+.tile.hint { box-shadow: 0 0 0 4px var(--teal), 0 4px 0 #E2C46D; }
+.shake { animation: shake .4s ease; }
+@keyframes shake { 20%,60% { transform: translateX(-6px) } 40%,80% { transform: translateX(6px) } }
+
+.word-big { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; font-family: var(--f-word); font-weight: 700; font-size: 54px; color: var(--ink); line-height: 1.1; }
+.word-big .lt { display: inline-block; padding: 0 2px; border-radius: 10px; transition: background .2s; }
+.word-big .lt.on { background: var(--sun); }
+.word-big .hole { width: 56px; height: 66px; border: 3px dashed var(--teal); border-radius: 16px; display: grid; place-items: center; background: var(--teal-soft); }
+.word-big .hole.filled { border-style: solid; background: var(--mint); }
+
+.opts { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.opt-star { width: 84px; height: 84px; position: relative; display: grid; place-items: center; font-family: var(--f-word); font-weight: 700; font-size: 34px; color: var(--ink); transition: transform .12s; }
+.opt-star svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.opt-star span { position: relative; margin-top: 6px; }
+.opt-star:active { transform: scale(.94); }
+.opt-star.dim { opacity: .35; }
+
+.pick-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: 100%; max-width: 560px; }
+.pick { background: var(--paper-2); border-radius: 22px; padding: 14px 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; border: 3px solid transparent; transition: transform .12s; }
+.pick .pe { font-size: 52px; line-height: 1.1; }
+.pick .pw { font-family: var(--f-word); font-weight: 700; font-size: 20px; overflow-wrap: anywhere; }
+.pick.right { border-color: var(--teal); background: var(--mint); }
+.pick.dim { opacity: .35; }
+.pick:active { transform: scale(.96); }
+
+.listen-big { width: 120px; height: 120px; border-radius: 50%; background: var(--teal-soft); display: grid; place-items: center; border: 4px solid var(--teal); }
+.listen-big svg { width: 54px; height: 54px; }
+
+.learn-word { font-family: var(--f-word); font-weight: 700; font-size: 64px; line-height: 1.1; }
+.learn-nav { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+.sentence { font-family: var(--f-word); font-size: 30px; line-height: 1.5; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 10px; max-width: 640px; }
+.sentence .tk { border-radius: 10px; padding: 0 4px; transition: background .2s; }
+.sentence .tk.on { background: var(--sun); }
+.sentence .blank { display: inline-block; min-width: 90px; border-bottom: 4px dashed var(--teal); color: var(--ink); }
+.sentence .blank.filled { border-bottom-style: solid; background: var(--mint); border-radius: 8px 8px 0 0; }
+.ko-line { font-size: 18px; color: var(--ink-soft); margin-top: -10px; }
+.build-line { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; min-height: 60px; max-width: 640px; }
+.build-line .ph { min-width: 64px; height: 52px; border-radius: 14px; border: 3px dashed var(--ink-soft); opacity: .45; }
+.build-line .placed { height: 52px; padding: 0 14px; border-radius: 14px; background: var(--mint); border: 3px solid var(--teal); font-family: var(--f-word); font-weight: 700; font-size: 24px; display: grid; place-items: center; animation: pop .3s ease; }
+.blocks { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 640px; }
+.blk { height: 54px; padding: 0 16px; border-radius: 14px; background: var(--sun); font-family: var(--f-word); font-weight: 700; font-size: 24px; box-shadow: 0 4px 0 #E2C46D; }
+.blk.used { visibility: hidden; }
+.blk.hint { box-shadow: 0 0 0 4px var(--teal), 0 4px 0 #E2C46D; }
+.step-tag { display: inline-flex; gap: 6px; }
+.step-tag i { font-style: normal; font-size: 13px; padding: 3px 10px; border-radius: 999px; background: var(--paper-2); color: var(--ink-soft); }
+.step-tag i.on { background: var(--sun); color: var(--ink); }
+
+.next-row { min-height: 54px; display: flex; justify-content: center; }
+
+/* fly star */
+.fly { position: fixed; z-index: 50; width: 36px; height: 36px; pointer-events: none; }
+
+/* modal */
+.modal-back { position: fixed; inset: 0; z-index: 40; background: rgba(52, 55, 79, .6); display: grid; place-items: center; padding: 16px; }
+.modal { background: var(--paper); border-radius: var(--r-lg); padding: 24px 20px; width: min(420px, 100%); display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; animation: rise .4s ease; }
+.modal h2 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 28px; }
+.modal p { margin: 0; font-size: 17px; color: var(--ink-soft); }
+.modal .coco-wrap { width: 120px; }
+.earned { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+.new-planet { display: flex; align-items: center; gap: 12px; background: var(--sun-soft); border-radius: 18px; padding: 10px 16px; font-family: var(--f-display); font-size: 18px; }
+.modal-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+@keyframes rise { from { transform: translateY(20px); opacity: .4 } }
+
+/* parent */
+.parent { background: var(--paper); border-radius: var(--r-lg); padding: 20px 16px; display: flex; flex-direction: column; gap: 18px; }
+.parent h2 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 24px; }
+.parent h3 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 19px; }
+.parent p.help { margin: 0; color: var(--ink-soft); font-size: 15px; line-height: 1.5; }
+.gate { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.gate-q { font-family: var(--f-display); font-size: 26px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.field { border: 2px solid var(--paper-2); background: var(--paper); border-radius: 12px; padding: 10px 12px; font: inherit; font-size: 16px; color: var(--ink); width: 100%; min-width: 0; }
+.field:focus { border-color: var(--teal); outline: none; }
+.field.word { font-family: var(--f-word); font-size: 18px; }
+.gate .field { width: 110px; font-size: 22px; }
+.rows { display: flex; flex-direction: column; gap: 8px; }
+.row-head, .wrow { display: grid; grid-template-columns: 26px 54px minmax(0, 1.2fr) minmax(0, 1fr) 36px; gap: 8px; align-items: center; }
+.row-head { font-size: 13px; color: var(--ink-soft); padding: 0 2px; }
+.wrow .num { font-size: 14px; color: var(--ink-soft); text-align: right; font-variant-numeric: tabular-nums; }
+.wrow .field.em { text-align: center; font-size: 22px; padding: 6px 4px; }
+.x-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--paper-2); color: var(--ink-soft); font-size: 20px; line-height: 1; }
+.srow { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 8px; }
+.p-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.seg { display: inline-flex; background: var(--paper-2); border-radius: 999px; padding: 4px; gap: 4px; align-self: flex-start; }
+.seg-btn { min-height: 44px; padding: 0 22px; border-radius: 999px; font-family: var(--f-display); font-size: 18px; color: var(--ink-soft); }
+.seg-btn.on { background: var(--teal); color: var(--ink); }
+.danger-zone { border-top: 2px dashed var(--paper-2); padding-top: 14px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.err { color: #B4434C; font-size: 15px; margin: 0; }
+
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--paper); border-radius: 999px; padding: 12px 20px; font-family: var(--f-display); font-size: 16px; max-width: calc(100% - 32px); text-align: center; }
+
+.empty { background: var(--paper); border-radius: var(--r-lg); padding: 20px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.empty h3 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 20px; }
+.empty p { margin: 0; color: var(--ink-soft); line-height: 1.5; }
+
+@media (max-width: 520px) {
+  .brand-ko { font-size: 20px; }
+  .coco-wrap { width: 96px; }
+  .bubble { font-size: 18px; }
+  .guide .coco-wrap { width: 72px; }
+  .guide .bubble { font-size: 16px; padding: 10px 14px; }
+  .slot { width: 44px; height: 56px; font-size: 34px; }
+  .gap { height: 56px; }
+  .tile { width: 56px; height: 56px; font-size: 30px; }
+  .word-big { font-size: 44px; }
+  .learn-word { font-size: 50px; }
+  .sentence { font-size: 24px; }
+  .row-head, .wrow { grid-template-columns: 50px minmax(0, 1.2fr) minmax(0, 1fr) 36px; }
+  .row-head .num, .wrow .num { display: none; }
+  .srow { grid-template-columns: 1fr; }
+  .pick .pe { font-size: 42px; }
+  .pick .pw { font-size: 17px; }
+}
+/* trace & write */
+.trace-head { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.trace-head .pic { font-size: 56px; }
+.model-word { font-family: var(--f-word); font-weight: 700; font-size: 40px; color: var(--ink); background: var(--sun-soft); border-radius: 16px; padding: 2px 18px; }
+.pad { position: relative; width: 100%; height: clamp(220px, 40vh, 340px); background: var(--paper); border: 3px solid var(--paper-2); border-radius: 24px; overflow: hidden; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.pad canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.pad canvas.ink { touch-action: none; cursor: crosshair; }
+.pad-tools { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.swatch { width: 44px; height: 44px; border-radius: 50%; border: 4px solid var(--paper); box-shadow: 0 0 0 2px var(--paper-2); }
+.swatch.on { box-shadow: 0 0 0 3px var(--ink); }
+.pencil-note { font-size: 14px; color: var(--ink-soft); }
+@media (orientation: landscape) and (min-width: 900px) {
+  .pad { height: clamp(260px, 44vh, 400px); }
+  .trace-head .pic { font-size: 64px; }
+  .model-word { font-size: 48px; }
+}
+
+/* photo import */
+.vh { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
+.scan { background: var(--teal-soft); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.scan-status { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.scan-thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 12px; border: 3px solid var(--paper); }
+.spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--paper); border-top-color: var(--teal); animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg) } }
+.scan-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.scan-item { display: inline-flex; align-items: center; gap: 6px; background: var(--paper); border-radius: 999px; padding: 6px 12px 6px 8px; cursor: pointer; }
+.scan-item input { width: 20px; height: 20px; accent-color: var(--teal); }
+.scan-item .w { font-family: var(--f-word); font-weight: 700; font-size: 17px; }
+.scan-item small { color: var(--ink-soft); font-size: 14px; }
+.scan-sent { display: flex; flex-direction: column; gap: 6px; }
+.scan-sent .scan-item { border-radius: 14px; }
+
+/* home & game grids (phone/portrait: one stacked column) */
+.home-grid { display: flex; flex-direction: column; gap: 18px; }
+.col-l, .col-r { display: contents; }
+.home-grid .hero { order: 1; }
+.home-grid .journey { order: 2; }
+.home-grid .games-sec, .home-grid .empty { order: 3; }
+.home-grid .shelf { order: 4; }
+.games-sec { display: flex; flex-direction: column; gap: 10px; }
+.game-grid { display: flex; flex-direction: column; gap: 14px; }
+.p-grid { display: flex; flex-direction: column; gap: 18px; }
+.p-part { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+body { touch-action: manipulation; }
+.play, .tiles, .blocks, .opts, .pick-row { -webkit-user-select: none; user-select: none; }
+@media (hover: none) { .game-card:hover { transform: none; } }
+
+/* iPad landscape */
+@media (orientation: landscape) and (min-width: 900px) {
+  #app { max-width: 1366px; padding-inline: 24px; padding-block: 16px 24px; min-height: 100%; }
+  .brand-ko { font-size: 28px; }
+  .home-grid { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 22px; align-items: start; }
+  .col-l, .col-r { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+  .home-grid .hero { flex-direction: column; align-items: stretch; gap: 16px; }
+  .home-grid .hero .coco-wrap { width: 150px; align-self: center; }
+  .bubble { font-size: 22px; }
+  .home-grid .hero .bubble::before, .guide .bubble::before { left: 50%; top: -9px; transform: translateX(-50%) rotate(45deg); }
+  .track { min-width: 0; }
+  .games { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
+  .games > .game-card { grid-column: span 2; min-height: 150px; }
+  .game-card b { font-size: 23px; }
+  .game-card span { font-size: 15px; }
+
+  .game-grid { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 20px; align-items: stretch; flex: 1; }
+  .guide { flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 16px; padding-top: 10px; }
+  .guide .coco-wrap { width: 160px; align-self: center; }
+  .guide .bubble, .home-grid .hero .bubble { flex: none; font-size: 20px; }
+  .play { justify-content: center; min-height: calc(100vh - 120px); min-height: calc(100dvh - 120px); padding: 24px 28px; gap: 22px; }
+  .pic { font-size: 88px; }
+  .ko { font-size: 28px; }
+  .say-btn { font-size: 19px; padding: 10px 20px; }
+  .slot { width: 66px; height: 80px; font-size: 50px; border-radius: 18px; }
+  .gap { height: 80px; font-size: 50px; }
+  .tiles { max-width: 720px; gap: 14px; }
+  .tile { width: 78px; height: 78px; font-size: 42px; border-radius: 20px; }
+  .word-big { font-size: 68px; }
+  .word-big .hole { width: 70px; height: 82px; }
+  .learn-word { font-size: 84px; }
+  .opt-star { width: 104px; height: 104px; font-size: 42px; }
+  .pick-row { max-width: 760px; gap: 18px; }
+  .pick { padding: 18px 8px; }
+  .pick .pe { font-size: 70px; }
+  .pick .pw { font-size: 24px; }
+  .listen-big { width: 140px; height: 140px; }
+  .sentence { font-size: 38px; max-width: 900px; }
+  .ko-line { font-size: 20px; }
+  .build-line, .blocks { max-width: 900px; gap: 12px; }
+  .build-line .ph { min-width: 80px; height: 62px; }
+  .build-line .placed { height: 62px; font-size: 30px; padding: 0 18px; }
+  .blk { height: 64px; font-size: 30px; padding: 0 20px; }
+  .btn { min-height: 60px; font-size: 21px; padding: 0 26px; }
+  .btn.sm { min-height: 46px; font-size: 17px; }
+  .dots i { width: 16px; height: 16px; }
+
+  .p-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); grid-template-areas: "words scan" "words rest"; grid-template-rows: auto 1fr; gap: 22px; align-items: start; }
+  .p-scan { grid-area: scan; }
+  .p-words { grid-area: words; }
+  .p-rest { grid-area: rest; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="sky" id="sky" aria-hidden="true"></div>
+<main id="app" aria-live="polite"></main>
+
+<script>
+(() => {
+  'use strict';
+  const LS_WEEK = 'yushin-space-week', LS_PROG = 'yushin-space-progress', LS_SOUND = 'yushin-space-sound', LS_NAME = 'yushin-space-name';
+  const NAMES = ['Eushin', 'Harry'];
+  const kid = () => state.name;
+  const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const PLANETS = [
+    { ko: 'Earth', at: 0, c1: '#4AC7A8', c2: '#B8F2E6' },
+    { ko: 'Moon', at: 5, c1: '#D9D6C8', c2: '#FFFDF6' },
+    { ko: 'Mars', at: 15, c1: '#FF8C94', c2: '#FFD3D6' },
+    { ko: 'Jupiter', at: 30, c1: '#F2B880', c2: '#FFE08A' },
+    { ko: 'Saturn', at: 50, c1: '#FFE08A', c2: '#FFF7DC', ring: true },
+    { ko: 'Uranus', at: 75, c1: '#8FDCCB', c2: '#E4FBF6' },
+    { ko: 'Neptune', at: 105, c1: '#7E86C9', c2: '#C6CAF0' },
+    { ko: 'Star Land', at: 140, c1: '#FFE08A', c2: '#FFFDF6', star: true },
+  ];
+  const praiseLine = () => rnd([`Great job, ${kid()}!`, 'Wow, amazing!', 'You are a star!', 'Super spelling!', 'Brilliant, space explorer!', `Way to go, ${kid()}!`]);
+  const PRAISE_EN = ['Keep it up!', 'You did it!', 'Well done!', 'Wonderful!', 'Nice work!'];
+  const CHEER = ['That\'s okay, try again!', 'Take your time.', 'Almost there!', 'Let\'s listen one more time.'];
+  const EXAMPLE = {
+    words: [
+      { en: 'sun', ko: '해', emoji: '☀️' }, { en: 'moon', ko: '달', emoji: '🌙' },
+      { en: 'star', ko: '별', emoji: '⭐' }, { en: 'rocket', ko: '로켓', emoji: '🚀' },
+      { en: 'cat', ko: '고양이', emoji: '🐱' }, { en: 'dog', ko: '강아지', emoji: '🐶' },
+      { en: 'apple', ko: '사과', emoji: '🍎' }, { en: 'fish', ko: '물고기', emoji: '🐟' },
+      { en: 'tree', ko: '나무', emoji: '🌳' }, { en: 'book', ko: '책', emoji: '📖' },
+    ],
+    sentences: [
+      { en: 'I see a star.', ko: '나는 별을 봐요.' },
+      { en: 'The moon is big.', ko: '달은 커요.' },
+    ],
+    sample: true,
+  };
+  const EMOJI = {
+    sun:'☀️',moon:'🌙',star:'⭐',rocket:'🚀',planet:'🪐',earth:'🌍',sky:'🌌',cloud:'☁️',rain:'🌧️',snow:'❄️',rainbow:'🌈',
+    cat:'🐱',dog:'🐶',fish:'🐟',bird:'🐦',duck:'🦆',frog:'🐸',pig:'🐷',cow:'🐮',horse:'🐴',lion:'🦁',tiger:'🐯',bear:'🐻',rabbit:'🐰',bunny:'🐰',
+    monkey:'🐵',elephant:'🐘',mouse:'🐭',owl:'🦉',bee:'🐝',ant:'🐜',bug:'🐛',snake:'🐍',turtle:'🐢',whale:'🐳',dolphin:'🐬',shark:'🦈',penguin:'🐧',
+    fox:'🦊',panda:'🐼',chick:'🐤',hen:'🐔',sheep:'🐑',goat:'🐐',zebra:'🦓',giraffe:'🦒',crab:'🦀',octopus:'🐙',butterfly:'🦋',dinosaur:'🦕',
+    apple:'🍎',banana:'🍌',grape:'🍇',grapes:'🍇',orange:'🍊',lemon:'🍋',melon:'🍈',watermelon:'🍉',peach:'🍑',pear:'🍐',cherry:'🍒',strawberry:'🍓',
+    egg:'🥚',milk:'🥛',bread:'🍞',cake:'🍰',cookie:'🍪',candy:'🍬',pizza:'🍕',rice:'🍚',juice:'🧃',water:'💧',carrot:'🥕',corn:'🌽',tomato:'🍅',
+    car:'🚗',bus:'🚌',train:'🚆',bike:'🚲',ship:'🚢',boat:'⛵',plane:'✈️',truck:'🚚',
+    book:'📖',pen:'🖊️',pencil:'✏️',bag:'🎒',ball:'⚽',doll:'🪆',hat:'🎩',cap:'🧢',cup:'🥤',bed:'🛏️',box:'📦',key:'🔑',door:'🚪',chair:'🪑',
+    clock:'⏰',phone:'📱',lamp:'💡',gift:'🎁',kite:'🪁',drum:'🥁',robot:'🤖',
+    tree:'🌳',flower:'🌸',leaf:'🍃',sea:'🌊',house:'🏠',home:'🏠',school:'🏫',park:'🏞️',
+    hand:'✋',eye:'👁️',eyes:'👀',ear:'👂',nose:'👃',mouth:'👄',foot:'🦶',heart:'❤️',
+    red:'🔴',blue:'🔵',green:'🟢',yellow:'🟡',pink:'🩷',purple:'🟣',black:'⚫',white:'⚪',
+    happy:'😊',sad:'😢',big:'🐘',small:'🐜',hot:'🔥',cold:'🥶',run:'🏃',jump:'🦘',swim:'🏊',sleep:'😴',eat:'🍽️',
+    mom:'👩',dad:'👨',baby:'👶',boy:'👦',girl:'👧',friend:'🧒',king:'🤴',queen:'👸',
+    one:'1️⃣',two:'2️⃣',three:'3️⃣',four:'4️⃣',five:'5️⃣',six:'6️⃣',seven:'7️⃣',eight:'8️⃣',nine:'9️⃣',ten:'🔟',
+  };
+
+  /* ---------- storage ---------- */
+  const lsGet = (k) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+  function normWeek(d) {
+    if (!d || typeof d !== 'object') return null;
+    const words = (Array.isArray(d.words) ? d.words : []).map(w => ({
+      en: String(w && w.en || '').trim().toLowerCase(),
+      ko: String(w && w.ko || '').trim(),
+      emoji: String(w && w.emoji || '').trim(),
+    })).filter(w => /[a-z]/.test(w.en));
+    const sentences = (Array.isArray(d.sentences) ? d.sentences : []).map(s => ({
+      en: String(s && s.en || '').trim().replace(/\s+/g, ' '),
+      ko: String(s && s.ko || '').trim(),
+    })).filter(s => s.en.split(' ').length >= 2);
+    return { words, sentences, sample: !!d.sample };
+  }
+  function normProg(d) {
+    const p = { stars: 0, mastery: {} };
+    if (d && typeof d === 'object') {
+      p.stars = Math.max(0, Math.floor(Number(d.stars) || 0));
+      if (d.mastery && typeof d.mastery === 'object') for (const k in d.mastery) p.mastery[k] = Math.max(0, Math.floor(Number(d.mastery[k]) || 0));
+    }
+    return p;
+  }
+
+  const state = {
+    week: normWeek(lsGet(LS_WEEK)),
+    progress: normProg(lsGet(LS_PROG)),
+    db: null,
+    sound: lsGet(LS_SOUND) !== false,
+    name: NAMES.includes(lsGet(LS_NAME)) ? lsGet(LS_NAME) : 'Eushin',
+  };
+  let screen = 'home';
+  let g = null;           // current game
+  let seq = 0;            // speech chain token
+
+  /* ---------- db ---------- */
+  async function connect() {
+    if (!window.claude || !window.claude.use) return;
+    let db = null;
+    try { db = await window.claude.use('db'); } catch { db = null; }
+    if (!db) return;
+    state.db = db;
+    try {
+      const p = await db.doc('study/progress').get();
+      if (p.exists) {
+        const remote = normProg(p.data());
+        if (remote.stars >= state.progress.stars) { state.progress = remote; lsSet(LS_PROG, remote); }
+        else flushProgress();
+      }
+    } catch {}
+    db.doc('study/settings').onSnapshot(snap => {
+      const n = snap.exists && snap.data().name;
+      if (NAMES.includes(n) && n !== state.name) { state.name = n; lsSet(LS_NAME, n); refreshHome(); markName(); }
+    }, () => {});
+    db.doc('study/week').onSnapshot(snap => {
+      if (!snap.exists) { refreshHome(); return; }
+      const w = normWeek(snap.data());
+      if (!w) return;
+      state.week = w; lsSet(LS_WEEK, w);
+      refreshHome();
+    }, () => {});
+    refreshHome();
+  }
+  function refreshHome() { if (screen === 'home') renderHome(true); }
+
+  let pTimer = null, pWriting = false, pDirty = false;
+  function saveProgress() {
+    lsSet(LS_PROG, state.progress);
+    clearTimeout(pTimer);
+    pTimer = setTimeout(flushProgress, 1200);
+  }
+  async function flushProgress() {
+    if (!state.db) return;
+    if (pWriting) { pDirty = true; return; }
+    pWriting = true;
+    try { await state.db.doc('study/progress').set({ stars: state.progress.stars, mastery: { ...state.progress.mastery }, updatedAt: new Date().toISOString() }); } catch {}
+    pWriting = false;
+    if (pDirty) { pDirty = false; flushProgress(); }
+  }
+  async function saveWeek(week) {
+    state.week = week; lsSet(LS_WEEK, week);
+    if (!state.db) return 'local';
+    try { await state.db.doc('study/week').set({ ...week, updatedAt: new Date().toISOString() }); return 'db'; }
+    catch (e) { return e && e.code === 'invalid_argument' ? 'denied' : 'failed'; }
+  }
+
+  /* ---------- sound ---------- */
+  let actx = null;
+  function ac() {
+    if (!actx) { const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; try { actx = new C(); } catch { return null; } }
+    if (actx.state === 'suspended') actx.resume();
+    return actx;
+  }
+  function tone(f, start, dur, type, vol) {
+    if (!state.sound) return;
+    const a = ac(); if (!a) return;
+    const o = a.createOscillator(), gn = a.createGain();
+    o.type = type || 'sine'; o.frequency.value = f;
+    const t = a.currentTime + start;
+    gn.gain.setValueAtTime(0.0001, t);
+    gn.gain.exponentialRampToValueAtTime(vol || 0.06, t + 0.02);
+    gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(gn); gn.connect(a.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+  const sfx = {
+    tap() { tone(620, 0, .08, 'sine', .04); },
+    pop() { tone(740, 0, .12, 'sine', .06); tone(988, .05, .14, 'sine', .045); },
+    soft() { tone(330, 0, .2, 'sine', .045); tone(294, .12, .25, 'sine', .035); },
+    good() { [523, 659, 784].forEach((f, i) => tone(f, i * .09, .32, 'triangle', .06)); },
+    star() { [1047, 1319, 1568, 2093].forEach((f, i) => tone(f, i * .06, .28, 'sine', .035)); },
+    fanfare() { [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, i * .14, .4, 'triangle', .06)); },
+  };
+
+  /* ---------- speech ---------- */
+  const tts = 'speechSynthesis' in window ? window.speechSynthesis : null;
+  let enVoice = null, koVoice = null;
+  function pickVoices() {
+    if (!tts) return;
+    const vs = tts.getVoices() || [];
+    enVoice = vs.find(v => /^en[-_]US/i.test(v.lang) && /Samantha|Google US|Aria|Jenny|Ava/i.test(v.name))
+      || vs.find(v => /^en[-_]US/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null;
+    koVoice = vs.find(v => /^ko/i.test(v.lang)) || null;
+  }
+  if (tts) { pickVoices(); try { tts.addEventListener('voiceschanged', pickVoices); } catch {} }
+
+  function speak(text, opt = {}) {
+    const done = opt.onend;
+    if (!tts) { if (done) setTimeout(done, 500); return; }
+    if (opt.cancel !== false) tts.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    const ko = opt.lang === 'ko';
+    u.lang = ko ? 'ko-KR' : 'en-US';
+    const v = ko ? koVoice : enVoice; if (v) u.voice = v;
+    u.rate = opt.rate || (ko ? 1 : 0.8); u.pitch = 1.1;
+    if (opt.onboundary) u.onboundary = opt.onboundary;
+    if (done) {
+      let fired = false;
+      const fin = () => { if (!fired) { fired = true; done(); } };
+      u.onend = fin; u.onerror = fin;
+      setTimeout(fin, 900 + text.length * 160);
+    }
+    tts.speak(u);
+  }
+  const L = (ch) => ch.toUpperCase();
+  function spellOut(word) { return [...word].filter(isLetter).map(L).join(', ') + '. ' + word; }
+  function spellSlow(word, onLetter) {
+    const my = ++seq;
+    const chars = [...word];
+    let i = 0;
+    if (tts) tts.cancel();
+    const step = () => {
+      if (my !== seq) return;
+      while (i < chars.length && !isLetter(chars[i])) i++;
+      if (i >= chars.length) { onLetter(-1); speak(word, { cancel: false }); return; }
+      const idx = i++;
+      onLetter(idx);
+      speak(L(chars[idx]), { cancel: false, rate: 0.7, onend: () => setTimeout(step, 180) });
+    };
+    step();
+  }
+
+  /* ---------- helpers ---------- */
+  const isLetter = (c) => /[a-z]/i.test(c);
+  const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const rnd = (a) => a[Math.floor(Math.random() * a.length)];
+  function shuffle(a) { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
+  function shuffleNew(a) { if (a.length < 2) return a.slice(); let b; let n = 0; do { b = shuffle(a); n++; } while (b.join('|') === a.join('|') && n < 8); return b; }
+  const emojiFor = (w) => w.emoji || EMOJI[w.en] || '';
+  const clean = (t) => t.replace(/[^A-Za-z'-]/g, '');
+  function planetIndex(stars) { let i = 0; PLANETS.forEach((p, k) => { if (stars >= p.at) i = k; }); return i; }
+
+  const starSVG = (s = 20, fill = 'var(--sun)', stroke = '#E2B94F') =>
+    `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.4l-5.4 2.9 1.1-6.1L3.2 9l6.1-.8z" fill="${fill}" stroke="${stroke}" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
+  const speakerSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>`;
+  const lockSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="3"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>`;
+  const noteSVG = (on) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18V5l10-2v13"/><circle cx="6.5" cy="18" r="2.5" fill="currentColor"/><circle cx="16.5" cy="16" r="2.5" fill="currentColor"/>${on ? '' : '<path d="M3 3l18 18"/>'}</svg>`;
+  const pencilSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/></svg>`;
+  const rocketSVG = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3c4 3 6 8 6 13l-2 5h-8l-2-5c0-5 2-10 6-13z" fill="#FFFDF6" stroke="#34374F" stroke-width="1.6" stroke-linejoin="round"/><circle cx="16" cy="13" r="2.6" fill="#B8F2E6" stroke="#34374F" stroke-width="1.4"/><path d="M10 16l-3 5 4-1M22 16l3 5-4-1" fill="#FF8C94" stroke="#34374F" stroke-width="1.4" stroke-linejoin="round"/><path d="M13.5 22.5c.5 2.5 1.5 4 2.5 5 1-1 2-2.5 2.5-5z" fill="#FFE08A"/></svg>`;
+
+  function coco(cls = '') {
+    return `<svg class="coco ${cls}" viewBox="0 0 120 120" role="img" aria-label="Coco, your space friend">
+      <g class="body-g">
+        <path d="M60 34 Q58 22 62 12" fill="none" stroke="#34374F" stroke-width="3" stroke-linecap="round"/>
+        <path d="M62 3.5l2.4 4.9 5.4.7-3.9 3.7 1 5.3L62 15.6l-4.9 2.5 1-5.3-3.9-3.7 5.4-.7z" fill="#FFE08A" stroke="#D9B653" stroke-width="1.2" stroke-linejoin="round"/>
+        <ellipse cx="22" cy="74" rx="8" ry="11" fill="#4AC7A8" transform="rotate(-20 22 74)"/>
+        <ellipse cx="98" cy="74" rx="8" ry="11" fill="#4AC7A8" transform="rotate(20 98 74)"/>
+        <ellipse cx="44" cy="105" rx="11" ry="6" fill="#4AC7A8"/>
+        <ellipse cx="76" cy="105" rx="11" ry="6" fill="#4AC7A8"/>
+        <path d="M60 32 C86 32 100 50 100 70 C100 92 84 104 60 104 C36 104 20 92 20 70 C20 50 34 32 60 32Z" fill="#B8F2E6" stroke="#4AC7A8" stroke-width="3"/>
+        <ellipse cx="60" cy="86" rx="20" ry="12" fill="#FFFDF6" opacity=".55"/>
+        <g class="eyes-open">
+          <ellipse cx="46" cy="64" rx="5.5" ry="7" fill="#34374F"/><ellipse cx="74" cy="64" rx="5.5" ry="7" fill="#34374F"/>
+          <circle cx="48" cy="61" r="2" fill="#FFFDF6"/><circle cx="76" cy="61" r="2" fill="#FFFDF6"/>
+        </g>
+        <g class="eyes-happy" fill="none" stroke="#34374F" stroke-width="3.2" stroke-linecap="round">
+          <path d="M40 66 Q46 57 52 66"/><path d="M68 66 Q74 57 80 66"/>
+        </g>
+        <ellipse cx="36" cy="76" rx="6" ry="3.6" fill="#FF8C94" opacity=".55"/>
+        <ellipse cx="84" cy="76" rx="6" ry="3.6" fill="#FF8C94" opacity=".55"/>
+        <path class="mouth-calm" d="M54 77 Q60 82 66 77" fill="none" stroke="#34374F" stroke-width="2.6" stroke-linecap="round"/>
+        <path class="mouth-happy" d="M52 75 Q60 75 68 75 Q66 86 60 86 Q54 86 52 75Z" fill="#FF8C94" stroke="#34374F" stroke-width="2.2" stroke-linejoin="round"/>
+      </g>
+    </svg>`;
+  }
+  function mood(m, ms = 1700) {
+    document.querySelectorAll('.coco').forEach(c => { c.classList.remove('happy', 'think'); void c.getBoundingClientRect(); if (m) c.classList.add(m); });
+    clearTimeout(mood.t);
+    if (m) mood.t = setTimeout(() => document.querySelectorAll('.coco').forEach(c => c.classList.remove('happy', 'think')), ms);
+  }
+  function say(ko, en) {
+    const b = document.getElementById('bubble');
+    if (b) b.innerHTML = esc(ko) + (en ? `<small>${esc(en)}</small>` : '');
+  }
+  function toast(msg) {
+    const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+    document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+  }
+  function planetDot(p, size = 44, locked = false) {
+    return `<div class="planet ${locked ? 'lock' : ''}" style="width:${size}px;height:${size}px;background:radial-gradient(circle at 34% 30%, ${p.c2}, ${p.c1} 72%)">${p.ring ? '<span class="ring"></span>' : ''}${p.star ? `<span style="position:absolute;inset:18%">${starSVG('100%', '#FFFDF6', '#E2B94F')}</span>` : ''}</div>`;
+  }
+  const starPill = () => `<span class="pill" id="starPill">${starSVG(24)}<span id="starCount">${state.progress.stars}</span></span>`;
+  function updatePill() {
+    const c = document.getElementById('starCount'); if (c) c.textContent = state.progress.stars;
+    const p = document.getElementById('starPill'); if (p) { p.classList.remove('bump'); void p.offsetWidth; p.classList.add('bump'); }
+  }
+  function flyStar(fromEl) {
+    const target = document.getElementById('starPill');
+    if (!fromEl || !target || reduced || !document.body.animate) { updatePill(); return; }
+    const a = fromEl.getBoundingClientRect(), b = target.getBoundingClientRect();
+    const s = document.createElement('div'); s.className = 'fly'; s.innerHTML = starSVG(36);
+    const x0 = a.left + a.width / 2 - 18, y0 = a.top + a.height / 2 - 18;
+    s.style.left = x0 + 'px'; s.style.top = y0 + 'px';
+    document.body.appendChild(s);
+    const dx = b.left + 14 - x0 - 18, dy = b.top + b.height / 2 - y0 - 18;
+    const an = s.animate([
+      { transform: 'translate(0,0) scale(.6)', opacity: 1 },
+      { transform: `translate(${dx * .4}px, ${dy * .4 - 70}px) scale(1.5)`, opacity: 1, offset: .45 },
+      { transform: `translate(${dx}px, ${dy}px) scale(.7)`, opacity: .8 },
+    ], { duration: 950, easing: 'ease-in-out' });
+    an.onfinish = () => { s.remove(); updatePill(); };
+  }
+
+  /* ---------- sky ---------- */
+  (function buildSky() {
+    const sky = document.getElementById('sky'); let h = '';
+    for (let i = 0; i < 46; i++) {
+      const big = i % 11 === 0, tw = i % 4 === 0;
+      h += `<i class="${big ? 'big' : ''} ${tw ? 'tw' : ''}" style="left:${(Math.random() * 100).toFixed(2)}%;top:${(Math.random() * 100).toFixed(2)}%;animation-delay:${(Math.random() * 7).toFixed(1)}s"></i>`;
+    }
+    sky.innerHTML = h;
+  })();
+
+  /* ---------- home ---------- */
+  const GAMES = [
+    { id: 'learn', ko: 'Word Cards', sub: 'Look, listen, and say', bg: 'var(--mint)', mark: 'Aa' },
+    { id: 'spell', ko: 'Letter Rocket', sub: 'Spell it letter by letter', bg: 'var(--sun)', mark: 'abc' },
+    { id: 'missing', ko: 'Missing Star', sub: 'Find the missing letter', bg: 'var(--berry-soft)', mark: 'c_t' },
+    { id: 'listen', ko: 'Sound Hunt', sub: 'Listen and pick the picture', bg: 'var(--teal-soft)', mark: speakerSVG },
+    { id: 'trace', ko: 'Trace & Write', sub: 'Write with Apple Pencil', bg: 'var(--sun-soft)', mark: pencilSVG },
+    { id: 'sentence', ko: 'Sentence Ship', sub: 'Learn the sentences', bg: 'var(--lilac)', mark: 'I see' },
+  ];
+  function renderHome(keepBubble) {
+    screen = 'home'; g = null; seq++;
+    const w = state.week, has = !!(w && w.words.length);
+    const stars = state.progress.stars;
+    const pi = planetIndex(stars), next = PLANETS[pi + 1];
+    const oldBubble = keepBubble && document.getElementById('bubble') ? document.getElementById('bubble').innerHTML : null;
+    const greet = has
+      ? `Hi ${esc(kid())}! What shall we play today?<small>Pick a game to fly to the next planet.</small>`
+      : `Hi ${esc(kid())}! I'm Coco, your space friend.<small>When this week's words arrive, we can blast off!</small>`;
+    const journey = `
+      <section class="journey" aria-label="Planet map">
+        <div class="j-head"><h2>You are on ${esc(PLANETS[pi].ko)}</h2>
+          <p>${next ? `${next.at - stars} more ${next.at - stars === 1 ? 'star' : 'stars'} to reach ${esc(next.ko)}` : 'You visited every planet!'}</p></div>
+        <div class="track-scroll"><div class="track">
+          ${PLANETS.map((p, i) => `<div class="stop">${i === pi ? `<span class="rocket">${rocketSVG}</span>` : ''}${planetDot(p, 44, stars < p.at)}<span class="nm">${esc(p.ko)}</span><span class="need">${starSVG(12)}${p.at}</span></div>`).join('')}
+        </div></div>
+      </section>`;
+    let body, shelf = '';
+    if (has) {
+      body = `
+        <section class="games-sec"><h2 class="sec-title">Choose a game</h2>
+        <div class="games">
+          ${GAMES.map(gm => {
+            const dis = gm.id === 'sentence' && !w.sentences.length;
+            return `<button class="game-card" style="background:${gm.bg}" data-act="play" data-game="${gm.id}" ${dis ? 'disabled' : ''}>
+              <span class="mark" style="${gm.mark.length > 4 && !gm.mark.startsWith('<') ? 'font-size:14px' : ''}">${gm.mark}</span>
+              <b>${gm.ko}</b><span>${dis ? 'Add sentences first' : gm.sub}</span></button>`;
+          }).join('')}
+        </div></section>`;
+      shelf = `
+        <section class="shelf">
+          <div class="shelf-head"><h3>This week's ${w.words.length} words</h3><button class="btn sm ghost" data-act="parent">Change words</button></div>
+          ${w.sample ? `<div class="sample-note">These are example words. Tap the lock button at the top right to add this week's words.</div>` : ''}
+          <div class="chips">${w.words.map(x => {
+            const m = Math.min(3, state.progress.mastery[x.en] || 0);
+            return `<span class="chip"><span class="em">${esc(emojiFor(x))}</span><span class="w">${esc(x.en)}</span><span class="ms" aria-label="${m} of 3 stars">${[0, 1, 2].map(k => starSVG(13, k < m ? 'var(--sun)' : 'var(--paper-2)', k < m ? '#E2B94F' : '#D8D4C4')).join('')}</span></span>`;
+          }).join('')}</div>
+          ${w.sentences.length ? `<div class="sent-list">${w.sentences.map(s => `<p>${esc(s.en)}<small>${esc(s.ko)}</small></p>`).join('')}</div>` : ''}
+        </section>`;
+    } else {
+      body = `
+        <section class="empty">
+          <h3>Waiting for this week's words</h3>
+          <p>Add about 10 English words and 2 sentences in the grown-ups menu to open all five games. You can also try it with example words first.</p>
+          <div class="p-actions"><button class="btn" data-act="parent">Open grown-ups menu</button><button class="btn ghost" data-act="try-example">Try example words</button></div>
+        </section>`;
+    }
+    app.innerHTML = `
+      <header class="top">
+        <div class="brand"><span class="brand-ko">${esc(kid())}'s Space Words</span><span class="brand-en">Spelling adventures with Coco</span></div>
+        <div class="top-r">${starPill()}
+          <button class="icon-btn ${state.sound ? '' : 'off'}" data-act="sound" aria-label="${state.sound ? 'Turn sound effects off' : 'Turn sound effects on'}">${noteSVG(state.sound)}</button>
+          <button class="icon-btn" data-act="parent" aria-label="Grown-ups menu">${lockSVG}</button></div>
+      </header>
+      <div class="home-grid">
+        <div class="col-l">
+          <section class="hero"><div class="coco-wrap">${coco()}</div><div class="bubble" id="bubble">${oldBubble || greet}</div></section>
+          ${shelf}
+        </div>
+        <div class="col-r">${journey}${body}</div>
+      </div>`;
+  }
+
+  /* ---------- game frame ---------- */
+  function startGame(type) {
+    const w = state.week; if (!w || !w.words.length) return;
+    let queue;
+    if (type === 'learn') queue = w.words.slice();
+    else if (type === 'sentence') queue = w.sentences.slice();
+    else queue = shuffle(w.words).slice(0, Math.min(5, w.words.length));
+    if (!queue.length) return;
+    g = { type, queue, i: 0, earned: 0, startPlanet: planetIndex(state.progress.stars) };
+    screen = 'game';
+    const name = GAMES.find(x => x.id === type).ko;
+    app.innerHTML = `
+      <header class="game-top"><button class="back" data-act="home">‹ Home</button><div class="dots" id="dots"></div>${starPill()}</header>
+      <div class="game-grid">
+        <section class="guide"><div class="coco-wrap">${coco()}</div><div class="bubble" id="bubble"></div></section>
+        <section class="play" id="play" aria-label="${esc(name)}"></section>
+      </div>`;
+    renderRound();
+  }
+  function updateDots() {
+    const d = document.getElementById('dots'); if (!d || !g) return;
+    d.innerHTML = g.queue.map((_, k) => `<i class="${k < g.i ? 'done' : k === g.i ? 'now' : ''}"></i>`).join('');
+  }
+  function renderRound() {
+    seq++;
+    if (tts) tts.cancel();
+    updateDots();
+    ({ learn: renderLearn, trace: renderTrace, spell: renderSpell, missing: renderMissing, listen: renderListen, sentence: renderSentence })[g.type]();
+  }
+  function nextRound() {
+    sfx.tap();
+    g.i++;
+    if (g.i >= g.queue.length) finishGame(); else renderRound();
+  }
+  const play = () => document.getElementById('play');
+  const nextBtnHTML = () => `<div class="next-row" id="nextRow"></div>`;
+  function showNext(label = 'Next') {
+    const r = document.getElementById('nextRow'); if (!r) return;
+    const last = g.i >= g.queue.length - 1;
+    r.innerHTML = `<button class="btn sun" data-act="next">${last ? 'Finish mission!' : label} ${last ? starSVG(22) : '<span aria-hidden="true">›</span>'}</button>`;
+  }
+  function award(n, el, word) {
+    state.progress.stars += n;
+    g.earned += n;
+    if (word) state.progress.mastery[word] = (state.progress.mastery[word] || 0) + 1;
+    saveProgress();
+    sfx.good(); setTimeout(() => sfx.star(), 320);
+    flyStar(el);
+    if (n > 1) setTimeout(() => flyStar(el), 250);
+    mood('happy');
+    const ko = praiseLine(), en = rnd(PRAISE_EN);
+    say(ko, en);
+    return { ko, en };
+  }
+  function oops(el) {
+    sfx.soft();
+    if (el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+    mood('think', 1200);
+    say(rnd(CHEER));
+  }
+  const promptHTML = (w) => `
+    <div class="prompt">
+      <div class="pic" aria-hidden="true">${esc(emojiFor(w))}</div>
+      ${w.ko ? `<div class="ko">${esc(w.ko)}</div>` : ''}
+      <button class="say-btn" data-act="say-word">${speakerSVG} Listen</button>
+    </div>`;
+
+  /* learn */
+  function renderLearn() {
+    const w = g.queue[g.i];
+    const last = g.i === g.queue.length - 1;
+    play().innerHTML = `
+      <div class="game-name">Word Cards · ${g.i + 1} / ${g.queue.length}</div>
+      <div class="pic" aria-hidden="true">${esc(emojiFor(w))}</div>
+      <div class="learn-word word-big" id="lw">${[...w.en].map((c, k) => `<span class="lt" data-k="${k}">${c === ' ' ? '&nbsp;' : esc(c)}</span>`).join('')}</div>
+      ${w.ko ? `<div class="ko">${esc(w.ko)}</div>` : ''}
+      <div class="learn-nav">
+        <button class="btn" data-act="say-word">${speakerSVG} Hear the word</button>
+        <button class="btn ghost" data-act="spell-slow">Letter by letter</button>
+      </div>
+      <div class="learn-nav">
+        <button class="btn ghost sm" data-act="prev" ${g.i === 0 ? 'disabled style="opacity:.4"' : ''}>‹ Back</button>
+        <button class="btn sun sm" data-act="${last ? 'learn-done' : 'next'}">${last ? 'All done!' : 'Next word ›'}</button>
+      </div>`;
+    say(`Say it with me: "${w.en}"`, w.ko ? `Meaning: ${w.ko}` : '');
+    setTimeout(() => speak(w.en), 250);
+  }
+  function highlightLetter(idx) {
+    document.querySelectorAll('#lw .lt').forEach(e => e.classList.toggle('on', Number(e.dataset.k) === idx));
+  }
+
+  /* spell */
+  function renderSpell() {
+    const w = g.queue[g.i];
+    const chars = [...w.en];
+    const letters = chars.filter(isLetter);
+    const ghost = (state.progress.mastery[w.en] || 0) < 2;
+    const nDecoy = letters.length <= 4 ? 2 : letters.length <= 6 ? 1 : 0;
+    const pool = 'abcdefghijklmnopqrstuvwxyz'.split('').filter(c => !letters.includes(c));
+    const decoys = shuffle(pool).slice(0, nDecoy);
+    const tiles = shuffleNew(letters.concat(decoys));
+    g.chars = chars; g.pos = -1; g.miss = 0; g.done = false;
+    play().innerHTML = `
+      <div class="game-name">Letter Rocket · ${g.i + 1} / ${g.queue.length}</div>
+      ${promptHTML(w)}
+      <div class="slots" id="slots">${chars.map((c, k) => isLetter(c)
+        ? `<span class="slot" data-k="${k}"><span class="ghost">${ghost ? esc(c) : ''}</span></span>`
+        : `<span class="gap">${c === ' ' ? '' : esc(c)}</span>`).join('')}</div>
+      <div class="tiles" id="tiles">${tiles.map(c => `<button class="tile" data-act="tile" data-ch="${esc(c)}" aria-label="${L(c)}">${esc(c)}</button>`).join('')}</div>
+      ${nextBtnHTML()}`;
+    advanceSlot();
+    say(ghost ? 'Tap the letters that match the faded ones.' : 'Can you spell it?', ghost ? 'Start from the left.' : 'Tap the letters in order.');
+    setTimeout(() => speak(w.en), 250);
+  }
+  function advanceSlot() {
+    g.pos++;
+    while (g.pos < g.chars.length && !isLetter(g.chars[g.pos])) g.pos++;
+    document.querySelectorAll('#slots .slot').forEach(s => s.classList.toggle('next', Number(s.dataset.k) === g.pos));
+    g.miss = 0;
+    document.querySelectorAll('#tiles .tile.hint').forEach(t => t.classList.remove('hint'));
+  }
+  function tapTile(btn) {
+    if (g.done) return;
+    const ch = btn.dataset.ch, want = g.chars[g.pos];
+    if (ch === want) {
+      btn.classList.add('used');
+      const slot = document.querySelector(`#slots .slot[data-k="${g.pos}"]`);
+      slot.classList.add('filled', 'pop'); slot.insertAdjacentHTML('beforeend', esc(ch));
+      sfx.pop(); speak(L(ch), { rate: .8 });
+      advanceSlot();
+      if (g.pos >= g.chars.length) {
+        g.done = true;
+        document.querySelectorAll('#slots .slot.next').forEach(s => s.classList.remove('next'));
+        const w = g.queue[g.i];
+        const p = award(1, document.getElementById('slots'), w.en);
+        setTimeout(() => speak(spellOut(w.en), { onend: () => speak(p.ko, { cancel: false, rate: .9 }) }), 450);
+        showNext();
+      }
+    } else {
+      oops(btn);
+      g.miss++;
+      if (g.miss >= 2) {
+        const right = [...document.querySelectorAll('#tiles .tile:not(.used)')].find(t => t.dataset.ch === want);
+        if (right) right.classList.add('hint');
+        say('Tap the glowing letter.', `Find "${L(want)}"`);
+        speak(L(want));
+      }
+    }
+  }
+
+  /* missing */
+  function renderMissing() {
+    const w = g.queue[g.i];
+    const chars = [...w.en];
+    const idxs = chars.map((c, k) => isLetter(c) ? k : -1).filter(k => k >= 0);
+    const hole = rnd(idxs);
+    const right = chars[hole];
+    const others = shuffle('abcdefghijklmnopqrstuvwxyz'.split('').filter(c => c !== right)).slice(0, 2);
+    g.hole = hole; g.right = right; g.done = false;
+    play().innerHTML = `
+      <div class="game-name">Missing Star · ${g.i + 1} / ${g.queue.length}</div>
+      ${promptHTML(w)}
+      <div class="word-big" id="mw">${chars.map((c, k) => k === hole ? `<span class="hole" id="hole"></span>` : `<span class="lt">${c === ' ' ? '&nbsp;' : esc(c)}</span>`).join('')}</div>
+      <div class="opts">${shuffle([right, ...others]).map(c => `<button class="opt-star" data-act="opt" data-ch="${esc(c)}" aria-label="${L(c)}">${starSVG('100%', 'var(--sun)', '#E2B94F')}<span>${esc(c)}</span></button>`).join('')}</div>
+      ${nextBtnHTML()}`;
+    say('Which star fills the gap?', 'Find the missing letter.');
+    setTimeout(() => speak(w.en), 250);
+  }
+  function tapOpt(btn) {
+    if (g.done) return;
+    if (btn.dataset.ch === g.right) {
+      g.done = true;
+      const h = document.getElementById('hole'); h.textContent = g.right; h.classList.add('filled');
+      document.querySelectorAll('.opt-star').forEach(b => { if (b !== btn) b.classList.add('dim'); });
+      const w = g.queue[g.i];
+      const p = award(1, h, w.en);
+      setTimeout(() => speak(spellOut(w.en), { onend: () => speak(p.ko, { cancel: false, rate: .9 }) }), 400);
+      showNext();
+    } else {
+      btn.classList.add('dim'); oops(btn);
+    }
+  }
+
+  /* listen */
+  function renderListen() {
+    const w = g.queue[g.i];
+    const others = shuffle(state.week.words.filter(x => x.en !== w.en)).slice(0, 2);
+    g.done = false;
+    play().innerHTML = `
+      <div class="game-name">Sound Hunt · ${g.i + 1} / ${g.queue.length}</div>
+      <button class="listen-big" data-act="say-word" aria-label="Listen again">${speakerSVG}</button>
+      <div class="pick-row" style="grid-template-columns:repeat(${others.length + 1}, minmax(0,1fr))">${shuffle([w, ...others]).map(x => `<button class="pick" data-act="pick" data-en="${esc(x.en)}"><span class="pe" aria-hidden="true">${esc(emojiFor(x))}</span><span class="pw">${esc(x.en)}</span></button>`).join('')}</div>
+      ${nextBtnHTML()}`;
+    say('Listen carefully and pick the picture.', 'Tap the speaker to hear it again.');
+    setTimeout(() => speak(w.en), 300);
+  }
+  function tapPick(btn) {
+    if (g.done) return;
+    const w = g.queue[g.i];
+    if (btn.dataset.en === w.en) {
+      g.done = true;
+      btn.classList.add('right');
+      document.querySelectorAll('.pick').forEach(b => { if (b !== btn) b.classList.add('dim'); });
+      const p = award(1, btn, w.en);
+      setTimeout(() => speak(`${w.en}! ${p.ko}`), 400);
+      showNext();
+    } else {
+      btn.classList.add('dim'); oops(btn);
+      setTimeout(() => speak(w.en), 350);
+    }
+  }
+
+  /* sentence */
+  function renderSentence() {
+    const s = g.queue[g.i];
+    g.toks = s.en.split(' ');
+    g.phase = g.phase && g.phaseFor === g.i ? g.phase : 'listen';
+    g.phaseFor = g.i;
+    g.done = false;
+    const steps = `<div class="step-tag">${['Listen', 'Build', 'Fill in'].map((t, k) => `<i class="${['listen', 'build', 'blank'][k] === g.phase ? 'on' : ''}">${k + 1}. ${t}</i>`).join('')}</div>`;
+    const ko = s.ko ? `<div class="ko-line">${esc(s.ko)}</div>` : '';
+    if (g.phase === 'listen') {
+      play().innerHTML = `
+        <div class="game-name">Sentence Ship · ${g.i + 1} / ${g.queue.length}</div>${steps}
+        <div class="sentence" id="sent">${g.toks.map((t, k) => `<span class="tk" data-k="${k}">${esc(t)}</span>`).join('')}</div>${ko}
+        <div class="learn-nav"><button class="btn" data-act="say-sent">${speakerSVG} Hear it</button><button class="btn ghost" data-act="say-sent-slow">Hear it slowly</button></div>
+        <div class="next-row"><button class="btn sun" data-act="phase" data-to="build">I said it! ›</button></div>`;
+      say('Listen and say it three times.', 'Then tap "I said it!"');
+      setTimeout(() => speakSentence(false), 300);
+    } else if (g.phase === 'build') {
+      g.order = shuffleNew(g.toks.map((t, k) => k));
+      g.pos = 0; g.miss = 0;
+      play().innerHTML = `
+        <div class="game-name">Sentence Ship · ${g.i + 1} / ${g.queue.length}</div>${steps}${ko}
+        <div class="build-line" id="line">${g.toks.map(() => `<span class="ph"></span>`).join('')}</div>
+        <div class="blocks" id="blocks">${g.order.map(k => `<button class="blk" data-act="blk" data-k="${k}">${esc(g.toks[k])}</button>`).join('')}</div>
+        <button class="say-btn" data-act="say-sent">${speakerSVG} Listen again</button>`;
+      say('Tap the word blocks in order.', 'Build the sentence.');
+    } else {
+      let best = 0;
+      g.toks.forEach((t, k) => { if (clean(t).length > clean(g.toks[best]).length) best = k; });
+      g.blank = best; g.right = clean(g.toks[best]);
+      const pool = state.week.words.map(x => x.en).concat(g.toks.map(clean)).filter(x => x && x.toLowerCase() !== g.right.toLowerCase());
+      const opts = shuffle([g.right, ...shuffle([...new Set(pool)]).slice(0, 2)]);
+      play().innerHTML = `
+        <div class="game-name">Sentence Ship · ${g.i + 1} / ${g.queue.length}</div>${steps}
+        <div class="sentence" id="sent">${g.toks.map((t, k) => k === best
+          ? `<span class="tk"><span class="blank" id="sblank">&nbsp;</span>${esc(t.replace(g.right, ''))}</span>`
+          : `<span class="tk">${esc(t)}</span>`).join('')}</div>${ko}
+        <div class="blocks">${opts.map(o => `<button class="blk" data-act="sopt" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>
+        ${nextBtnHTML()}`;
+      say('Which word goes in the blank?', 'Fill in the blank.');
+    }
+  }
+  function speakSentence(slow) {
+    const s = g.queue[g.i];
+    const starts = []; let pos = 0;
+    g.toks.forEach(t => { starts.push(pos); pos += t.length + 1; });
+    const mark = (k) => document.querySelectorAll('#sent .tk').forEach(e => e.classList.toggle('on', Number(e.dataset.k) === k));
+    speak(s.en, {
+      rate: slow ? .6 : .82,
+      onboundary: (e) => { if (e.name && e.name !== 'word') return; let k = 0; starts.forEach((st, j) => { if (e.charIndex >= st) k = j; }); mark(k); },
+      onend: () => mark(-1),
+    });
+  }
+  function tapBlock(btn) {
+    const k = Number(btn.dataset.k);
+    const want = g.toks[g.pos];
+    if (g.toks[k] === want) {
+      btn.classList.add('used');
+      const line = document.getElementById('line');
+      const ph = line.querySelector('.ph');
+      const el = document.createElement('span'); el.className = 'placed'; el.textContent = want;
+      ph.replaceWith(el);
+      sfx.pop(); speak(clean(want) || want, { rate: .85 });
+      g.pos++; g.miss = 0;
+      document.querySelectorAll('.blk.hint').forEach(b => b.classList.remove('hint'));
+      if (g.pos >= g.toks.length) {
+        sfx.good(); mood('happy');
+        say('Wow, you built the sentence!', 'One more step.');
+        setTimeout(() => speak(g.queue[g.i].en), 500);
+        document.getElementById('blocks').innerHTML = `<button class="btn sun" data-act="phase" data-to="blank">Last step: fill in ›</button>`;
+      }
+    } else {
+      oops(btn); g.miss++;
+      if (g.miss >= 2) {
+        const r = [...document.querySelectorAll('.blk:not(.used)')].find(b => g.toks[Number(b.dataset.k)] === want);
+        if (r) r.classList.add('hint');
+        say('Tap the glowing block.');
+      }
+    }
+  }
+  function tapSentOpt(btn) {
+    if (g.done) return;
+    if (btn.dataset.v === g.right) {
+      g.done = true;
+      const b = document.getElementById('sblank'); b.textContent = g.right; b.classList.add('filled');
+      document.querySelectorAll('[data-act="sopt"]').forEach(x => { if (x !== btn) x.style.opacity = .35; });
+      award(2, b);
+      setTimeout(() => speak(g.queue[g.i].en, { onend: () => speak(praiseLine(), { cancel: false, rate: .9 }) }), 450);
+      showNext();
+    } else {
+      btn.style.opacity = .35; oops(btn);
+    }
+  }
+
+  /* trace & write (Apple Pencil) */
+  const INKS = ['#34374F', '#2FA585', '#E9707A'];
+  let pad = null;
+  function renderTrace() {
+    const w = g.queue[g.i];
+    g.phase = 'trace'; g.done = false;
+    const color = pad && pad.color || INKS[0];
+    pad = null;
+    play().innerHTML = `
+      <div class="game-name">Trace &amp; Write · ${g.i + 1} / ${g.queue.length}</div>
+      <div class="trace-head">
+        <span class="pic" aria-hidden="true">${esc(emojiFor(w))}</span>
+        ${w.ko ? `<span class="ko">${esc(w.ko)}</span>` : ''}
+        <button class="say-btn" data-act="say-word">${speakerSVG} Listen</button>
+      </div>
+      <div class="step-tag" id="traceSteps"><i class="on">1. Trace</i><i>2. Write</i></div>
+      <div class="model-word" id="modelWord" hidden>${esc(w.en)}</div>
+      <div class="pad" id="pad"><canvas class="guide" id="guideC"></canvas><canvas class="ink" id="inkC" aria-label="Writing pad"></canvas></div>
+      <div class="pad-tools">
+        ${INKS.map(c => `<button class="swatch ${c === color ? 'on' : ''}" style="background:${c}" data-act="ink" data-c="${c}" aria-label="Pencil color"></button>`).join('')}
+        <button class="btn ghost sm" data-act="trace-clear">Erase</button>
+        <button class="btn sm" data-act="trace-check" id="traceCheck">I'm done</button>
+      </div>
+      <div class="pencil-note">Apple Pencil works best. Fingers work too.</div>
+      ${nextBtnHTML()}`;
+    say('Trace the gray letters.', 'Go slowly, one letter at a time.');
+    setTimeout(() => speak(w.en), 250);
+    setupPad(color);
+  }
+  async function setupPad(color) {
+    try { await document.fonts.load('700 120px Andika'); } catch {}
+    const wrap = document.getElementById('pad'); if (!wrap || !g || g.type !== 'trace') return;
+    const gc = document.getElementById('guideC'), ic = document.getElementById('inkC');
+    pad = { wrap, gc, ic, gctx: gc.getContext('2d'), ictx: ic.getContext('2d'), color, pencil: false, active: null, W: 0, H: 0 };
+    layoutPad();
+    if (window.ResizeObserver) new ResizeObserver(() => { if (pad && pad.wrap === wrap) layoutPad(); }).observe(wrap);
+    ic.addEventListener('pointerdown', padDown);
+    ic.addEventListener('pointermove', padMove);
+    ic.addEventListener('pointerup', padUp);
+    ic.addEventListener('pointercancel', padUp);
+    ic.addEventListener('touchstart', e => { if (e.touches.length === 1) e.preventDefault(); }, { passive: false });
+  }
+  function layoutPad() {
+    const r = pad.wrap.getBoundingClientRect();
+    const W = Math.round(r.width), H = Math.round(r.height);
+    if (!W || !H || (W === pad.W && H === pad.H)) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    pad.W = W; pad.H = H; pad.dpr = dpr;
+    for (const c of [pad.gc, pad.ic]) { c.width = W * dpr; c.height = H * dpr; }
+    pad.gctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    pad.ictx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const word = g.queue[g.i].en, ctx = pad.gctx;
+    ctx.font = '700 100px Andika, "Trebuchet MS", sans-serif';
+    const fs = Math.max(40, Math.min(H * 0.5, (W - 56) / ctx.measureText(word).width * 100));
+    pad.font = `700 ${fs}px Andika, "Trebuchet MS", sans-serif`; pad.fs = fs;
+    ctx.font = pad.font;
+    const asc = ctx.measureText('h').actualBoundingBoxAscent || fs * .72;
+    const xh = ctx.measureText('x').actualBoundingBoxAscent || fs * .5;
+    const desc = ctx.measureText('g').actualBoundingBoxDescent || fs * .22;
+    const tw = ctx.measureText(word).width;
+    pad.base = Math.round((H - asc - desc) / 2 + asc);
+    pad.asc = asc; pad.xh = xh; pad.desc = desc;
+    pad.x0 = (W - tw) / 2;
+    pad.letters = [...word].map((ch, k) => {
+      const a = pad.x0 + ctx.measureText(word.slice(0, k)).width, b = pad.x0 + ctx.measureText(word.slice(0, k + 1)).width;
+      return { ch, x0: a, x1: b, done: !isLetter(ch), pts: [] };
+    });
+    // lenient mask of where the letters are
+    const m = document.createElement('canvas'); m.width = W; m.height = H;
+    const mc = m.getContext('2d'); mc.font = pad.font; mc.fillStyle = mc.strokeStyle = '#000';
+    mc.lineWidth = fs * .09; mc.lineJoin = 'round';
+    mc.fillText(word, pad.x0, pad.base); mc.strokeText(word, pad.x0, pad.base);
+    pad.mask = mc.getImageData(0, 0, W, H).data;
+    // strict sample points per letter (the glyph itself)
+    const s = document.createElement('canvas'); s.width = W; s.height = H;
+    const sc = s.getContext('2d'); sc.font = pad.font; sc.fillStyle = '#000';
+    sc.fillText(word, pad.x0, pad.base);
+    const sd = sc.getImageData(0, 0, W, H).data;
+    const step = Math.max(3, Math.round(fs / 40));
+    for (let y = 0; y < H; y += step) for (let x = 0; x < W; x += step) {
+      if (sd[(y * W + x) * 4 + 3] < 128) continue;
+      const L2 = pad.letters.find(l => x >= l.x0 && x < l.x1);
+      if (L2 && isLetter(L2.ch)) L2.pts.push([x, y]);
+    }
+    pad.ictx.clearRect(0, 0, W, H);
+    drawGuide();
+  }
+  function drawGuide() {
+    const { gctx: c, W, H, base, asc, xh, desc } = pad;
+    c.clearRect(0, 0, W, H);
+    c.lineWidth = 2;
+    const line = (y, col, dash) => { c.beginPath(); c.setLineDash(dash || []); c.strokeStyle = col; c.moveTo(16, y); c.lineTo(W - 16, y); c.stroke(); };
+    line(base - asc, '#DCD8C8');
+    line(base - xh, '#DCD8C8', [10, 10]);
+    line(base, '#8FD3C2');
+    line(base + desc, '#ECE8DA', [4, 8]);
+    c.setLineDash([]);
+    if (g.phase !== 'trace') return;
+    c.font = pad.font;
+    for (const l of pad.letters) {
+      if (!isLetter(l.ch)) continue;
+      c.fillStyle = l.done ? '#B8F2E6' : '#ECE8DA';
+      c.fillText(l.ch, l.x0, base);
+      c.setLineDash([5, 6]); c.lineWidth = 2; c.strokeStyle = l.done ? '#4AC7A8' : '#B3AE9B';
+      c.strokeText(l.ch, l.x0, base);
+      c.setLineDash([]);
+    }
+  }
+  function padPoint(e) {
+    const w = pad.fs * .1;
+    return { x: e.clientX - pad.rect.left, y: e.clientY - pad.rect.top, w: e.pointerType === 'pen' ? w * (.7 + .6 * (e.pressure || .5)) : w };
+  }
+  function padDown(e) {
+    if (!pad || g.done) return;
+    if (e.pointerType === 'pen') pad.pencil = true;
+    if (pad.pencil && e.pointerType === 'touch') return;   // palm rejection once a pencil is seen
+    if (pad.active !== null) return;
+    e.preventDefault();
+    pad.active = e.pointerId;
+    try { pad.ic.setPointerCapture(e.pointerId); } catch {}
+    pad.rect = pad.ic.getBoundingClientRect();
+    const p = padPoint(e); pad.last = p; padSeg(p, p);
+  }
+  function padMove(e) {
+    if (!pad || e.pointerId !== pad.active) return;
+    e.preventDefault();
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    for (const ev of (evs.length ? evs : [e])) { const p = padPoint(ev); padSeg(pad.last, p); pad.last = p; }
+  }
+  function padUp(e) {
+    if (!pad || e.pointerId !== pad.active) return;
+    pad.active = null;
+    pad.inked = true;
+    if (g.phase === 'trace') checkTrace(false);
+  }
+  function padSeg(a, b) {
+    const c = pad.ictx;
+    c.strokeStyle = pad.color; c.lineCap = 'round'; c.lineJoin = 'round';
+    c.lineWidth = (a.w + b.w) / 2;
+    c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x + .01, b.y); c.stroke();
+  }
+  function inkData() { return pad.ictx.getImageData(0, 0, pad.ic.width, pad.ic.height).data; }
+  const inkAt = (d, x, y) => d[((Math.round(y * pad.dpr) * pad.ic.width) + Math.round(x * pad.dpr)) * 4 + 3] > 40;
+  function inkStats(d) {
+    let ink = 0, out = 0;
+    for (let y = 0; y < pad.H; y += 6) for (let x = 0; x < pad.W; x += 6) {
+      if (!inkAt(d, x, y)) continue;
+      ink++; if (pad.mask[(y * pad.W + x) * 4 + 3] < 60) out++;
+    }
+    return { ink, out: ink ? out / ink : 0 };
+  }
+  function checkTrace(fromButton) {
+    if (!pad || g.done) return;
+    const d = inkData();
+    let total = 0, covered = 0, newly = [];
+    for (const l of pad.letters) {
+      if (!l.pts.length) continue;
+      const hit = l.pts.filter(([x, y]) => inkAt(d, x, y)).length;
+      total += l.pts.length; covered += hit;
+      if (!l.done && hit / l.pts.length >= .5) { l.done = true; newly.push(l); }
+    }
+    const st = inkStats(d);
+    if (newly.length) { drawGuide(); sfx.pop(); speak(L(newly[newly.length - 1].ch), { rate: .8 }); }
+    const all = pad.letters.every(l => l.done);
+    if (st.out > .5 && st.ink > 30) { say('Try to stay on the gray letters.', 'Tap Erase to start again.'); mood('think', 1200); }
+    if ((all && st.out <= .55) || (fromButton && total && covered / total >= .35 && st.out <= .5)) {
+      pad.letters.forEach(l => l.done = true); drawGuide();
+      g.done = true;
+      const w = g.queue[g.i];
+      const p = award(1, pad.wrap, w.en);
+      setTimeout(() => speak(spellOut(w.en), { onend: () => speak(p.ko, { cancel: false, rate: .9 }) }), 400);
+      const r = document.getElementById('nextRow');
+      r.innerHTML = `<button class="btn sun" data-act="trace-free">Now write it yourself ›</button>`;
+      document.getElementById('traceCheck').hidden = true;
+    } else if (fromButton) {
+      oops(document.getElementById('pad'));
+      say('Trace a little more of the gray letters.', 'You can do it!');
+    }
+  }
+  function startFreeWrite() {
+    sfx.tap();
+    g.phase = 'free'; g.done = false; pad.inked = false;
+    document.getElementById('modelWord').hidden = false;
+    document.getElementById('traceSteps').innerHTML = '<i>1. Trace</i><i class="on">2. Write</i>';
+    document.getElementById('nextRow').innerHTML = '';
+    document.getElementById('traceCheck').hidden = false;
+    pad.ictx.clearRect(0, 0, pad.W, pad.H);
+    drawGuide();
+    say('Now write it on the lines by yourself.', 'Look at the word above.');
+    speak(spellOut(g.queue[g.i].en));
+  }
+  function checkFree() {
+    if (!pad || g.done) return;
+    const st = inkStats(inkData());
+    if (st.ink < 25) { oops(document.getElementById('pad')); say('Write the word on the lines first.', 'Use your pencil.'); return; }
+    g.done = true;
+    const w = g.queue[g.i];
+    const p = award(1, pad.wrap, w.en);
+    setTimeout(() => speak(`${w.en}! ${p.ko}`), 400);
+    document.getElementById('traceCheck').hidden = true;
+    showNext();
+  }
+
+  /* finish */
+  function finishGame() {
+    const earned = g.earned, before = g.startPlanet, now = planetIndex(state.progress.stars);
+    const type = g.type;
+    updateDots();
+    sfx.fanfare(); mood('happy', 3000);
+    const praise = praiseLine();
+    const back = document.createElement('div');
+    back.className = 'modal-back';
+    back.innerHTML = `
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+        <div class="coco-wrap">${coco('happy')}</div>
+        <h2 id="mTitle">Mission complete!</h2>
+        <p>${esc(praise)} You collected ${earned} ${earned === 1 ? 'star' : 'stars'}.</p>
+        <div class="earned">${Array.from({ length: Math.min(earned, 12) }, () => starSVG(30)).join('')}</div>
+        ${now > before ? `<div class="new-planet">${planetDot(PLANETS[now], 40)} <span>New planet: ${esc(PLANETS[now].ko)}!</span></div>` : ''}
+        <div class="modal-btns"><button class="btn sun" data-act="again" data-game="${type}">Play again</button><button class="btn ghost" data-act="home">Home</button></div>
+      </div>`;
+    document.body.appendChild(back);
+    speak(`Mission complete! ${praiseLine()}`);
+    if (now > before) setTimeout(() => speak(`We landed on ${PLANETS[now].ko}!`, { cancel: false }), 200);
+  }
+  function closeModal() { document.querySelectorAll('.modal-back').forEach(m => m.remove()); }
+
+  /* ---------- parent ---------- */
+  let gateAns = 0;
+  function renderParentGate() {
+    screen = 'parent'; seq++; if (tts) tts.cancel();
+    const a = 3 + Math.floor(Math.random() * 6), b = 4 + Math.floor(Math.random() * 5);
+    gateAns = a * b;
+    app.innerHTML = `
+      <header class="game-top"><button class="back" data-act="home">‹ Home</button></header>
+      <section class="parent">
+        <h2>Grown-ups menu</h2>
+        <p class="help">This is where you add this week's words and sentences. Please answer the question to continue.</p>
+        <form class="gate" id="gateForm">
+          <label class="gate-q" for="gateIn">${a} × ${b} = <input class="field" id="gateIn" type="number" inputmode="numeric" autocomplete="off"></label>
+          <button class="btn" type="submit">Continue</button>
+          <p class="err" id="gateErr" hidden>That's not right. Please try again.</p>
+        </form>
+      </section>`;
+  }
+  function wordRow(i, w = {}) {
+    return `<div class="wrow">
+      <span class="num">${i + 1}</span>
+      <input class="field em" id="w-em-${i}" value="${esc(w.emoji || '')}" placeholder="${i ? '' : '🙂'}" aria-label="Picture (emoji) for word ${i + 1}" ${w.emoji && EMOJI[w.en] === w.emoji ? 'data-auto="1"' : ''}>
+      <input class="field word" id="w-en-${i}" value="${esc(w.en || '')}" placeholder="${i ? '' : 'apple'}" autocapitalize="off" autocomplete="off" spellcheck="false" aria-label="English word ${i + 1}">
+      <input class="field" id="w-ko-${i}" value="${esc(w.ko || '')}" placeholder="${i ? '' : '사과'}" aria-label="Meaning of word ${i + 1}">
+      <button type="button" class="x-btn" data-act="row-del" aria-label="Clear word ${i + 1}">×</button>
+    </div>`;
+  }
+  function renderParent(src) {
+    screen = 'parent-edit';
+    const w = src || (state.week && !state.week.sample ? state.week : { words: [], sentences: [] });
+    const n = Math.max(10, w.words.length);
+    const rows = Array.from({ length: n }, (_, i) => wordRow(i, w.words[i]));
+    const s = [0, 1].map(i => w.sentences[i] || {});
+    app.innerHTML = `
+      <header class="game-top"><button class="back" data-act="home">‹ Home</button>${starPill()}</header>
+      <form class="parent p-grid" id="weekForm">
+        <div class="p-part p-scan">
+          <section class="scan" aria-labelledby="scanTitle">
+            <h3 id="scanTitle">Fill in from a worksheet photo</h3>
+            <p class="help">Take a photo of the word sheet and the words and meanings are read into the list. Check them, then save.</p>
+            <div id="scanActions">${scanActionsHTML()}</div>
+            <div id="scanOut">${scanOutHTML()}</div>
+          </section>
+        </div>
+        <div class="p-part p-words">
+        <h3>Type them in</h3>
+        <p class="help">Enter each English word and its meaning. Common words get a picture automatically, or type any emoji yourself. Empty rows are skipped.</p>
+        <div class="rows" id="rows">
+          <div class="row-head"><span class="num">#</span><span>Picture</span><span>English word</span><span>Meaning</span><span></span></div>
+          ${rows.join('')}
+        </div>
+        <div class="p-actions"><button type="button" class="btn ghost sm" data-act="row-add">+ Add a row</button></div>
+        </div>
+        <div class="p-part p-rest">
+        <h3>Child's name</h3>
+        <p class="help">Coco uses this name on screen and in praise.</p>
+        <div class="seg" role="group" aria-label="Child's name">${NAMES.map(n => `<button type="button" class="seg-btn ${n === state.name ? 'on' : ''}" data-act="set-name" data-name="${n}" aria-pressed="${n === state.name}">${n}</button>`).join('')}</div>
+        <h3>2 sentences to learn</h3>
+        <p class="help">Short sentences work best, like "I like apples."</p>
+        ${s.map((x, i) => `<div class="srow">
+          <input class="field word" id="s-en-${i}" value="${esc(x.en || '')}" placeholder="${i ? 'The moon is big.' : 'I see a star.'}" autocomplete="off" spellcheck="false" aria-label="English sentence ${i + 1}">
+          <input class="field" id="s-ko-${i}" value="${esc(x.ko || '')}" placeholder="${i ? '달은 커요.' : '나는 별을 봐요.'}" aria-label="Meaning of sentence ${i + 1}"></div>`).join('')}
+        <p class="err" id="saveErr" hidden></p>
+        <div class="p-actions">
+          <button class="btn" type="submit">Save words</button>
+          <button type="button" class="btn ghost" data-act="fill-example">Use example words</button>
+        </div>
+        <div class="danger-zone">
+          <h3>Stars collected</h3>
+          <p class="help">${esc(kid())} has ${state.progress.stars} stars. Changing the words keeps the stars.</p>
+          <div id="resetBox"><button type="button" class="btn ghost sm" data-act="reset-ask">Start stars over</button></div>
+        </div>
+        </div>
+      </form>`;
+  }
+
+  /* ---------- worksheet photo → words ---------- */
+  let sampleFn = null, sampleImages = null, sampleReady = false;
+  let scan = { status: 'idle', thumb: '', words: [], sentences: [], msg: '', ctl: null };
+  async function connectSample() {
+    if (window.claude && window.claude.use) {
+      try { sampleFn = await window.claude.use('sample'); } catch { sampleFn = null; }
+      if (sampleFn) { try { const lim = await sampleFn.limits(); sampleImages = lim && lim.images || null; } catch { sampleImages = null; } }
+    }
+    sampleReady = true;
+    const a = document.getElementById('scanActions'); if (a) a.innerHTML = scanActionsHTML();
+  }
+  function scanActionsHTML() {
+    if (!sampleReady) return `<p class="help">Getting photo reading ready…</p>`;
+    if (!sampleFn || !sampleImages) return `<p class="help">Photo reading isn't available here. Please type the words below.</p>`;
+    const busy = scan.status === 'busy';
+    return `<div class="p-actions">
+      <label class="btn" for="camIn" ${busy ? 'style="opacity:.5;pointer-events:none"' : ''}>Take a photo</label>
+      <input class="vh" id="camIn" type="file" accept="image/*" capture="environment" tabindex="-1">
+      <label class="btn ghost" for="picIn" ${busy ? 'style="opacity:.5;pointer-events:none"' : ''}>Choose from photos</label>
+      <input class="vh" id="picIn" type="file" accept="image/*" tabindex="-1">
+    </div>`;
+  }
+  function scanOutHTML() {
+    const thumb = scan.thumb ? `<img class="scan-thumb" src="${scan.thumb}" alt="Worksheet photo">` : '';
+    if (scan.status === 'busy') return `<div class="scan-status">${thumb}<span class="spinner" aria-hidden="true"></span><span>Reading the words in the photo. This can take about 30 seconds.</span><button type="button" class="btn ghost sm" data-act="scan-stop">Stop</button></div>`;
+    if (scan.status === 'error') return `<div class="scan-status">${thumb}<p class="err">${esc(scan.msg)}</p></div>`;
+    if (scan.status !== 'done') return '';
+    if (!scan.words.length && !scan.sentences.length) return `<div class="scan-status">${thumb}<p class="err">No English words were found. Try again closer, with the words clearly visible.</p></div>`;
+    return `<div class="scan-status">${thumb}<span>Found ${scan.words.length} words${scan.sentences.length ? ` and ${scan.sentences.length} sentences` : ''}. Untick any you don't want.</span></div>
+      <div class="scan-list">${scan.words.map((w, i) => `<label class="scan-item"><input type="checkbox" id="scw-${i}" checked><span>${esc(w.emoji)}</span><span class="w">${esc(w.en)}</span><small>${esc(w.ko)}</small></label>`).join('')}</div>
+      ${scan.sentences.length ? `<div class="scan-sent">${scan.sentences.map((s, i) => `<label class="scan-item"><input type="checkbox" id="scs-${i}" checked><span class="w">${esc(s.en)}</span><small>${esc(s.ko)}</small></label>`).join('')}</div>` : ''}
+      <div class="p-actions"><button type="button" class="btn sm" data-act="scan-add">Add to empty rows</button><button type="button" class="btn ghost sm" data-act="scan-replace">Replace the list</button></div>`;
+  }
+  function refreshScan() {
+    const o = document.getElementById('scanOut'); if (o) o.innerHTML = scanOutHTML();
+    const a = document.getElementById('scanActions'); if (a) a.innerHTML = scanActionsHTML();
+  }
+  async function shrinkImage(file, max, q) {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+      const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', q));
+      const t = document.createElement('canvas'); const ts = 144 / Math.max(c.width, c.height);
+      t.width = Math.round(c.width * ts); t.height = Math.round(c.height * ts);
+      t.getContext('2d').drawImage(c, 0, 0, t.width, t.height);
+      return { blob, thumb: t.toDataURL('image/jpeg', .7) };
+    } finally { URL.revokeObjectURL(url); }
+  }
+  const SCAN_PROMPT = `This photo shows an English vocabulary worksheet for a 5-year-old Korean child.
+Extract the English vocabulary words (single words or short phrases) and, if the worksheet shows any, up to 2 short English sentences to memorize.
+For each word give:
+- "en": the word in lowercase, as written (fix only obvious misreadings)
+- "ko": its Korean meaning; copy it from the worksheet if it is printed there, otherwise a simple Korean word a 5-year-old knows
+- "emoji": one emoji that pictures the word, or "" if none fits
+For each sentence give "en" exactly as written (normal capitalization and punctuation) and "ko" a short natural Korean translation.
+Ignore titles, instructions, page numbers, names, dates and alphabet practice rows. Do not add words that are not on the page. At most 20 words.
+Reply with only JSON in this shape:
+{"words":[{"en":"apple","ko":"사과","emoji":"🍎"}],"sentences":[{"en":"I like apples.","ko":"나는 사과를 좋아해요."}]}
+If no English words are visible, reply {"words":[],"sentences":[]}.`;
+  const SCAN_ERR = {
+    not_granted: 'Photo reading wasn\'t allowed. Please type the words instead.',
+    cancelled: 'Stopped reading the photo.',
+    rate_limited: 'Too many tries at once. Wait a minute, then try again.',
+    invalid_json: 'The words couldn\'t be sorted out. Retake the photo with the words clearly visible.',
+    image_rejected: 'This photo can\'t be read. Please use a different one.',
+  };
+  async function runScan(file) {
+    if (!file || !sampleFn || scan.status === 'busy') return;
+    scan = { status: 'busy', thumb: '', words: [], sentences: [], msg: '', ctl: new AbortController() };
+    refreshScan();
+    try {
+      let shot = await shrinkImage(file, 1800, .85);
+      if (sampleImages.maxBytes && shot.blob.size > sampleImages.maxBytes) shot = await shrinkImage(file, 1200, .7);
+      scan.thumb = shot.thumb; refreshScan();
+      const res = await sampleFn.json(SCAN_PROMPT, { images: [shot.blob], signal: scan.ctl.signal });
+      const w = normWeek({ words: res && res.words, sentences: res && res.sentences }) || { words: [], sentences: [] };
+      const seen = new Set();
+      scan.words = w.words.filter(x => /^[a-z][a-z '\-]*$/.test(x.en) && !seen.has(x.en) && seen.add(x.en)).slice(0, 20)
+        .map(x => ({ ...x, emoji: x.emoji || EMOJI[x.en] || '' }));
+      scan.sentences = w.sentences.slice(0, 2);
+      scan.status = 'done';
+    } catch (e) {
+      scan.status = 'error';
+      scan.msg = (e && SCAN_ERR[e.code]) || 'The photo couldn\'t be read. Please try again.';
+    }
+    scan.ctl = null;
+    refreshScan();
+  }
+  function applyScan(replace) {
+    const words = scan.words.filter((_, i) => { const c = document.getElementById('scw-' + i); return c && c.checked; });
+    const sents = scan.sentences.filter((_, i) => { const c = document.getElementById('scs-' + i); return c && c.checked; });
+    const rowsEl = document.getElementById('rows');
+    if (replace) {
+      rowsEl.querySelectorAll('.wrow input').forEach(i => { i.value = ''; delete i.dataset.auto; });
+      if (sents.length) [0, 1].forEach(i => { document.getElementById('s-en-' + i).value = ''; document.getElementById('s-ko-' + i).value = ''; });
+    }
+    let added = 0, skipped = 0;
+    const existing = new Set([...rowsEl.querySelectorAll('[id^="w-en-"]')].map(i => i.value.trim().toLowerCase()).filter(Boolean));
+    for (const w of words) {
+      if (existing.has(w.en)) continue;
+      let empty = [...rowsEl.querySelectorAll('[id^="w-en-"]')].find(i => !i.value.trim());
+      if (!empty) {
+        const n = rowsEl.querySelectorAll('.wrow').length;
+        if (n >= 20) { skipped++; continue; }
+        rowsEl.insertAdjacentHTML('beforeend', wordRow(n));
+        empty = document.getElementById('w-en-' + n);
+      }
+      const k = empty.id.slice(5);
+      empty.value = w.en;
+      document.getElementById('w-ko-' + k).value = w.ko;
+      document.getElementById('w-em-' + k).value = w.emoji;
+      existing.add(w.en); added++;
+    }
+    let sAdded = 0;
+    for (const s of sents) {
+      const slot = [0, 1].find(i => !document.getElementById('s-en-' + i).value.trim());
+      if (slot === undefined) break;
+      document.getElementById('s-en-' + slot).value = s.en;
+      document.getElementById('s-ko-' + slot).value = s.ko;
+      sAdded++;
+    }
+    scan = { status: 'idle', thumb: '', words: [], sentences: [], msg: '', ctl: null };
+    refreshScan();
+    toast(`Added ${added} words${sAdded ? ` and ${sAdded} sentences` : ''}.${skipped ? ` ${skipped} left out (20 max).` : ''} Check them, then save.`);
+  }
+  function markName() {
+    document.querySelectorAll('.seg-btn').forEach(x => { const on = x.dataset.name === state.name; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+  }
+  async function setName(n) {
+    if (!NAMES.includes(n)) return;
+    state.name = n; lsSet(LS_NAME, n); markName(); sfx.tap();
+    if (state.db) { try { await state.db.doc('study/settings').set({ name: n }); } catch {} }
+    toast(`Name set to ${n}`);
+  }
+  function collectWeek() {
+    const words = [];
+    document.querySelectorAll('#rows .wrow').forEach(r => {
+      const [em, en, ko] = r.querySelectorAll('input');
+      const e = en.value.trim().toLowerCase().replace(/\s+/g, ' ');
+      if (!e) return;
+      words.push({ en: e, ko: ko.value.trim(), emoji: em.value.trim() || EMOJI[e] || '' });
+    });
+    const sentences = [0, 1].map(i => ({ en: document.getElementById('s-en-' + i).value.trim().replace(/\s+/g, ' '), ko: document.getElementById('s-ko-' + i).value.trim() })).filter(s => s.en);
+    return { words, sentences };
+  }
+
+  /* ---------- events ---------- */
+  const app = document.getElementById('app');
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+    ac();
+    const act = b.dataset.act;
+    switch (act) {
+      case 'home': closeModal(); sfx.tap(); renderHome(); window.scrollTo(0, 0); break;
+      case 'play': sfx.tap(); startGame(b.dataset.game); window.scrollTo(0, 0); break;
+      case 'again': closeModal(); startGame(b.dataset.game); window.scrollTo(0, 0); break;
+      case 'sound':
+        state.sound = !state.sound; lsSet(LS_SOUND, state.sound);
+        b.classList.toggle('off', !state.sound); b.innerHTML = noteSVG(state.sound);
+        b.setAttribute('aria-label', state.sound ? 'Turn sound effects off' : 'Turn sound effects on');
+        if (state.sound) sfx.pop();
+        break;
+      case 'parent': sfx.tap(); renderParentGate(); setTimeout(() => { const i = document.getElementById('gateIn'); if (i) i.focus(); }, 50); break;
+      case 'try-example': saveWeek(normWeek(EXAMPLE)); renderHome(); break;
+      case 'say-word': if (g) speak(g.queue[g.i].en); break;
+      case 'spell-slow': if (g) spellSlow(g.queue[g.i].en, highlightLetter); break;
+      case 'next': nextRound(); window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' }); break;
+      case 'prev': if (g && g.i > 0) { sfx.tap(); g.i--; renderRound(); } break;
+      case 'learn-done': award(1, b); g.i = g.queue.length; setTimeout(finishGame, 700); break;
+      case 'tile': tapTile(b); break;
+      case 'opt': tapOpt(b); break;
+      case 'pick': tapPick(b); break;
+      case 'say-sent': if (g) speakSentence(false); break;
+      case 'say-sent-slow': if (g) speakSentence(true); break;
+      case 'phase': sfx.tap(); g.phase = b.dataset.to; renderSentence(); break;
+      case 'blk': tapBlock(b); break;
+      case 'sopt': tapSentOpt(b); break;
+      case 'ink': if (pad) { pad.color = b.dataset.c; document.querySelectorAll('.swatch').forEach(x => x.classList.toggle('on', x === b)); sfx.tap(); } break;
+      case 'trace-clear': if (pad && !g.done) { pad.ictx.clearRect(0, 0, pad.W, pad.H); sfx.tap(); } break;
+      case 'trace-check': if (g.phase === 'trace') checkTrace(true); else checkFree(); break;
+      case 'trace-free': startFreeWrite(); break;
+      case 'set-name': setName(b.dataset.name); break;
+      case 'row-add': {
+        const rows = document.getElementById('rows');
+        const n = rows.querySelectorAll('.wrow').length;
+        if (n >= 20) { toast('You can add up to 20 words'); break; }
+        rows.insertAdjacentHTML('beforeend', wordRow(n));
+        document.getElementById('w-en-' + n).focus();
+        break;
+      }
+      case 'row-del': b.closest('.wrow').querySelectorAll('input').forEach(i => { i.value = ''; delete i.dataset.auto; }); break;
+      case 'scan-stop': if (scan.ctl) scan.ctl.abort(); break;
+      case 'scan-add': applyScan(false); break;
+      case 'scan-replace': applyScan(true); break;
+      case 'fill-example': renderParent(normWeek(EXAMPLE)); toast('Example words filled in. Tap Save words to use them.'); break;
+      case 'reset-ask':
+        document.getElementById('resetBox').innerHTML = `<p class="help">All ${state.progress.stars} stars and word progress go back to 0. This can't be undone.</p>
+          <div class="p-actions"><button type="button" class="btn berry sm" data-act="reset-do">Reset to 0</button><button type="button" class="btn ghost sm" data-act="reset-no">Cancel</button></div>`;
+        break;
+      case 'reset-no': document.getElementById('resetBox').innerHTML = `<button type="button" class="btn ghost sm" data-act="reset-ask">Start stars over</button>`; break;
+      case 'reset-do':
+        state.progress = { stars: 0, mastery: {} }; saveProgress(); updatePill();
+        document.getElementById('resetBox').innerHTML = `<p class="help">Stars reset to 0.</p>`;
+        break;
+    }
+  });
+  document.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (e.target.id === 'gateForm') {
+      const v = Number(document.getElementById('gateIn').value);
+      if (v === gateAns) renderParent();
+      else document.getElementById('gateErr').hidden = false;
+    } else if (e.target.id === 'weekForm') {
+      const err = document.getElementById('saveErr');
+      const { words, sentences } = collectWeek();
+      const bad = words.find(w => !/^[a-z][a-z '\-]*$/.test(w.en));
+      if (!words.length) { err.textContent = 'Please enter at least one word.'; err.hidden = false; return; }
+      if (bad) { err.textContent = `Please use English letters only in "${bad.en}".`; err.hidden = false; return; }
+      if (words.length < 3) { err.textContent = 'Sound Hunt needs at least 3 words.'; err.hidden = false; return; }
+      err.hidden = true;
+      const res = await saveWeek({ words, sentences, sample: false });
+      if (res === 'denied') toast('You can\'t save to the shared list here. Saved on this device only.');
+      else if (res === 'failed') toast('Couldn\'t save online. Saved on this device.');
+      else toast(`Saved ${words.length} words!`);
+      renderHome(); window.scrollTo(0, 0);
+    }
+  });
+  document.addEventListener('input', (e) => {
+    const m = e.target.id && e.target.id.match(/^w-en-(\d+)$/);
+    if (m) {
+      const em = document.getElementById('w-em-' + m[1]);
+      const hit = EMOJI[e.target.value.trim().toLowerCase()];
+      if (em && (!em.value || em.dataset.auto === '1')) { em.value = hit || ''; if (hit) em.dataset.auto = '1'; else delete em.dataset.auto; }
+    } else if (e.target.id && e.target.id.startsWith('w-em-')) {
+      delete e.target.dataset.auto;
+    }
+  });
+
+  document.addEventListener('change', (e) => {
+    if (e.target.id === 'camIn' || e.target.id === 'picIn') {
+      const f = e.target.files && e.target.files[0];
+      e.target.value = '';
+      runScan(f);
+    }
+  });
+
+  renderHome();
+  connect();
+  connectSample();
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
