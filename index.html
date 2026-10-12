@@ -317,6 +317,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--sun); outli
 .vh { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
 .scan { background: var(--teal-soft); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .scan-status { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.paste-box { display: flex; flex-direction: column; gap: 10px; }
+.field.paste { font-family: var(--f-word); font-size: 17px; line-height: 1.5; resize: vertical; min-height: 110px; }
 .scan-thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 12px; border: 3px solid var(--paper); }
 .spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--paper); border-top-color: var(--teal); animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg) } }
@@ -1355,9 +1357,13 @@ body { touch-action: manipulation; }
       <form class="parent p-grid" id="weekForm">
         <div class="p-part p-scan">
           <section class="scan" aria-labelledby="scanTitle">
-            <h3 id="scanTitle">Fill in from a worksheet photo</h3>
-            <p class="help">Take a photo of the word sheet and the words and meanings are read into the list. Check them, then save.</p>
+            <h3 id="scanTitle">Add words from a worksheet photo</h3>
             <div id="scanActions">${scanActionsHTML()}</div>
+            <div class="paste-box">
+              <p class="help"><b>Copy the text from a photo:</b> open the worksheet photo in Photos (or point the Camera at it), touch and hold a word, tap <b>Select All</b>, then <b>Copy</b>. Paste it here.</p>
+              <textarea class="field paste" id="pasteIn" rows="4" placeholder="apple 사과&#10;banana 바나나&#10;I like apples. 나는 사과를 좋아해요." autocomplete="off" spellcheck="false" aria-label="Pasted worksheet text"></textarea>
+              <div class="p-actions"><button type="button" class="btn sm" data-act="paste-read">Find words</button></div>
+            </div>
             <div id="scanOut">${scanOutHTML()}</div>
           </section>
         </div>
@@ -1393,6 +1399,53 @@ body { touch-action: manipulation; }
       </form>`;
   }
 
+  /* ---------- pasted text (iPad Live Text) → words ---------- */
+  const SKIP_WORDS = new Set(['name', 'date', 'class', 'word', 'words', 'vocabulary', 'week', 'unit', 'lesson', 'page', 'test', 'spelling', 'english', 'review', 'practice', 'meaning', 'trace', 'write', 'read', 'say', 'look', 'listen', 'circle', 'match', 'color']);
+  function parsePasted(text) {
+    const items = [], pending = [];   // pending: items still waiting for a Korean meaning, oldest first
+    const add = (en, ko) => {
+      en = en.replace(/\s+/g, ' ').replace(/([.!?])[\s.!?]*$/, '$1').trim();
+      ko = (ko || '').replace(/[\s,]+$/, '').replace(/\s+/g, ' ').trim();
+      const n = en ? en.split(' ').length : 0;
+      if (!n) { if (ko && pending.length) pending.shift().ko = ko; return; }
+      let item;
+      if (n >= 3 || (n >= 2 && /[.!?]$/.test(en))) item = { kind: 's', en: en.charAt(0).toUpperCase() + en.slice(1), ko };
+      else {
+        const w = en.toLowerCase().replace(/[^a-z' \-]/g, '').replace(/^[\s'\-]+|[\s'\-]+$/g, '').replace(/\s+/g, ' ');
+        if (w.replace(/[^a-z]/g, '').length < 2 || w.split(' ').some(t => SKIP_WORDS.has(t))) return;
+        item = { kind: 'w', en: w, ko };
+      }
+      items.push(item);
+      if (!ko) pending.push(item);
+    };
+    for (let line of String(text).split(/\r?\n/)) {
+      line = line.replace(/^\s*(?:\(?\d{1,2}[.)]|[-•·*▪︎●○◦]|[①-⑳])\s*/, '').trim();
+      if (!line) continue;
+      // several "word meaning" pairs on one line: "apple 사과  banana 바나나"
+      const pairs = [...line.matchAll(/([A-Za-z][A-Za-z' \-]*?)\s*[:=\-–—]?\s*([가-힣][가-힣 ,~·()]*)/g)];
+      const latinWords = (line.match(/[A-Za-z]+/g) || []).length;
+      if (pairs.length >= 2 && latinWords <= pairs.length * 2) { pairs.forEach(m => add(m[1], m[2])); continue; }
+      const en = line.replace(/[^A-Za-z' \-.,!?]/g, ' ').replace(/\s+([.,!?])/g, '$1').replace(/^[\s\-.,!?]+/, '');
+      const ko = (line.match(/[가-힣][가-힣 ,~·()]*/g) || []).join(' ');
+      add(en, ko);
+    }
+    const seen = new Set(), words = [], sentences = [];
+    for (const x of items) {
+      if (x.kind === 's') { if (sentences.length < 2) sentences.push({ en: x.en, ko: x.ko }); continue; }
+      if (seen.has(x.en) || words.length >= 20) continue;
+      seen.add(x.en);
+      words.push({ en: x.en, ko: x.ko, emoji: EMOJI[x.en] || '' });
+    }
+    return { words, sentences };
+  }
+  function readPasted() {
+    const box = document.getElementById('pasteIn'); if (!box) return;
+    if (!box.value.trim()) { toast('Paste the text from the photo first'); box.focus(); return; }
+    const r = parsePasted(box.value);
+    scan = { status: 'done', source: 'paste', thumb: '', words: r.words, sentences: r.sentences, msg: '', ctl: null };
+    refreshScan();
+  }
+
   /* ---------- worksheet photo → words ---------- */
   let sampleFn = null, sampleImages = null, sampleReady = false;
   let scan = { status: 'idle', thumb: '', words: [], sentences: [], msg: '', ctl: null };
@@ -1405,10 +1458,9 @@ body { touch-action: manipulation; }
     const a = document.getElementById('scanActions'); if (a) a.innerHTML = scanActionsHTML();
   }
   function scanActionsHTML() {
-    if (!sampleReady) return `<p class="help">Getting photo reading ready…</p>`;
-    if (!sampleFn || !sampleImages) return `<p class="help">Photo reading isn't available here. Please type the words below.</p>`;
+    if (!sampleReady || !sampleFn || !sampleImages) return '';
     const busy = scan.status === 'busy';
-    return `<div class="p-actions">
+    return `<p class="help">Take or choose a photo and the words and meanings are read for you.</p><div class="p-actions">
       <label class="btn" for="camIn" ${busy ? 'style="opacity:.5;pointer-events:none"' : ''}>Take a photo</label>
       <input class="vh" id="camIn" type="file" accept="image/*" capture="environment" tabindex="-1">
       <label class="btn ghost" for="picIn" ${busy ? 'style="opacity:.5;pointer-events:none"' : ''}>Choose from photos</label>
@@ -1420,7 +1472,7 @@ body { touch-action: manipulation; }
     if (scan.status === 'busy') return `<div class="scan-status">${thumb}<span class="spinner" aria-hidden="true"></span><span>Reading the words in the photo. This can take about 30 seconds.</span><button type="button" class="btn ghost sm" data-act="scan-stop">Stop</button></div>`;
     if (scan.status === 'error') return `<div class="scan-status">${thumb}<p class="err">${esc(scan.msg)}</p></div>`;
     if (scan.status !== 'done') return '';
-    if (!scan.words.length && !scan.sentences.length) return `<div class="scan-status">${thumb}<p class="err">No English words were found. Try again closer, with the words clearly visible.</p></div>`;
+    if (!scan.words.length && !scan.sentences.length) return `<div class="scan-status">${thumb}<p class="err">${scan.source === 'paste' ? 'No English words were found in the pasted text. Copy the text from the photo again and paste it here.' : 'No English words were found. Try again closer, with the words clearly visible.'}</p></div>`;
     return `<div class="scan-status">${thumb}<span>Found ${scan.words.length} words${scan.sentences.length ? ` and ${scan.sentences.length} sentences` : ''}. Untick any you don't want.</span></div>
       <div class="scan-list">${scan.words.map((w, i) => `<label class="scan-item"><input type="checkbox" id="scw-${i}" checked><span>${esc(w.emoji)}</span><span class="w">${esc(w.en)}</span><small>${esc(w.ko)}</small></label>`).join('')}</div>
       ${scan.sentences.length ? `<div class="scan-sent">${scan.sentences.map((s, i) => `<label class="scan-item"><input type="checkbox" id="scs-${i}" checked><span class="w">${esc(s.en)}</span><small>${esc(s.ko)}</small></label>`).join('')}</div>` : ''}
@@ -1466,7 +1518,7 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
   };
   async function runScan(file) {
     if (!file || !sampleFn || scan.status === 'busy') return;
-    scan = { status: 'busy', thumb: '', words: [], sentences: [], msg: '', ctl: new AbortController() };
+    scan = { status: 'busy', source: 'photo', thumb: '', words: [], sentences: [], msg: '', ctl: new AbortController() };
     refreshScan();
     try {
       let shot = await shrinkImage(file, 1800, .85);
@@ -1520,6 +1572,7 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
       sAdded++;
     }
     scan = { status: 'idle', thumb: '', words: [], sentences: [], msg: '', ctl: null };
+    const pi = document.getElementById('pasteIn'); if (pi) pi.value = '';
     refreshScan();
     toast(`Added ${added} words${sAdded ? ` and ${sAdded} sentences` : ''}.${skipped ? ` ${skipped} left out (20 max).` : ''} Check them, then save.`);
   }
@@ -1590,6 +1643,7 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
       }
       case 'row-del': b.closest('.wrow').querySelectorAll('input').forEach(i => { i.value = ''; delete i.dataset.auto; }); break;
       case 'scan-stop': if (scan.ctl) scan.ctl.abort(); break;
+      case 'paste-read': readPasted(); break;
       case 'scan-add': applyScan(false); break;
       case 'scan-replace': applyScan(true); break;
       case 'fill-example': renderParent(normWeek(EXAMPLE)); toast('Example words filled in. Tap Save words to use them.'); break;
