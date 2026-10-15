@@ -300,8 +300,6 @@ button.stop:active .planet { transform: scale(.92); }
 .mc-pic { font-size: 54px; line-height: 1; }
 .mem-card .mc-face { max-width: 100%; padding: 0 8px; }
 .mc-word { font-family: var(--f-word); font-weight: 700; font-size: 30px; color: var(--ink); white-space: nowrap; display: block; overflow: hidden; text-overflow: ellipsis; }
-.mc-sound { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--teal); color: #fff; margin: 0 auto; }
-.mc-sound svg { width: 34px; height: 34px; }
 .meteors { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
 .meteor { display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 999px; background: var(--paper-2); border: 3px solid transparent; font-family: var(--f-word); font-size: 32px; color: var(--ink); animation: drift 3s ease-in-out infinite; }
 .meteor span { font-size: 28px; }
@@ -1083,20 +1081,19 @@ body { touch-action: manipulation; }
   /* memory */
   function renderMemory() {
     const ws = g.queue[g.i];
-    // Each word pairs with its picture; a word with no picture pairs with a sound card that says it.
+    // Each word pairs with its picture; a word with no picture pairs with a second copy of the word card.
     const picOf = (w) => { const e = emojiFor(w); return /\p{Extended_Pictographic}/u.test(e) && [...e].length <= 4 ? e : ''; };
-    g.cards = shuffle(ws.flatMap(w => [{ en: w.en, pic: picOf(w) || null, sound: !picOf(w) }, { en: w.en }]));
+    g.cards = shuffle(ws.flatMap(w => [{ en: w.en, pic: picOf(w) || null }, { en: w.en }]));
     g.flip = []; g.lock = false; g.done = false;
     const wordSize = (t) => t.length <= 5 ? 34 : t.length <= 8 ? 28 : t.length <= 11 ? 22 : 18;
     const face = (c) => c.pic ? `<span class="mc-pic">${esc(c.pic)}</span>`
-      : c.sound ? `<span class="mc-sound">${speakerSVG}</span>`
       : `<span class="mc-word" style="font-size:${wordSize(c.en)}px">${esc(c.en)}</span>`;
     play().innerHTML = `
       <div class="game-name">Memory Match · ${g.i + 1} / ${g.queue.length}</div>
       <div class="mem-grid" style="grid-template-columns:repeat(${g.cards.length > 4 ? 3 : 2}, minmax(0,1fr))">${g.cards.map((c, k) => `
         <button class="mem-card" data-act="mem" data-k="${k}" aria-label="Card ${k + 1}"><span class="mc-back">${rocketSVG}</span><span class="mc-face">${face(c)}</span></button>`).join('')}</div>
       ${nextBtnHTML()}`;
-    say(g.cards.some(c => c.sound) ? 'Match each word with its picture or sound.' : 'Find a picture and its word.', 'Tap two cards.');
+    say(g.cards.some(c => c.pic) ? 'Find the pairs: a picture and its word, or two same words.' : 'Find two cards with the same word.', 'Tap two cards.');
   }
   function tapMem(btn) {
     const k = Number(btn.dataset.k), c = g.cards[k];

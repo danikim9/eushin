@@ -1,5 +1,5 @@
 // Offline support for the home-screen app. build.mjs bumps VERSION on every build.
-const VERSION = '20261015123610';
+const VERSION = '20261015123750';
 const CACHE = `space-words-${VERSION}`;
 const FONT_CACHE = 'space-words-fonts';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png'];
