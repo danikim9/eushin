@@ -9,7 +9,7 @@ A calm, space-themed English spelling game for a 5-year-old, made for iPad in la
 - **Missing Star**: pick the missing letter.
 - **Sound Hunt**: listen and pick the right picture.
 - **Sentence Ship**: listen, build the sentence from word blocks, then fill in a blank.
-- **Memory Match**: flip cards to pair each picture with its word.
+- **Memory Match**: flip cards to find pairs: a picture and its word, or two same word cards when a word has no picture.
 - **Meteor Spell**: pick the correctly spelled word among look-alikes.
 - **Peek & Spell**: look at the word, it hides, then spell it from memory (peek again if needed).
 - **Star Catch**: listen and tap the falling star with that word.
