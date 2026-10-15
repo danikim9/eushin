@@ -111,6 +111,14 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--sun); outli
 .stop { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .planet { position: relative; width: 44px; height: 44px; border-radius: 50%; }
 .planet.lock { filter: grayscale(.9) brightness(.7); opacity: .55; }
+.planet .spot { position: absolute; width: 20%; height: 20%; border-radius: 50%; background: rgba(52, 55, 79, .18); }
+.planet .moonlet { position: absolute; right: -14%; top: -8%; width: 26%; height: 26%; border-radius: 50%; background: #FFFDF6; box-shadow: inset -2px -2px 0 rgba(52, 55, 79, .15); }
+button.stop { background: none; border: 0; padding: 0; color: inherit; cursor: pointer; }
+button.stop:active .planet { transform: scale(.92); }
+.visit-planet { position: relative; padding: 10px 24px; }
+.visit-planet .planet { margin: 0 auto; }
+.visit-planet .who { position: absolute; right: 0; bottom: -4px; font-size: 54px; animation: float 3s ease-in-out infinite; }
+.visit-n { display: inline-flex; align-items: center; gap: 4px; font-size: 15px !important; }
 .planet .ring { position: absolute; left: -12px; right: -12px; top: 50%; height: 12px; margin-top: -6px; border-radius: 50%; border: 3px solid var(--sun); transform: rotate(-16deg); opacity: .85; }
 .stop .nm { font-family: var(--f-display); font-size: 14px; color: var(--on-space); }
 .stop .need { font-size: 12px; color: var(--on-space-soft); display: inline-flex; gap: 3px; align-items: center; font-variant-numeric: tabular-nums; }
@@ -457,15 +465,28 @@ body { touch-action: manipulation; }
     { ko: 'Neptune', at: 105, c1: '#7E86C9', c2: '#C6CAF0' },
     { ko: 'Star Land', at: 140, c1: '#FFE08A', c2: '#FFFDF6', star: true },
   ];
-  // After Star Land the trip never ends: a new place appears every 50 stars.
-  const FAR = ['Comet Cove', 'Nebula', 'Milky Way', 'Rainbow Galaxy', 'Moon Castle', 'Crystal Star', 'Candy Comet', 'Dragon Nebula', 'Sky Whale', 'Golden Galaxy'];
-  const FAR_C = [['#7E86C9', '#C6CAF0'], ['#FF8C94', '#FFD3D6'], ['#4AC7A8', '#B8F2E6'], ['#F2B880', '#FFE08A'], ['#B9A6F2', '#ECE6FF'], ['#8FDCCB', '#E4FBF6']];
-  const FAR_STEP = 50;
+  // After Star Land the trip never ends: new planets keep appearing, a little farther apart each time (40 stars, growing to 80).
+  const P_HEAD = ['Bubble', 'Twinkle', 'Zippy', 'Cosmo', 'Jelly', 'Sparkle', 'Puffy', 'Glow', 'Fizzy', 'Candy', 'Snowy', 'Lucky', 'Rainbow', 'Moonbeam', 'Comet', 'Cocoa'];
+  const P_TAIL = ['ville', 'land', 'topia', ' Star', ' World', 'berry', ' Isle', 'oria'];
+  const P_WHO = [['🐙', 'Happy octopus friends'], ['🦄', 'Sparkly unicorns'], ['🐳', 'Space whales'], ['🤖', 'Kind robots'], ['🦖', 'Little dinosaurs'], ['🐧', 'Penguin pilots'], ['🐰', 'Moon bunnies'], ['🐉', 'Friendly dragons'], ['🦊', 'Clever foxes'], ['🐝', 'Busy star bees'], ['👽', 'Coco\'s cousins'], ['🐢', 'Slow sky turtles'], ['🦋', 'Glowing butterflies'], ['🐼', 'Sleepy pandas']];
+  const P_LIKE = ['love to read books', 'dance on the rings', 'sing the ABC song', 'collect shiny stars', 'bake moon cookies', 'play hide and seek', 'ride on comets', 'paint the sky', 'count to one hundred', 'spell big words'];
+  const BASE_WHO = [['🌍', 'People like you', 'live with lots of words'], ['🐇', 'Moon bunnies', 'hop in the craters'], ['🤖', 'Rover robots', 'dig in the red sand'], ['🌪️', 'Storm clouds', 'spin and spin'], ['💍', 'Ring skaters', 'race around the rings'], ['🧊', 'Ice friends', 'roll sideways'], ['🐳', 'Blue whales', 'swim in the wind'], ['⭐', 'Star helpers', 'cheer for every right answer']];
+  const hashN = (n, m) => { let x = (n + 1) * 2654435761 % 4294967296; x ^= x >>> 15; return Math.abs(x) % m; };
+  const farGap = (k) => Math.min(80, 40 + 5 * Math.floor(k / 4));
+  const farAt = [];
   function planetAt(i) {
-    if (i < PLANETS.length) return PLANETS[i];
-    const k = i - PLANETS.length, round = Math.floor(k / FAR.length);
-    const c = FAR_C[k % FAR_C.length];
-    return { ko: FAR[k % FAR.length] + (round ? ' ' + (round + 1) : ''), at: PLANETS[PLANETS.length - 1].at + FAR_STEP * (k + 1), c1: c[0], c2: c[1], ring: k % 3 === 1, star: k % 3 === 2 };
+    if (i < PLANETS.length) {
+      const b = BASE_WHO[i] || BASE_WHO[0];
+      return { ...PLANETS[i], who: b[0], whoName: b[1], like: b[2] };
+    }
+    const k = i - PLANETS.length;
+    while (farAt.length <= k) farAt.push((farAt.length ? farAt[farAt.length - 1] : PLANETS[PLANETS.length - 1].at) + farGap(farAt.length));
+    const n = P_HEAD.length * P_TAIL.length, slot = k % n, round = Math.floor(k / n);
+    const name = P_HEAD[(slot * 7) % P_HEAD.length] + P_TAIL[(slot + Math.floor(slot / P_HEAD.length)) % P_TAIL.length] + (round ? ' ' + (round + 1) : '');
+    const hue = (k * 67 + 200) % 360, who = P_WHO[hashN(k, P_WHO.length)];
+    return { ko: name, at: farAt[k], c1: `hsl(${hue} 62% 64%)`, c2: `hsl(${(hue + 30) % 360} 85% 88%)`,
+      ring: hashN(k + 7, 3) === 0, star: hashN(k + 3, 5) === 0, spots: hashN(k + 11, 2) === 0, moon: hashN(k + 5, 3) === 1,
+      who: who[0], whoName: who[1], like: P_LIKE[hashN(k + 13, P_LIKE.length)] };
   }
   const praiseLine = () => rnd([`Great job, ${kid()}!`, 'Wow, amazing!', 'You are a star!', 'Super spelling!', 'Brilliant, space explorer!', `Way to go, ${kid()}!`]);
   const PRAISE_EN = ['Keep it up!', 'You did it!', 'Well done!', 'Wonderful!', 'Nice work!'];
@@ -676,7 +697,7 @@ body { touch-action: manipulation; }
   const clean = (t) => t.replace(/[^A-Za-z'-]/g, '');
   function planetIndex(stars) {
     const last = PLANETS.length - 1;
-    if (stars >= PLANETS[last].at) return last + Math.floor((stars - PLANETS[last].at) / FAR_STEP);
+    if (stars >= PLANETS[last].at) { let i = last; while (planetAt(i + 1).at <= stars) i++; return i; }
     let i = 0; PLANETS.forEach((p, k) => { if (stars >= p.at) i = k; }); return i;
   }
 
@@ -727,7 +748,7 @@ body { touch-action: manipulation; }
     document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
   }
   function planetDot(p, size = 44, locked = false) {
-    return `<div class="planet ${locked ? 'lock' : ''}" style="width:${size}px;height:${size}px;background:radial-gradient(circle at 34% 30%, ${p.c2}, ${p.c1} 72%)">${p.ring ? '<span class="ring"></span>' : ''}${p.star ? `<span style="position:absolute;inset:18%">${starSVG('100%', '#FFFDF6', '#E2B94F')}</span>` : ''}</div>`;
+    return `<div class="planet ${locked ? 'lock' : ''}" style="width:${size}px;height:${size}px;background:radial-gradient(circle at 34% 30%, ${p.c2}, ${p.c1} 72%)">${p.spots ? '<span class="spot" style="left:22%;top:52%"></span><span class="spot" style="left:58%;top:30%;transform:scale(.7)"></span>' : ''}${p.moon ? '<span class="moonlet"></span>' : ''}${p.ring ? '<span class="ring"></span>' : ''}${p.star ? `<span style="position:absolute;inset:18%">${starSVG('100%', '#FFFDF6', '#E2B94F')}</span>` : ''}</div>`;
   }
   const starPill = () => `<span class="pill" id="starPill">${starSVG(24)}<span id="starCount">${state.progress.stars}</span></span>`;
   function updatePill() {
@@ -792,7 +813,7 @@ body { touch-action: manipulation; }
         <div class="j-head"><h2>You are on ${esc(planetAt(pi).ko)}</h2>
           <p>${next.at - stars} more ${next.at - stars === 1 ? 'star' : 'stars'} to reach ${esc(next.ko)} · ${pi + 1} ${pi ? 'places' : 'place'} visited</p></div>
         <div class="track-scroll"><div class="track">
-          ${stops.map(i => [planetAt(i), i]).map(([p, i]) => `<div class="stop">${i === pi ? `<span class="rocket">${rocketSVG}</span>` : ''}${planetDot(p, 44, stars < p.at)}<span class="nm">${esc(p.ko)}</span><span class="need">${starSVG(12)}${p.at}</span></div>`).join('')}
+          ${stops.map(i => [planetAt(i), i]).map(([p, i]) => `<button class="stop" data-act="visit" data-i="${i}" aria-label="${esc(p.ko)}">${i === pi ? `<span class="rocket">${rocketSVG}</span>` : ''}${planetDot(p, 44, stars < p.at)}<span class="nm">${esc(p.ko)}</span><span class="need">${starSVG(12)}${p.at}</span></button>`).join('')}
         </div></div>
       </section>`;
     let body, shelf = '';
@@ -1496,12 +1517,36 @@ body { touch-action: manipulation; }
         <p>${esc(praise)} You collected ${earned} ${earned === 1 ? 'star' : 'stars'}.</p>
         ${bonus ? `<p class="bonus">${starSVG(22)} Perfect mission! +${bonus} bonus stars</p>` : ''}
         <div class="earned">${Array.from({ length: Math.min(earned, 12) }, () => starSVG(30)).join('')}</div>
-        ${now > before ? `<div class="new-planet">${planetDot(planetAt(now), 40)} <span>New planet: ${esc(planetAt(now).ko)}!</span></div>` : ''}
+        ${now > before ? `<button class="new-planet" data-act="visit" data-i="${now}">${planetDot(planetAt(now), 40)} <span>New planet: ${esc(planetAt(now).ko)}! ${planetAt(now).who}</span></button>` : ''}
         <div class="modal-btns"><button class="btn sun" data-act="again" data-game="${type}">Play again</button><button class="btn ghost" data-act="home">Home</button></div>
       </div>`;
     document.body.appendChild(back);
     speak(`Mission complete! ${praiseLine()}`);
     if (now > before) setTimeout(() => speak(`We landed on ${planetAt(now).ko}!`, { cancel: false }), 200);
+  }
+  function visitPlanet(i) {
+    const p = planetAt(i), stars = state.progress.stars;
+    closeModal();
+    if (stars < p.at) {
+      const n = p.at - stars;
+      toast(`${n} more ${n === 1 ? 'star' : 'stars'} to fly to ${p.ko}!`);
+      speak(`${n} more stars to fly to ${p.ko}!`);
+      return;
+    }
+    sfx.tap();
+    const back = document.createElement('div');
+    back.className = 'modal-back';
+    back.innerHTML = `
+      <div class="modal visit" role="dialog" aria-modal="true" aria-labelledby="vTitle">
+        <div class="visit-planet">${planetDot(p, 132)}<span class="who" aria-hidden="true">${p.who}</span></div>
+        <h2 id="vTitle">${esc(p.ko)}</h2>
+        <p>${esc(p.whoName)} live here. They ${esc(p.like)}!</p>
+        <p class="visit-n">Planet ${i + 1} · ${starSVG(16)} ${p.at}</p>
+        <div class="modal-btns">${i > 0 ? `<button class="btn ghost sm" data-act="visit" data-i="${i - 1}">‹</button>` : ''}<button class="btn sun" data-act="home">Back to map</button>${planetAt(i + 1).at <= stars ? `<button class="btn ghost sm" data-act="visit" data-i="${i + 1}">›</button>` : ''}</div>
+      </div>`;
+    back.addEventListener('click', (e) => { if (e.target === back) closeModal(); });
+    document.body.appendChild(back);
+    speak(`Welcome to ${p.ko}! ${p.whoName} live here. They ${p.like}!`);
   }
   function closeModal() { document.querySelectorAll('.modal-back').forEach(m => m.remove()); }
 
@@ -1790,6 +1835,7 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
     ac();
     const act = b.dataset.act;
     switch (act) {
+      case 'visit': visitPlanet(Number(b.dataset.i)); break;
       case 'home': closeModal(); sfx.tap(); renderHome(); window.scrollTo(0, 0); break;
       case 'play': sfx.tap(); startGame(b.dataset.game); window.scrollTo(0, 0); break;
       case 'again': closeModal(); startGame(b.dataset.game); window.scrollTo(0, 0); break;

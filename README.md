@@ -1,6 +1,6 @@
 # Eushin's Space Words
 
-A calm, space-themed English spelling game for a 5-year-old, made for iPad in landscape. Coco the little alien guides ten games, and every right answer earns a star that moves the rocket from planet to planet. Stars have no limit: after Star Land the rocket keeps flying to new galaxies every 50 stars, and a mission with no mistakes earns 2 bonus stars.
+A calm, space-themed English spelling game for a 5-year-old, made for iPad in landscape. Coco the little alien guides ten games, and every right answer earns a star that moves the rocket from planet to planet. Stars have no limit: after Star Land a new planet keeps opening up (40 stars apart at first, growing slowly to 80), each with its own name, colors and alien residents. Tap any reached planet on the map to visit it. A mission with no mistakes earns 2 bonus stars.
 
 **Games**
 - **Word Cards**: see the word, hear it, and hear it spelled letter by letter.
