@@ -106,15 +106,18 @@ button.stop:active .planet { transform: scale(.92); }
 
 /* games */
 .sec-title { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 19px; color: var(--on-space); }
-.games { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-.game-card { text-align: left; border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 10px; color: var(--ink); min-height: 132px; transition: transform .15s ease; }
+/* 16 games in a 4 x 4 grid (2 columns on narrow phones); mark beside the title keeps cards short */
+.games { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 599px) { .games { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.game-card { text-align: left; border-radius: 20px; padding: 12px; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 4px 10px; color: var(--ink); min-height: 104px; transition: transform .15s ease; }
+.game-card > span:last-child { grid-column: 1 / -1; }
 .game-card:hover { transform: translateY(-3px); }
 .game-card:active { transform: scale(.97); }
 .game-card[disabled] { opacity: .5; cursor: not-allowed; transform: none; }
-.game-card .mark { width: 52px; height: 52px; border-radius: 50%; background: var(--paper); display: grid; place-items: center; font-family: var(--f-word); font-weight: 700; font-size: 18px; color: var(--ink); }
-.game-card .mark svg { width: 26px; height: 26px; }
-.game-card b { font-family: var(--f-display); font-weight: 600; font-size: 20px; }
-.game-card span { font-size: 14px; color: var(--ink-soft); margin-top: -6px; }
+.game-card .mark { width: 42px; height: 42px; border-radius: 50%; background: var(--paper); display: grid; place-items: center; font-family: var(--f-word); font-weight: 700; font-size: 18px; color: var(--ink); }
+.game-card .mark svg { width: 22px; height: 22px; }
+.game-card b { font-family: var(--f-display); font-weight: 600; font-size: 18px; line-height: 1.15; }
+.game-card span { font-size: 13px; color: var(--ink-soft); line-height: 1.3; }
 
 .shelf { background: var(--paper); border-radius: var(--r-lg); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .shelf-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -289,7 +292,7 @@ button.stop:active .planet { transform: scale(.92); }
 .mem-card { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; background: var(--space-deep); border: 3px solid var(--space-line); display: grid; place-items: center; transition: transform .15s, background .2s; }
 .mem-card .mc-back { width: 56px; height: 56px; }
 .mem-card .mc-back svg { width: 100%; height: 100%; display: block; }
-.game-card .mark.emo { font-size: 28px; }
+.game-card .mark.emo { font-size: 24px; }
 .mem-card .mc-face { display: none; }
 .mem-card.open { background: var(--paper-2); border-color: var(--paper-2); }
 .mem-card.open .mc-back { display: none; }
@@ -397,10 +400,10 @@ body { touch-action: manipulation; }
   .bubble { font-size: 22px; }
   .home-grid .hero .bubble::before, .guide .bubble::before { left: 50%; top: -9px; transform: translateX(-50%) rotate(45deg); }
   .track { min-width: 0; }
-  .games { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
-  .game-card { min-height: 138px; padding: 14px; }
+  .games { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .game-card { min-height: 108px; padding: 12px 14px; }
   .game-card b { font-size: 19px; }
-  .game-card span { font-size: 14px; }
+  .game-card span { font-size: 13.5px; }
 
   .game-grid { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 20px; align-items: stretch; flex: 1; }
   .guide { flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 16px; padding-top: 10px; }
@@ -805,7 +808,6 @@ body { touch-action: manipulation; }
     { id: 'strace', grp: 'sent', ko: 'Sentence Trace', sub: 'Trace and write a sentence', bg: 'var(--berry-soft)', mark: pencilSVG },
     { id: 'sentence', grp: 'sent', ko: 'Sentence Ship', sub: 'Build with word blocks', bg: 'var(--lilac)', mark: 'I see' },
   ];
-  const GROUPS = [['spell', 'Spelling'], ['play', 'Word games'], ['sent', 'Sentences']];
   const gameOff = (id, w) => ['sentence', 'swrite', 'strace'].includes(id) ? (w.sentences.length ? '' : 'Add sentences first')
     : id === 'vowel' && !w.words.some(x => /[aeiou]/.test(x.en)) ? 'Needs words with vowels'
     : (id === 'memory' || id === 'catch') && w.words.length < 2 ? 'Add 2 or more words' : '';
@@ -830,15 +832,15 @@ body { touch-action: manipulation; }
     let body, shelf = '';
     if (has) {
       body = `
-        <section class="games-sec">${GROUPS.map(([grp, title]) => `<h2 class="sec-title">${title}</h2>
+        <section class="games-sec"><h2 class="sec-title">Choose a game</h2>
         <div class="games">
-          ${GAMES.filter(gm => gm.grp === grp).map(gm => {
+          ${GAMES.map(gm => {
             const off = gameOff(gm.id, w), dis = !!off;
             return `<button class="game-card" style="background:${gm.bg}" data-act="play" data-game="${gm.id}" ${dis ? 'disabled' : ''}>
               <span class="mark ${/^\p{Extended_Pictographic}/u.test(gm.mark) ? 'emo' : ''}" style="${gm.mark.length > 4 && !gm.mark.startsWith('<') ? 'font-size:14px' : ''}">${gm.mark}</span>
               <b>${gm.ko}</b><span>${dis ? off : gm.sub}</span></button>`;
           }).join('')}
-        </div>`).join('')}</section>`;
+        </div></section>`;
       shelf = `
         <section class="shelf">
           <div class="shelf-head"><h3>This week's ${w.words.length} words</h3><button class="btn sm ghost" data-act="parent">Change words</button></div>
