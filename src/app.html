@@ -278,15 +278,19 @@ button.stop:active .planet { transform: scale(.92); }
 .mem-card.open .mc-face { display: block; }
 .mem-card.match { background: var(--mint); border-color: var(--teal); }
 .mc-pic { font-size: 54px; line-height: 1; }
-.mc-word { font-family: var(--f-word); font-weight: 700; font-size: 30px; color: var(--ink); overflow-wrap: anywhere; }
+.mem-card .mc-face { max-width: 100%; padding: 0 8px; }
+.mc-word { font-family: var(--f-word); font-weight: 700; font-size: 30px; color: var(--ink); white-space: nowrap; display: block; overflow: hidden; text-overflow: ellipsis; }
+.mc-sound { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--teal); color: #fff; margin: 0 auto; }
+.mc-sound svg { width: 34px; height: 34px; }
 .meteors { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
 .meteor { display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 999px; background: var(--paper-2); border: 3px solid transparent; font-family: var(--f-word); font-size: 32px; color: var(--ink); animation: drift 3s ease-in-out infinite; }
 .meteor span { font-size: 28px; }
 .meteor.right { background: var(--mint); border-color: var(--teal); }
 .meteor.dim { opacity: .35; }
 @keyframes drift { 50% { transform: translateY(-6px) } }
-.ko-big { font-family: var(--f-display); font-size: 56px; color: var(--ink); text-align: center; }
-.pick .pw.big { font-size: 30px; padding: 14px 0; }
+.peek-bar { width: min(420px, 80%); height: 10px; border-radius: 999px; background: var(--paper-2); overflow: hidden; }
+.peek-bar i { display: block; height: 100%; background: var(--teal); animation: peekbar linear forwards; }
+@keyframes peekbar { from { width: 100% } to { width: 0 } }
 .catch-head { display: flex; align-items: center; gap: 16px; }
 .catch-head .pic { font-size: 64px; }
 .catch-sky { position: relative; width: 100%; max-width: 760px; height: 340px; border-radius: 24px; background: var(--space-deep); overflow: hidden; }
@@ -771,12 +775,11 @@ body { touch-action: manipulation; }
     { id: 'sentence', ko: 'Sentence Ship', sub: 'Learn the sentences', bg: 'var(--lilac)', mark: 'I see' },
     { id: 'memory', ko: 'Memory Match', sub: 'Find the picture pairs', bg: 'var(--teal-soft)', mark: '🃏' },
     { id: 'meteor', ko: 'Meteor Spell', sub: 'Pick the right spelling', bg: 'var(--berry-soft)', mark: '☄️' },
-    { id: 'meaning', ko: 'Meaning Match', sub: 'Korean to English', bg: 'var(--mint)', mark: '가A' },
+    { id: 'peek', ko: 'Peek & Spell', sub: 'Look, hide, spell it', bg: 'var(--mint)', mark: '👀' },
     { id: 'catch', ko: 'Star Catch', sub: 'Catch the falling word', bg: 'var(--sun-soft)', mark: '🌠' },
   ];
   const gameOff = (id, w) => id === 'sentence' ? (w.sentences.length ? '' : 'Add sentences first')
-    : (id === 'memory' || id === 'catch') && w.words.length < 2 ? 'Add 2 or more words'
-    : id === 'meaning' && w.words.filter(x => x.ko).length < 2 ? 'Add Korean meanings' : '';
+    : (id === 'memory' || id === 'catch') && w.words.length < 2 ? 'Add 2 or more words' : '';
   function renderHome(keepBubble) {
     screen = 'home'; g = null; seq++;
     const w = state.week, has = !!(w && w.words.length);
@@ -848,7 +851,6 @@ body { touch-action: manipulation; }
     if (type === 'learn') queue = w.words.slice();
     else if (type === 'sentence') queue = w.sentences.slice();
     else if (type === 'memory') { const s = shuffle(w.words), n = Math.min(3, s.length); queue = [s.slice(0, n)]; if (s.length >= 4) queue.push(s.length >= n + 2 ? s.slice(n, n + 3) : shuffle(s).slice(0, n)); }
-    else if (type === 'meaning') queue = shuffle(w.words.filter(x => x.ko)).slice(0, 5);
     else queue = shuffle(w.words).slice(0, Math.min(5, w.words.length));
     if (!queue.length) return;
     g = { type, queue, i: 0, earned: 0, startPlanet: planetIndex(state.progress.stars) };
@@ -871,7 +873,7 @@ body { touch-action: manipulation; }
     if (tts) tts.cancel();
     updateDots();
     ({ learn: renderLearn, trace: renderTrace, spell: renderSpell, missing: renderMissing, listen: renderListen, sentence: renderSentence,
-      memory: renderMemory, meteor: renderMeteor, meaning: renderMeaning, catch: renderCatch })[g.type]();
+      memory: renderMemory, meteor: renderMeteor, peek: renderPeek, catch: renderCatch })[g.type]();
   }
   function nextRound() {
     sfx.tap();
@@ -1060,21 +1062,26 @@ body { touch-action: manipulation; }
   /* memory */
   function renderMemory() {
     const ws = g.queue[g.i];
-    g.cards = shuffle(ws.flatMap(w => [{ en: w.en, pic: true }, { en: w.en, pic: false }]));
+    // Each word pairs with its picture; a word with no picture pairs with a sound card that says it.
+    const picOf = (w) => { const e = emojiFor(w); return /\p{Extended_Pictographic}/u.test(e) && [...e].length <= 4 ? e : ''; };
+    g.cards = shuffle(ws.flatMap(w => [{ en: w.en, pic: picOf(w) || null, sound: !picOf(w) }, { en: w.en }]));
     g.flip = []; g.lock = false; g.done = false;
-    const face = (c) => c.pic ? `<span class="mc-pic">${esc(emojiFor(ws.find(w => w.en === c.en)) || ws.find(w => w.en === c.en).ko || '❓')}</span>` : `<span class="mc-word">${esc(c.en)}</span>`;
+    const wordSize = (t) => t.length <= 5 ? 34 : t.length <= 8 ? 28 : t.length <= 11 ? 22 : 18;
+    const face = (c) => c.pic ? `<span class="mc-pic">${esc(c.pic)}</span>`
+      : c.sound ? `<span class="mc-sound">${speakerSVG}</span>`
+      : `<span class="mc-word" style="font-size:${wordSize(c.en)}px">${esc(c.en)}</span>`;
     play().innerHTML = `
       <div class="game-name">Memory Match · ${g.i + 1} / ${g.queue.length}</div>
       <div class="mem-grid" style="grid-template-columns:repeat(${g.cards.length > 4 ? 3 : 2}, minmax(0,1fr))">${g.cards.map((c, k) => `
         <button class="mem-card" data-act="mem" data-k="${k}" aria-label="Card ${k + 1}"><span class="mc-back">${rocketSVG}</span><span class="mc-face">${face(c)}</span></button>`).join('')}</div>
       ${nextBtnHTML()}`;
-    say('Find a picture and its word.', 'Tap two cards.');
+    say(g.cards.some(c => c.sound) ? 'Match each word with its picture or sound.' : 'Find a picture and its word.', 'Tap two cards.');
   }
   function tapMem(btn) {
     const k = Number(btn.dataset.k), c = g.cards[k];
     if (g.lock || g.done || c.done || g.flip.includes(k)) return;
     btn.classList.add('open'); sfx.pop();
-    if (!c.pic) speak(c.en, { rate: .85 });
+    speak(c.en, { rate: .85 });
     g.flip.push(k);
     if (g.flip.length < 2) return;
     const [a, b] = g.flip.map(i => g.cards[i]), els = g.flip.map(i => document.querySelector(`.mem-card[data-k="${i}"]`));
@@ -1131,29 +1138,46 @@ body { touch-action: manipulation; }
     } else { btn.classList.add('dim'); oops(btn); }
   }
 
-  /* meaning: Korean meaning -> English word */
-  function renderMeaning() {
-    const w = g.queue[g.i];
-    const others = shuffle(state.week.words.filter(x => x.en !== w.en)).slice(0, 2);
-    g.done = false;
+  /* peek: look at the word, it hides, then spell it from memory (look, cover, write, check) */
+  function renderPeek() {
+    const w = g.queue[g.i], look = 6500 + w.en.length * 500;
+    g.done = false; g.peeks = 0;
     play().innerHTML = `
-      <div class="game-name">Meaning Match · ${g.i + 1} / ${g.queue.length}</div>
-      <div class="ko-big">${esc(w.ko)}</div>
-      <div class="pick-row" style="grid-template-columns:repeat(${others.length + 1}, minmax(0,1fr))">${shuffle([w, ...others]).map(x => `<button class="pick" data-act="mean" data-en="${esc(x.en)}"><span class="pw big">${esc(x.en)}</span></button>`).join('')}</div>
-      ${nextBtnHTML()}`;
-    say('What is this in English?', `"${w.ko}"`);
+      <div class="game-name">Peek & Spell · ${g.i + 1} / ${g.queue.length}</div>
+      <div class="pic" aria-hidden="true">${esc(emojiFor(w))}</div>
+      <div class="learn-word word-big" id="lw">${[...w.en].map((c, k) => `<span class="lt" data-k="${k}">${c === ' ' ? '&nbsp;' : esc(c)}</span>`).join('')}</div>
+      <div class="peek-bar"><i style="animation-duration:${look}ms"></i></div>
+      <div class="next-row"><button class="btn sun" data-act="peek-go">I remember! ›</button></div>`;
+    say('Look carefully and remember it!', 'The word will hide soon.');
+    spellSlow(w.en, highlightLetter);
+    const my = seq;
+    g.peekT = setTimeout(() => { if (my === seq && g && g.type === 'peek') peekSpell(); }, look);
   }
-  function tapMeaning(btn) {
-    if (g.done) return;
+  function peekSpell() {
+    clearTimeout(g.peekT); seq++;
     const w = g.queue[g.i];
-    if (btn.dataset.en === w.en) {
-      g.done = true; btn.classList.add('right');
-      btn.insertAdjacentHTML('afterbegin', `<span class="pe" aria-hidden="true">${esc(emojiFor(w))}</span>`);
-      document.querySelectorAll('.pick').forEach(b => { if (b !== btn) b.classList.add('dim'); });
-      const p = award(1, btn, w.en);
-      setTimeout(() => speak(`${w.en}! ${p.ko}`), 400);
-      showNext();
-    } else { btn.classList.add('dim'); oops(btn); }
+    const letters = [...w.en].filter(isLetter);
+    const pool = 'abcdefghijklmnopqrstuvwxyz'.split('').filter(c => !letters.includes(c));
+    const tiles = shuffleNew(letters.concat(shuffle(pool).slice(0, letters.length <= 4 ? 2 : 1)));
+    g.chars = [...w.en]; g.pos = -1; g.miss = 0; g.done = false;
+    play().innerHTML = `
+      <div class="game-name">Peek & Spell · ${g.i + 1} / ${g.queue.length}</div>
+      <div class="prompt"><div class="pic" aria-hidden="true">${esc(emojiFor(w))}</div><button class="say-btn" data-act="say-word">${speakerSVG} Listen</button></div>
+      <div class="slots" id="slots">${g.chars.map((c, k) => isLetter(c) ? `<span class="slot" data-k="${k}"><span class="ghost"></span></span>` : `<span class="gap">${c === ' ' ? '' : esc(c)}</span>`).join('')}</div>
+      <div class="tiles" id="tiles">${tiles.map(c => `<button class="tile" data-act="tile" data-ch="${esc(c)}" aria-label="${L(c)}">${esc(c)}</button>`).join('')}</div>
+      <button class="say-btn" data-act="peek-again">👀 Peek again</button>
+      ${nextBtnHTML()}`;
+    advanceSlot();
+    say('Now it is hiding. Can you spell it?', 'Tap the letters in order.');
+    setTimeout(() => speak(w.en), 250);
+  }
+  function peekAgain() {
+    if (g.done) return;
+    g.peeks++; sfx.tap();
+    const slots = document.querySelectorAll('#slots .slot');
+    slots.forEach(s => { const gh = s.querySelector('.ghost'); if (gh && !s.classList.contains('filled')) gh.textContent = g.chars[Number(s.dataset.k)]; });
+    speak(spellOut(g.queue[g.i].en));
+    setTimeout(() => slots.forEach(s => { const gh = s.querySelector('.ghost'); if (gh) gh.textContent = ''; }), 1800);
   }
 
   /* catch: tap the falling star with the word you hear */
@@ -1836,7 +1860,8 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
       case 'pick': tapPick(b); break;
       case 'mem': tapMem(b); break;
       case 'met': tapMeteor(b); break;
-      case 'mean': tapMeaning(b); break;
+      case 'peek-go': if (g && g.type === 'peek') peekSpell(); break;
+      case 'peek-again': if (g && g.type === 'peek') peekAgain(); break;
       case 'catch': tapCatch(b); break;
       case 'say-sent': if (g) speakSentence(false); break;
       case 'say-sent-slow': if (g) speakSentence(true); break;

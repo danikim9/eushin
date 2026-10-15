@@ -11,7 +11,7 @@ A calm, space-themed English spelling game for a 5-year-old, made for iPad in la
 - **Sentence Ship**: listen, build the sentence from word blocks, then fill in a blank.
 - **Memory Match**: flip cards to pair each picture with its word.
 - **Meteor Spell**: pick the correctly spelled word among look-alikes.
-- **Meaning Match**: see the Korean meaning and pick the English word.
+- **Peek & Spell**: look at the word, it hides, then spell it from memory (peek again if needed).
 - **Star Catch**: listen and tap the falling star with that word.
 
 Grown-ups add about 10 words and 2 sentences each week from the lock button (it asks a multiplication question first). The child's name (Eushin or Harry) is set there too.
