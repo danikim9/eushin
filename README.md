@@ -1,18 +1,28 @@
 # Eushin's Space Words
 
-A calm, space-themed English spelling game for a 5-year-old, made for iPad in landscape. Coco the little alien guides ten games, and every right answer earns a star that moves the rocket from planet to planet. Stars have no limit: after Star Land a new planet keeps opening up (40 stars apart at first, growing slowly to 80), each with its own name, colors and alien residents. Tap any reached planet on the map to visit it. A mission with no mistakes earns 2 bonus stars.
+A calm, space-themed English spelling game for a 5-year-old, made for iPad in landscape. Coco the little alien guides sixteen games, and every right answer earns a star that moves the rocket from planet to planet. Stars have no limit: after Star Land a new planet keeps opening up (40 stars apart at first, growing slowly to 80), each with its own name, colors and alien residents. Tap any reached planet on the map to visit it. A mission with no mistakes earns 2 bonus stars.
 
-**Games**
+**Spelling**
 - **Word Cards**: see the word, hear it, and hear it spelled letter by letter.
-- **Trace & Write**: trace the word with Apple Pencil, then write it alone.
 - **Letter Rocket**: tap the letters in order to spell the word.
 - **Missing Star**: pick the missing letter.
-- **Sound Hunt**: listen and pick the right picture.
-- **Sentence Ship**: listen, build the sentence from word blocks, then fill in a blank.
-- **Memory Match**: flip cards to find pairs: a picture and its word, or two same word cards when a word has no picture.
-- **Meteor Spell**: pick the correctly spelled word among look-alikes.
+- **Vowel Hunt**: every vowel is missing; put a, e, i, o, u back in order.
+- **Chunk Builder**: join word parts in order (c + at, rock + et, be + cause).
 - **Peek & Spell**: look at the word, it hides, then spell it from memory (peek again if needed).
+- **Spelling Bee**: hear the word and type it on an a–z keyboard.
+- **Meteor Spell**: pick the correctly spelled word among look-alikes.
+- **Trace & Write**: trace the word with Apple Pencil, then write it alone.
+
+**Word games**
+- **Sound Hunt**: listen and pick the right picture.
+- **Memory Match**: flip cards to find pairs: a picture and its word, or two same word cards when a word has no picture.
 - **Star Catch**: listen and tap the falling star with that word.
+
+**Sentences**
+- **Sentence Maker**: spell a word into a sentence ("I see a ___."), then hear the whole sentence.
+- **Sentence Writer**: write the week's sentence word by word, spelling each word with letter tiles.
+- **Sentence Trace**: trace the sentence with Apple Pencil, then write it alone.
+- **Sentence Ship**: listen, build the sentence from word blocks, then fill in a blank.
 
 Grown-ups add about 10 words and 2 sentences each week from the lock button (it asks a multiplication question first). The child's name (Eushin or Harry) is set there too.
 

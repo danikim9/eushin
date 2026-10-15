@@ -286,6 +286,24 @@ button.stop:active .planet { transform: scale(.92); }
 .empty h3 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 20px; }
 .empty p { margin: 0; color: var(--ink-soft); line-height: 1.5; }
 
+/* spelling & sentence games */
+.word-big .hole.now { border-style: solid; box-shadow: 0 0 0 4px var(--teal-soft); }
+.word-big .hole { font-family: var(--f-word); color: var(--ink); }
+.blk.chunk { font-size: 30px; min-width: 70px; }
+.build-line.joined { gap: 0; }
+.build-line.joined .placed { border-radius: 0; }
+.build-line.joined .placed:first-child { border-radius: 14px 0 0 14px; }
+.build-line.joined .placed:last-child { border-radius: 0 14px 14px 0; }
+.keyboard { flex-direction: column; align-items: center; gap: 8px; max-width: none; }
+.keyboard .krow { display: flex; gap: 8px; justify-content: center; }
+.keyboard .tile { width: 58px; height: 58px; font-size: 30px; }
+.frame-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; font-family: var(--f-word); font-weight: 700; font-size: 36px; color: var(--ink); }
+.frame-line .slots { flex-wrap: nowrap; }
+.frame-line.done .slot { background: var(--mint); }
+.write-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 16px; font-family: var(--f-word); font-weight: 700; font-size: 34px; color: var(--ink); max-width: 900px; }
+.write-line .wdone { color: var(--teal-deep, #2FA585); }
+.write-line .wtodo { color: var(--ink-soft); opacity: .45; letter-spacing: 4px; }
+.write-line .slots { flex-wrap: nowrap; }
 /* new games */
 .mem-grid { display: grid; gap: 14px; width: 100%; max-width: 620px; }
 .mem-card { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; background: var(--space-deep); border: 3px solid var(--space-line); display: grid; place-items: center; transition: transform .15s, background .2s; }
@@ -791,18 +809,26 @@ body { touch-action: manipulation; }
 
   /* ---------- home ---------- */
   const GAMES = [
-    { id: 'learn', ko: 'Word Cards', sub: 'Look, listen, and say', bg: 'var(--mint)', mark: 'Aa' },
-    { id: 'spell', ko: 'Letter Rocket', sub: 'Spell it letter by letter', bg: 'var(--sun)', mark: 'abc' },
-    { id: 'missing', ko: 'Missing Star', sub: 'Find the missing letter', bg: 'var(--berry-soft)', mark: 'c_t' },
-    { id: 'listen', ko: 'Sound Hunt', sub: 'Listen and pick the picture', bg: 'var(--teal-soft)', mark: speakerSVG },
-    { id: 'trace', ko: 'Trace & Write', sub: 'Write with Apple Pencil', bg: 'var(--sun-soft)', mark: pencilSVG },
-    { id: 'sentence', ko: 'Sentence Ship', sub: 'Learn the sentences', bg: 'var(--lilac)', mark: 'I see' },
-    { id: 'memory', ko: 'Memory Match', sub: 'Find the picture pairs', bg: 'var(--teal-soft)', mark: '🃏' },
-    { id: 'meteor', ko: 'Meteor Spell', sub: 'Pick the right spelling', bg: 'var(--berry-soft)', mark: '☄️' },
-    { id: 'peek', ko: 'Peek & Spell', sub: 'Look, hide, spell it', bg: 'var(--mint)', mark: '👀' },
-    { id: 'catch', ko: 'Star Catch', sub: 'Catch the falling word', bg: 'var(--sun-soft)', mark: '🌠' },
+    { id: 'learn', grp: 'spell', ko: 'Word Cards', sub: 'Look, listen, and say', bg: 'var(--mint)', mark: 'Aa' },
+    { id: 'spell', grp: 'spell', ko: 'Letter Rocket', sub: 'Spell it letter by letter', bg: 'var(--sun)', mark: 'abc' },
+    { id: 'missing', grp: 'spell', ko: 'Missing Star', sub: 'Find the missing letter', bg: 'var(--berry-soft)', mark: 'c_t' },
+    { id: 'vowel', grp: 'spell', ko: 'Vowel Hunt', sub: 'Fill in a, e, i, o, u', bg: 'var(--lilac)', mark: 'a e' },
+    { id: 'chunk', grp: 'spell', ko: 'Chunk Builder', sub: 'Join the word parts', bg: 'var(--teal-soft)', mark: '🧩' },
+    { id: 'peek', grp: 'spell', ko: 'Peek & Spell', sub: 'Look, hide, spell it', bg: 'var(--mint)', mark: '👀' },
+    { id: 'bee', grp: 'spell', ko: 'Spelling Bee', sub: 'Hear it, type it', bg: 'var(--sun-soft)', mark: '🐝' },
+    { id: 'meteor', grp: 'spell', ko: 'Meteor Spell', sub: 'Pick the right spelling', bg: 'var(--berry-soft)', mark: '☄️' },
+    { id: 'trace', grp: 'spell', ko: 'Trace & Write', sub: 'Write with Apple Pencil', bg: 'var(--sun-soft)', mark: pencilSVG },
+    { id: 'listen', grp: 'play', ko: 'Sound Hunt', sub: 'Listen and pick the picture', bg: 'var(--teal-soft)', mark: speakerSVG },
+    { id: 'memory', grp: 'play', ko: 'Memory Match', sub: 'Find the pairs', bg: 'var(--teal-soft)', mark: '🃏' },
+    { id: 'catch', grp: 'play', ko: 'Star Catch', sub: 'Catch the falling word', bg: 'var(--sun-soft)', mark: '🌠' },
+    { id: 'frame', grp: 'sent', ko: 'Sentence Maker', sub: 'Spell a word into a sentence', bg: 'var(--mint)', mark: 'I see' },
+    { id: 'swrite', grp: 'sent', ko: 'Sentence Writer', sub: 'Spell every word', bg: 'var(--sun)', mark: 'Abc.' },
+    { id: 'strace', grp: 'sent', ko: 'Sentence Trace', sub: 'Trace and write a sentence', bg: 'var(--berry-soft)', mark: pencilSVG },
+    { id: 'sentence', grp: 'sent', ko: 'Sentence Ship', sub: 'Build with word blocks', bg: 'var(--lilac)', mark: 'I see' },
   ];
-  const gameOff = (id, w) => id === 'sentence' ? (w.sentences.length ? '' : 'Add sentences first')
+  const GROUPS = [['spell', 'Spelling'], ['play', 'Word games'], ['sent', 'Sentences']];
+  const gameOff = (id, w) => ['sentence', 'swrite', 'strace'].includes(id) ? (w.sentences.length ? '' : 'Add sentences first')
+    : id === 'vowel' && !w.words.some(x => /[aeiou]/.test(x.en)) ? 'Needs words with vowels'
     : (id === 'memory' || id === 'catch') && w.words.length < 2 ? 'Add 2 or more words' : '';
   function renderHome(keepBubble) {
     screen = 'home'; g = null; seq++;
@@ -825,15 +851,15 @@ body { touch-action: manipulation; }
     let body, shelf = '';
     if (has) {
       body = `
-        <section class="games-sec"><h2 class="sec-title">Choose a game</h2>
+        <section class="games-sec">${GROUPS.map(([grp, title]) => `<h2 class="sec-title">${title}</h2>
         <div class="games">
-          ${GAMES.map(gm => {
+          ${GAMES.filter(gm => gm.grp === grp).map(gm => {
             const off = gameOff(gm.id, w), dis = !!off;
             return `<button class="game-card" style="background:${gm.bg}" data-act="play" data-game="${gm.id}" ${dis ? 'disabled' : ''}>
               <span class="mark ${/^\p{Extended_Pictographic}/u.test(gm.mark) ? 'emo' : ''}" style="${gm.mark.length > 4 && !gm.mark.startsWith('<') ? 'font-size:14px' : ''}">${gm.mark}</span>
               <b>${gm.ko}</b><span>${dis ? off : gm.sub}</span></button>`;
           }).join('')}
-        </div></section>`;
+        </div>`).join('')}</section>`;
       shelf = `
         <section class="shelf">
           <div class="shelf-head"><h3>This week's ${w.words.length} words</h3><button class="btn sm ghost" data-act="parent">Change words</button></div>
@@ -873,7 +899,8 @@ body { touch-action: manipulation; }
     const w = state.week; if (!w || !w.words.length) return;
     let queue;
     if (type === 'learn') queue = w.words.slice();
-    else if (type === 'sentence') queue = w.sentences.slice();
+    else if (type === 'sentence' || type === 'swrite' || type === 'strace') queue = w.sentences.slice();
+    else if (type === 'vowel') queue = shuffle(w.words.filter(x => /[aeiou]/.test(x.en))).slice(0, 5);
     else if (type === 'memory') { const s = shuffle(w.words), n = Math.min(3, s.length); queue = [s.slice(0, n)]; if (s.length >= 4) queue.push(s.length >= n + 2 ? s.slice(n, n + 3) : shuffle(s).slice(0, n)); }
     else queue = shuffle(w.words).slice(0, Math.min(5, w.words.length));
     if (!queue.length) return;
@@ -897,6 +924,7 @@ body { touch-action: manipulation; }
     if (tts) tts.cancel();
     updateDots();
     ({ learn: renderLearn, trace: renderTrace, spell: renderSpell, missing: renderMissing, listen: renderListen, sentence: renderSentence,
+      vowel: renderVowel, chunk: renderChunk, bee: renderBee, frame: renderFrame, swrite: renderSWrite, strace: renderTrace,
       memory: renderMemory, meteor: renderMeteor, peek: renderPeek, catch: renderCatch })[g.type]();
   }
   function nextRound() {
@@ -972,7 +1000,7 @@ body { touch-action: manipulation; }
     const pool = 'abcdefghijklmnopqrstuvwxyz'.split('').filter(c => !letters.includes(c));
     const decoys = shuffle(pool).slice(0, nDecoy);
     const tiles = shuffleNew(letters.concat(decoys));
-    g.chars = chars; g.pos = -1; g.miss = 0; g.done = false;
+    g.chars = chars; g.pos = -1; g.miss = 0; g.done = false; g.onSpelled = null;
     play().innerHTML = `
       <div class="game-name">Letter Rocket · ${g.i + 1} / ${g.queue.length}</div>
       ${promptHTML(w)}
@@ -996,7 +1024,7 @@ body { touch-action: manipulation; }
     if (g.done) return;
     const ch = btn.dataset.ch, want = g.chars[g.pos];
     if (ch === want) {
-      btn.classList.add('used');
+      if (!btn.classList.contains('key')) btn.classList.add('used');
       const slot = document.querySelector(`#slots .slot[data-k="${g.pos}"]`);
       slot.classList.add('filled', 'pop'); slot.insertAdjacentHTML('beforeend', esc(ch));
       sfx.pop(); speak(sayL(ch), { rate: .8 });
@@ -1004,6 +1032,7 @@ body { touch-action: manipulation; }
       if (g.pos >= g.chars.length) {
         g.done = true;
         document.querySelectorAll('#slots .slot.next').forEach(s => s.classList.remove('next'));
+        if (g.onSpelled) { g.onSpelled(); return; }
         const w = g.queue[g.i];
         const p = award(1, document.getElementById('slots'), w.en);
         setTimeout(() => speakSpelling(w.en, { onend: () => speak(p.ko, { cancel: false, rate: .9 }) }), 450);
@@ -1081,6 +1110,208 @@ body { touch-action: manipulation; }
       btn.classList.add('dim'); oops(btn);
       setTimeout(() => speak(w.en), 350);
     }
+  }
+
+  /* shared: letter slots + tiles for one word */
+  function slotsHTML(chars) {
+    return `<div class="slots" id="slots">${chars.map((c, k) => isLetter(c)
+      ? `<span class="slot" data-k="${k}"><span class="ghost"></span></span>`
+      : `<span class="gap">${c === ' ' ? '' : esc(c)}</span>`).join('')}</div>`;
+  }
+  function tilesHTML(word, extra = 1) {
+    const letters = [...word].filter(isLetter);
+    const pool = 'abcdefghijklmnopqrstuvwxyz'.split('').filter(c => !letters.includes(c.toLowerCase()) && !letters.includes(c));
+    const tiles = shuffleNew(letters.concat(shuffle(pool).slice(0, extra)));
+    return `<div class="tiles" id="tiles">${tiles.map(c => `<button class="tile" data-act="tile" data-ch="${esc(c)}" aria-label="${L(c)}">${esc(c)}</button>`).join('')}</div>`;
+  }
+  function startSlots(word, onSpelled) {
+    g.chars = [...word]; g.pos = -1; g.miss = 0; g.done = false; g.onSpelled = onSpelled || null;
+    advanceSlot();
+  }
+
+  /* vowel hunt: every vowel is a hole */
+  const VOWELS = ['a', 'e', 'i', 'o', 'u'];
+  function renderVowel() {
+    const w = g.queue[g.i], chars = [...w.en];
+    g.holes = chars.map((c, k) => VOWELS.includes(c) ? k : -1).filter(k => k >= 0);
+    g.hi = 0; g.done = false;
+    play().innerHTML = `
+      <div class="game-name">Vowel Hunt · ${g.i + 1} / ${g.queue.length}</div>
+      ${promptHTML(w)}
+      <div class="word-big" id="vw">${chars.map((c, k) => g.holes.includes(k) ? `<span class="hole" data-k="${k}"></span>` : `<span class="lt">${c === ' ' ? '&nbsp;' : esc(c)}</span>`).join('')}</div>
+      <div class="opts">${VOWELS.map(v => `<button class="opt-star" data-act="vow" data-ch="${v}" aria-label="${L(v)}">${starSVG('100%', 'var(--sun)', '#E2B94F')}<span>${v}</span></button>`).join('')}</div>
+      ${nextBtnHTML()}`;
+    markVowel();
+    say('The vowels flew away!', 'Put a, e, i, o, u back.');
+    setTimeout(() => speak(w.en), 250);
+  }
+  function markVowel() { document.querySelectorAll('#vw .hole').forEach(h => h.classList.toggle('now', Number(h.dataset.k) === g.holes[g.hi])); }
+  function tapVowel(btn) {
+    if (g.done) return;
+    const w = g.queue[g.i], k = g.holes[g.hi], want = w.en[k];
+    if (btn.dataset.ch === want) {
+      const h = document.querySelector(`#vw .hole[data-k="${k}"]`);
+      h.textContent = want; h.classList.add('filled'); h.classList.remove('now');
+      sfx.pop(); speak(sayL(want), { rate: .8 });
+      g.hi++;
+      if (g.hi >= g.holes.length) {
+        g.done = true;
+        const p = award(1, document.getElementById('vw'), w.en);
+        setTimeout(() => speakSpelling(w.en, { onend: () => speak(p.ko, { cancel: false, rate: .9 }) }), 450);
+        showNext();
+      } else markVowel();
+    } else oops(btn);
+  }
+
+  /* chunk builder: join the word parts (onset + rime, or syllables) */
+  function chunksOf(word) {
+    const DIG = ['ch', 'sh', 'th', 'ph', 'wh', 'ck', 'ng', 'qu'];
+    const syll = (w) => {
+      if (w.length > 3 && /[^aeiou]le$/.test(w)) return syll(w.slice(0, -3)).concat(w.slice(-3));  // ap|ple, ta|ble
+      const u = [];                                                                              // letters, digraphs kept whole
+      for (let i = 0; i < w.length;) { const d = w.slice(i, i + 2); if (DIG.includes(d)) { u.push(d); i += 2; } else u.push(w[i++]); }
+      const isV = (k) => /^[aeiou]$/.test(u[k]) || (u[k] === 'y' && k > 0) || (u[k] === 'e' && k === u.length - 1 && false);
+      const vow = u.map((_, k) => isV(k) && !(u[k] === 'e' && k === u.length - 1 && k > 0 && !isV(k - 1)));  // final silent e is not a syllable
+      const cuts = [];
+      for (let k = 0; k < u.length; k++) {
+        if (!vow[k] || vow[k + 1] !== false) continue;
+        let j = k + 1; while (j < u.length && !vow[j]) j++;
+        if (j >= u.length) break;                       // no vowel after this cluster
+        const n = j - k - 1;
+        if (n === 1) cuts.push(u[k + 1] === 'ck' || u[k + 1] === 'x' ? k + 2 : k + 1);   // ti|ger, rock|et
+        else if (n === 2) cuts.push(k + 2);             // rab|bit
+        else cuts.push(j - 1);                          // friend|ship
+        k = j - 1;
+      }
+      const out = []; let st = 0;
+      for (const c of cuts.concat(u.length)) { if (c > st) out.push(u.slice(st, c).join('')); st = c; }
+      if (out.length === 1 && w.length >= 3) {          // one syllable: onset | rime (c|at, st|ar)
+        const f = u.findIndex((_, k) => vow[k]);
+        if (f > 0) return [u.slice(0, f).join(''), u.slice(f).join('')];
+      }
+      return out.length === 1 && w.length >= 2 ? [w[0], w.slice(1)] : out;
+    };
+    return word.split(' ').flatMap(syll);
+  }
+
+  function renderChunk() {
+    const w = g.queue[g.i];
+    g.parts = chunksOf(w.en); g.pos = 0; g.miss = 0; g.done = false;
+    const others = state.week.words.filter(x => x.en !== w.en).flatMap(x => chunksOf(x.en)).filter(c => !g.parts.includes(c));
+    const opts = shuffleNew(g.parts.map((t, k) => ({ t, k })).concat(others.length ? [{ t: rnd(others), k: -1 }] : []));
+    play().innerHTML = `
+      <div class="game-name">Chunk Builder · ${g.i + 1} / ${g.queue.length}</div>
+      ${promptHTML(w)}
+      <div class="build-line" id="line">${g.parts.map(() => `<span class="ph"></span>`).join('')}</div>
+      <div class="blocks" id="blocks">${opts.map(o => `<button class="blk chunk" data-act="chk" data-t="${esc(o.t)}">${esc(o.t)}</button>`).join('')}</div>
+      ${nextBtnHTML()}`;
+    say('Join the word parts in order.', g.parts.join(' + '));
+    setTimeout(() => speak(w.en), 250);
+  }
+  function tapChunk(btn) {
+    if (g.done) return;
+    const want = g.parts[g.pos];
+    if (btn.dataset.t === want) {
+      btn.classList.add('used');
+      const el = document.createElement('span'); el.className = 'placed'; el.textContent = want;
+      document.querySelector('#line .ph').replaceWith(el);
+      sfx.pop(); speakSpelling(want);
+      g.pos++; g.miss = 0;
+      document.querySelectorAll('.blk.hint').forEach(b => b.classList.remove('hint'));
+      if (g.pos >= g.parts.length) {
+        g.done = true;
+        document.getElementById('line').classList.add('joined');
+        const w = g.queue[g.i];
+        const p = award(1, document.getElementById('line'), w.en);
+        setTimeout(() => speakSpelling(w.en, { onend: () => speak(p.ko, { cancel: false, rate: .9 }) }), 700);
+        showNext();
+      }
+    } else {
+      oops(btn); g.miss++;
+      if (g.miss >= 2) { const r = [...document.querySelectorAll('.blk.chunk:not(.used)')].find(b => b.dataset.t === want); if (r) r.classList.add('hint'); }
+    }
+  }
+
+  /* spelling bee: hear it and type it on an ABC keyboard */
+  function renderBee() {
+    const w = g.queue[g.i];
+    const rows = ['abcdefghi', 'jklmnopqr', 'stuvwxyz'];
+    play().innerHTML = `
+      <div class="game-name">Spelling Bee · ${g.i + 1} / ${g.queue.length}</div>
+      ${promptHTML(w)}
+      ${slotsHTML([...w.en])}
+      <div class="tiles keyboard" id="tiles">${rows.map(r => `<div class="krow">${[...r].map(c => `<button class="tile key" data-act="tile" data-ch="${c}" aria-label="${L(c)}">${c}</button>`).join('')}</div>`).join('')}</div>
+      ${nextBtnHTML()}`;
+    startSlots(w.en);
+    say('Listen and type the word.', 'No peeking. You can do it!');
+    setTimeout(() => speak(w.en), 250);
+  }
+
+  /* sentence maker: spell a word into a sentence frame */
+  function frameFor(w) {
+    const art = /^[aeiou]/.test(w.en) ? 'an' : 'a';
+    const noun = !!(emojiFor(w) && /\p{Extended_Pictographic}/u.test(emojiFor(w)));
+    return rnd(noun
+      ? [[`I see ${art}`, '.'], ['I like the', '.'], ['This is my', '.'], ['Look at the', '!'], [`I have ${art}`, '.']]
+      : [['I can spell', '.'], ['My word is', '.'], ['I can read', '!']]);
+  }
+  function renderFrame() {
+    const w = g.queue[g.i], [pre, end] = frameFor(w);
+    g.frame = `${pre} ${w.en}${end}`;
+    play().innerHTML = `
+      <div class="game-name">Sentence Maker · ${g.i + 1} / ${g.queue.length}</div>
+      ${promptHTML(w)}
+      <div class="frame-line" id="frameLine"><span class="fw">${esc(pre)}</span>${slotsHTML([...w.en])}<span class="fw">${esc(end)}</span></div>
+      ${tilesHTML(w.en, 1)}
+      <button class="say-btn" data-act="say-frame">${speakerSVG} Hear the sentence</button>
+      ${nextBtnHTML()}`;
+    startSlots(w.en, () => {
+      g.done = true;
+      document.getElementById('frameLine').classList.add('done');
+      const p = award(1, document.getElementById('frameLine'), w.en);
+      setTimeout(() => speak(g.frame, { onend: () => speak(p.ko, { cancel: false, rate: .9 }) }), 450);
+      showNext();
+    });
+    say('Spell the missing word to finish the sentence.', `"${pre} ___${end}"`);
+    setTimeout(() => speak(g.frame), 250);
+  }
+
+  /* sentence writer: spell every word of the sentence, one after another */
+  function renderSWrite() {
+    const s = g.queue[g.i];
+    g.toks = s.en.split(' '); g.wi = 0; g.done = false;
+    play().innerHTML = `
+      <div class="game-name">Sentence Writer · ${g.i + 1} / ${g.queue.length}</div>
+      ${s.ko ? `<div class="ko-line">${esc(s.ko)}</div>` : ''}
+      <button class="say-btn" data-act="say-word">${speakerSVG} Hear the sentence</button>
+      <div class="write-line" id="wline"></div>
+      <div id="wtiles"></div>
+      ${nextBtnHTML()}`;
+    say('Write the sentence word by word.', 'Listen, then spell each word.');
+    setTimeout(() => speak(s.en), 250);
+    nextSWord();
+  }
+  function nextSWord() {
+    const tok = g.toks[g.wi];
+    document.getElementById('wline').innerHTML = g.toks.map((t, k) => k < g.wi ? `<span class="wdone">${esc(t)}</span>`
+      : k === g.wi ? slotsHTML([...t]) : `<span class="wtodo">${[...t].map(c => isLetter(c) ? '_' : esc(c)).join('')}</span>`).join('');
+    document.getElementById('wtiles').innerHTML = tilesHTML(tok, tok.length <= 3 ? 2 : 1);
+    startSlots(tok, () => {
+      const word = g.toks[g.wi].replace(/[^A-Za-z'-]/g, '');
+      g.wi++;
+      if (g.wi < g.toks.length) {
+        award(1, document.getElementById('wline'), null);
+        speak(word);
+        setTimeout(() => { if (g && g.type === 'swrite') nextSWord(); }, 650);
+      } else {
+        g.done = true;
+        document.getElementById('wline').innerHTML = g.toks.map(t => `<span class="wdone">${esc(t)}</span>`).join('');
+        document.getElementById('wtiles').innerHTML = '';
+        const p = award(1, document.getElementById('wline'), null);
+        setTimeout(() => speak(g.queue[g.i].en, { onend: () => speak(p.ko, { cancel: false, rate: .9 }) }), 450);
+        showNext();
+      }
+    });
   }
 
   /* memory */
@@ -1182,7 +1413,7 @@ body { touch-action: manipulation; }
     const letters = [...w.en].filter(isLetter);
     const pool = 'abcdefghijklmnopqrstuvwxyz'.split('').filter(c => !letters.includes(c));
     const tiles = shuffleNew(letters.concat(shuffle(pool).slice(0, letters.length <= 4 ? 2 : 1)));
-    g.chars = [...w.en]; g.pos = -1; g.miss = 0; g.done = false;
+    g.chars = [...w.en]; g.pos = -1; g.miss = 0; g.done = false; g.onSpelled = null;
     play().innerHTML = `
       <div class="game-name">Peek & Spell · ${g.i + 1} / ${g.queue.length}</div>
       <div class="prompt"><div class="pic" aria-hidden="true">${esc(emojiFor(w))}</div><button class="say-btn" data-act="say-word">${speakerSVG} Listen</button></div>
@@ -1326,14 +1557,14 @@ body { touch-action: manipulation; }
   const INKS = ['#34374F', '#2FA585', '#E9707A'];
   let pad = null;
   function renderTrace() {
-    const w = g.queue[g.i];
+    const w = g.queue[g.i], sent = g.type === 'strace';
     g.phase = 'trace'; g.done = false;
     const color = pad && pad.color || INKS[0];
     pad = null;
     play().innerHTML = `
-      <div class="game-name">Trace &amp; Write · ${g.i + 1} / ${g.queue.length}</div>
+      <div class="game-name">${sent ? 'Sentence Trace' : 'Trace &amp; Write'} · ${g.i + 1} / ${g.queue.length}</div>
       <div class="trace-head">
-        <span class="pic" aria-hidden="true">${esc(emojiFor(w))}</span>
+        ${sent ? '' : `<span class="pic" aria-hidden="true">${esc(emojiFor(w))}</span>`}
         ${w.ko ? `<span class="ko">${esc(w.ko)}</span>` : ''}
         <button class="say-btn" data-act="say-word">${speakerSVG} Listen</button>
       </div>
@@ -1347,13 +1578,13 @@ body { touch-action: manipulation; }
       </div>
       <div class="pencil-note">Apple Pencil works best. Fingers work too.</div>
       ${nextBtnHTML()}`;
-    say('Trace the gray letters.', 'Go slowly, one letter at a time.');
+    say(sent ? 'Trace the gray sentence.' : 'Trace the gray letters.', 'Go slowly, one letter at a time.');
     setTimeout(() => speak(w.en), 250);
     setupPad(color);
   }
   async function setupPad(color) {
     try { await document.fonts.load('700 120px Andika'); } catch {}
-    const wrap = document.getElementById('pad'); if (!wrap || !g || g.type !== 'trace') return;
+    const wrap = document.getElementById('pad'); if (!wrap || !g || (g.type !== 'trace' && g.type !== 'strace')) return;
     const gc = document.getElementById('guideC'), ic = document.getElementById('inkC');
     pad = { wrap, gc, ic, gctx: gc.getContext('2d'), ictx: ic.getContext('2d'), color, pencil: false, active: null, W: 0, H: 0 };
     layoutPad();
@@ -1375,7 +1606,7 @@ body { touch-action: manipulation; }
     pad.ictx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const word = g.queue[g.i].en, ctx = pad.gctx;
     ctx.font = '700 100px Andika, "Trebuchet MS", sans-serif';
-    const fs = Math.max(40, Math.min(H * 0.5, (W - 56) / ctx.measureText(word).width * 100));
+    const fs = Math.max(word.includes(' ') ? 24 : 40, Math.min(H * 0.5, (W - 56) / ctx.measureText(word).width * 100));
     pad.font = `700 ${fs}px Andika, "Trebuchet MS", sans-serif`; pad.fs = fs;
     ctx.font = pad.font;
     const asc = ctx.measureText('h').actualBoundingBoxAscent || fs * .72;
@@ -1490,9 +1721,9 @@ body { touch-action: manipulation; }
     if ((all && st.out <= .55) || (fromButton && total && covered / total >= .35 && st.out <= .5)) {
       pad.letters.forEach(l => l.done = true); drawGuide();
       g.done = true;
-      const w = g.queue[g.i];
-      const p = award(1, pad.wrap, w.en);
-      setTimeout(() => speakSpelling(w.en, { onend: () => speak(p.ko, { cancel: false, rate: .9 }) }), 400);
+      const w = g.queue[g.i], sent = g.type === 'strace';
+      const p = award(1, pad.wrap, sent ? null : w.en);
+      setTimeout(() => sent ? speak(`${w.en} ${p.ko}`) : speakSpelling(w.en, { onend: () => speak(p.ko, { cancel: false, rate: .9 }) }), 400);
       const r = document.getElementById('nextRow');
       r.innerHTML = `<button class="btn sun" data-act="trace-free">Now write it yourself ›</button>`;
       document.getElementById('traceCheck').hidden = true;
@@ -1510,8 +1741,8 @@ body { touch-action: manipulation; }
     document.getElementById('traceCheck').hidden = false;
     pad.ictx.clearRect(0, 0, pad.W, pad.H);
     drawGuide();
-    say('Now write it on the lines by yourself.', 'Look at the word above.');
-    speakSpelling(g.queue[g.i].en);
+    say('Now write it on the lines by yourself.', g.type === 'strace' ? 'Look at the sentence above.' : 'Look at the word above.');
+    if (g.type === 'strace') speak(g.queue[g.i].en); else speakSpelling(g.queue[g.i].en);
   }
   function checkFree() {
     if (!pad || g.done) return;
@@ -1519,7 +1750,7 @@ body { touch-action: manipulation; }
     if (st.ink < 25) { oops(document.getElementById('pad')); say('Write the word on the lines first.', 'Use your pencil.'); return; }
     g.done = true;
     const w = g.queue[g.i];
-    const p = award(1, pad.wrap, w.en);
+    const p = award(1, pad.wrap, g.type === 'strace' ? null : w.en);
     setTimeout(() => speak(`${w.en}! ${p.ko}`), 400);
     document.getElementById('traceCheck').hidden = true;
     showNext();
@@ -1882,6 +2113,9 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
       case 'opt': tapOpt(b); break;
       case 'pick': tapPick(b); break;
       case 'mem': tapMem(b); break;
+      case 'vow': tapVowel(b); break;
+      case 'chk': tapChunk(b); break;
+      case 'say-frame': if (g && g.frame) speak(g.frame); break;
       case 'met': tapMeteor(b); break;
       case 'peek-go': if (g && g.type === 'peek') peekSpell(); break;
       case 'peek-again': if (g && g.type === 'peek') peekAgain(); break;
