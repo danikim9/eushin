@@ -1,6 +1,6 @@
 # Eushin's Space Words
 
-A calm, space-themed English spelling game for a 5-year-old, made for iPad in landscape. Coco the little alien guides six games, and every right answer earns a star that moves the rocket from planet to planet.
+A calm, space-themed English spelling game for a 5-year-old, made for iPad in landscape. Coco the little alien guides ten games, and every right answer earns a star that moves the rocket from planet to planet. Stars have no limit: after Star Land the rocket keeps flying to new galaxies every 50 stars, and a mission with no mistakes earns 2 bonus stars.
 
 **Games**
 - **Word Cards**: see the word, hear it, and hear it spelled letter by letter.
@@ -9,6 +9,10 @@ A calm, space-themed English spelling game for a 5-year-old, made for iPad in la
 - **Missing Star**: pick the missing letter.
 - **Sound Hunt**: listen and pick the right picture.
 - **Sentence Ship**: listen, build the sentence from word blocks, then fill in a blank.
+- **Memory Match**: flip cards to pair each picture with its word.
+- **Meteor Spell**: pick the correctly spelled word among look-alikes.
+- **Meaning Match**: see the Korean meaning and pick the English word.
+- **Star Catch**: listen and tap the falling star with that word.
 
 Grown-ups add about 10 words and 2 sentences each week from the lock button (it asks a multiplication question first). The child's name (Eushin or Harry) is set there too.
 

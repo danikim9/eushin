@@ -278,6 +278,39 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--sun); outli
 .empty h3 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 20px; }
 .empty p { margin: 0; color: var(--ink-soft); line-height: 1.5; }
 
+/* new games */
+.mem-grid { display: grid; gap: 14px; width: 100%; max-width: 620px; }
+.mem-card { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; background: var(--space-deep); border: 3px solid var(--space-line); display: grid; place-items: center; transition: transform .15s, background .2s; }
+.mem-card .mc-back { width: 56px; height: 56px; }
+.mem-card .mc-back svg { width: 100%; height: 100%; display: block; }
+.game-card .mark.emo { font-size: 28px; }
+.mem-card .mc-face { display: none; }
+.mem-card.open { background: var(--paper-2); border-color: var(--paper-2); }
+.mem-card.open .mc-back { display: none; }
+.mem-card.open .mc-face { display: block; }
+.mem-card.match { background: var(--mint); border-color: var(--teal); }
+.mc-pic { font-size: 54px; line-height: 1; }
+.mc-word { font-family: var(--f-word); font-weight: 700; font-size: 30px; color: var(--ink); overflow-wrap: anywhere; }
+.meteors { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+.meteor { display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 999px; background: var(--paper-2); border: 3px solid transparent; font-family: var(--f-word); font-size: 32px; color: var(--ink); animation: drift 3s ease-in-out infinite; }
+.meteor span { font-size: 28px; }
+.meteor.right { background: var(--mint); border-color: var(--teal); }
+.meteor.dim { opacity: .35; }
+@keyframes drift { 50% { transform: translateY(-6px) } }
+.ko-big { font-family: var(--f-display); font-size: 56px; color: var(--ink); text-align: center; }
+.pick .pw.big { font-size: 30px; padding: 14px 0; }
+.catch-head { display: flex; align-items: center; gap: 16px; }
+.catch-head .pic { font-size: 64px; }
+.catch-sky { position: relative; width: 100%; max-width: 760px; height: 340px; border-radius: 24px; background: var(--space-deep); overflow: hidden; }
+.fall { position: absolute; top: -90px; width: 28%; display: flex; flex-direction: column; align-items: center; gap: 2px; animation: fall linear infinite; }
+.fall b { font-family: var(--f-word); font-size: 26px; color: var(--on-space); background: rgba(0,0,0,.25); padding: 2px 12px; border-radius: 999px; }
+.fall.gone { visibility: hidden; }
+.fall.caught { animation-play-state: paused; }
+.fall.caught b { background: var(--teal); color: #fff; }
+@keyframes fall { from { transform: translateY(0) } to { transform: translateY(440px) } }
+.bonus { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--ink); background: var(--sun-soft); padding: 6px 14px; border-radius: 999px; }
+@media (prefers-reduced-motion: reduce) { .fall { top: 30%; } }
+
 @media (max-width: 520px) {
   .brand-ko { font-size: 20px; }
   .coco-wrap { width: 96px; }
@@ -356,10 +389,10 @@ body { touch-action: manipulation; }
   .bubble { font-size: 22px; }
   .home-grid .hero .bubble::before, .guide .bubble::before { left: 50%; top: -9px; transform: translateX(-50%) rotate(45deg); }
   .track { min-width: 0; }
-  .games { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
-  .games > .game-card { grid-column: span 2; min-height: 150px; }
-  .game-card b { font-size: 23px; }
-  .game-card span { font-size: 15px; }
+  .games { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .game-card { min-height: 138px; padding: 14px; }
+  .game-card b { font-size: 19px; }
+  .game-card span { font-size: 14px; }
 
   .game-grid { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 20px; align-items: stretch; flex: 1; }
   .guide { flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 16px; padding-top: 10px; }
@@ -424,6 +457,16 @@ body { touch-action: manipulation; }
     { ko: 'Neptune', at: 105, c1: '#7E86C9', c2: '#C6CAF0' },
     { ko: 'Star Land', at: 140, c1: '#FFE08A', c2: '#FFFDF6', star: true },
   ];
+  // After Star Land the trip never ends: a new place appears every 50 stars.
+  const FAR = ['Comet Cove', 'Nebula', 'Milky Way', 'Rainbow Galaxy', 'Moon Castle', 'Crystal Star', 'Candy Comet', 'Dragon Nebula', 'Sky Whale', 'Golden Galaxy'];
+  const FAR_C = [['#7E86C9', '#C6CAF0'], ['#FF8C94', '#FFD3D6'], ['#4AC7A8', '#B8F2E6'], ['#F2B880', '#FFE08A'], ['#B9A6F2', '#ECE6FF'], ['#8FDCCB', '#E4FBF6']];
+  const FAR_STEP = 50;
+  function planetAt(i) {
+    if (i < PLANETS.length) return PLANETS[i];
+    const k = i - PLANETS.length, round = Math.floor(k / FAR.length);
+    const c = FAR_C[k % FAR_C.length];
+    return { ko: FAR[k % FAR.length] + (round ? ' ' + (round + 1) : ''), at: PLANETS[PLANETS.length - 1].at + FAR_STEP * (k + 1), c1: c[0], c2: c[1], ring: k % 3 === 1, star: k % 3 === 2 };
+  }
   const praiseLine = () => rnd([`Great job, ${kid()}!`, 'Wow, amazing!', 'You are a star!', 'Super spelling!', 'Brilliant, space explorer!', `Way to go, ${kid()}!`]);
   const PRAISE_EN = ['Keep it up!', 'You did it!', 'Well done!', 'Wonderful!', 'Nice work!'];
   const CHEER = ['That\'s okay, try again!', 'Take your time.', 'Almost there!', 'Let\'s listen one more time.'];
@@ -631,7 +674,11 @@ body { touch-action: manipulation; }
   function shuffleNew(a) { if (a.length < 2) return a.slice(); let b; let n = 0; do { b = shuffle(a); n++; } while (b.join('|') === a.join('|') && n < 8); return b; }
   const emojiFor = (w) => w.emoji || EMOJI[w.en] || '';
   const clean = (t) => t.replace(/[^A-Za-z'-]/g, '');
-  function planetIndex(stars) { let i = 0; PLANETS.forEach((p, k) => { if (stars >= p.at) i = k; }); return i; }
+  function planetIndex(stars) {
+    const last = PLANETS.length - 1;
+    if (stars >= PLANETS[last].at) return last + Math.floor((stars - PLANETS[last].at) / FAR_STEP);
+    let i = 0; PLANETS.forEach((p, k) => { if (stars >= p.at) i = k; }); return i;
+  }
 
   const starSVG = (s = 20, fill = 'var(--sun)', stroke = '#E2B94F') =>
     `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.4l-5.4 2.9 1.1-6.1L3.2 9l6.1-.8z" fill="${fill}" stroke="${stroke}" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
@@ -722,22 +769,30 @@ body { touch-action: manipulation; }
     { id: 'listen', ko: 'Sound Hunt', sub: 'Listen and pick the picture', bg: 'var(--teal-soft)', mark: speakerSVG },
     { id: 'trace', ko: 'Trace & Write', sub: 'Write with Apple Pencil', bg: 'var(--sun-soft)', mark: pencilSVG },
     { id: 'sentence', ko: 'Sentence Ship', sub: 'Learn the sentences', bg: 'var(--lilac)', mark: 'I see' },
+    { id: 'memory', ko: 'Memory Match', sub: 'Find the picture pairs', bg: 'var(--teal-soft)', mark: '🃏' },
+    { id: 'meteor', ko: 'Meteor Spell', sub: 'Pick the right spelling', bg: 'var(--berry-soft)', mark: '☄️' },
+    { id: 'meaning', ko: 'Meaning Match', sub: 'Korean to English', bg: 'var(--mint)', mark: '가A' },
+    { id: 'catch', ko: 'Star Catch', sub: 'Catch the falling word', bg: 'var(--sun-soft)', mark: '🌠' },
   ];
+  const gameOff = (id, w) => id === 'sentence' ? (w.sentences.length ? '' : 'Add sentences first')
+    : (id === 'memory' || id === 'catch') && w.words.length < 2 ? 'Add 2 or more words'
+    : id === 'meaning' && w.words.filter(x => x.ko).length < 2 ? 'Add Korean meanings' : '';
   function renderHome(keepBubble) {
     screen = 'home'; g = null; seq++;
     const w = state.week, has = !!(w && w.words.length);
     const stars = state.progress.stars;
-    const pi = planetIndex(stars), next = PLANETS[pi + 1];
+    const pi = planetIndex(stars), next = planetAt(pi + 1);
+    const from = Math.max(0, pi - 3), stops = Array.from({ length: 8 }, (_, k) => from + k);
     const oldBubble = keepBubble && document.getElementById('bubble') ? document.getElementById('bubble').innerHTML : null;
     const greet = has
       ? `Hi ${esc(kid())}! What shall we play today?<small>Pick a game to fly to the next planet.</small>`
       : `Hi ${esc(kid())}! I'm Coco, your space friend.<small>When this week's words arrive, we can blast off!</small>`;
     const journey = `
       <section class="journey" aria-label="Planet map">
-        <div class="j-head"><h2>You are on ${esc(PLANETS[pi].ko)}</h2>
-          <p>${next ? `${next.at - stars} more ${next.at - stars === 1 ? 'star' : 'stars'} to reach ${esc(next.ko)}` : 'You visited every planet!'}</p></div>
+        <div class="j-head"><h2>You are on ${esc(planetAt(pi).ko)}</h2>
+          <p>${next.at - stars} more ${next.at - stars === 1 ? 'star' : 'stars'} to reach ${esc(next.ko)} · ${pi + 1} ${pi ? 'places' : 'place'} visited</p></div>
         <div class="track-scroll"><div class="track">
-          ${PLANETS.map((p, i) => `<div class="stop">${i === pi ? `<span class="rocket">${rocketSVG}</span>` : ''}${planetDot(p, 44, stars < p.at)}<span class="nm">${esc(p.ko)}</span><span class="need">${starSVG(12)}${p.at}</span></div>`).join('')}
+          ${stops.map(i => [planetAt(i), i]).map(([p, i]) => `<div class="stop">${i === pi ? `<span class="rocket">${rocketSVG}</span>` : ''}${planetDot(p, 44, stars < p.at)}<span class="nm">${esc(p.ko)}</span><span class="need">${starSVG(12)}${p.at}</span></div>`).join('')}
         </div></div>
       </section>`;
     let body, shelf = '';
@@ -746,10 +801,10 @@ body { touch-action: manipulation; }
         <section class="games-sec"><h2 class="sec-title">Choose a game</h2>
         <div class="games">
           ${GAMES.map(gm => {
-            const dis = gm.id === 'sentence' && !w.sentences.length;
+            const off = gameOff(gm.id, w), dis = !!off;
             return `<button class="game-card" style="background:${gm.bg}" data-act="play" data-game="${gm.id}" ${dis ? 'disabled' : ''}>
-              <span class="mark" style="${gm.mark.length > 4 && !gm.mark.startsWith('<') ? 'font-size:14px' : ''}">${gm.mark}</span>
-              <b>${gm.ko}</b><span>${dis ? 'Add sentences first' : gm.sub}</span></button>`;
+              <span class="mark ${/^\p{Extended_Pictographic}/u.test(gm.mark) ? 'emo' : ''}" style="${gm.mark.length > 4 && !gm.mark.startsWith('<') ? 'font-size:14px' : ''}">${gm.mark}</span>
+              <b>${gm.ko}</b><span>${dis ? off : gm.sub}</span></button>`;
           }).join('')}
         </div></section>`;
       shelf = `
@@ -766,7 +821,7 @@ body { touch-action: manipulation; }
       body = `
         <section class="empty">
           <h3>Waiting for this week's words</h3>
-          <p>Add about 10 English words and 2 sentences in the grown-ups menu to open all five games. You can also try it with example words first.</p>
+          <p>Add about 10 English words and 2 sentences in the grown-ups menu to open all the games. You can also try it with example words first.</p>
           <div class="p-actions"><button class="btn" data-act="parent">Open grown-ups menu</button><button class="btn ghost" data-act="try-example">Try example words</button></div>
         </section>`;
     }
@@ -792,6 +847,8 @@ body { touch-action: manipulation; }
     let queue;
     if (type === 'learn') queue = w.words.slice();
     else if (type === 'sentence') queue = w.sentences.slice();
+    else if (type === 'memory') { const s = shuffle(w.words), n = Math.min(3, s.length); queue = [s.slice(0, n)]; if (s.length >= 4) queue.push(s.length >= n + 2 ? s.slice(n, n + 3) : shuffle(s).slice(0, n)); }
+    else if (type === 'meaning') queue = shuffle(w.words.filter(x => x.ko)).slice(0, 5);
     else queue = shuffle(w.words).slice(0, Math.min(5, w.words.length));
     if (!queue.length) return;
     g = { type, queue, i: 0, earned: 0, startPlanet: planetIndex(state.progress.stars) };
@@ -813,7 +870,8 @@ body { touch-action: manipulation; }
     seq++;
     if (tts) tts.cancel();
     updateDots();
-    ({ learn: renderLearn, trace: renderTrace, spell: renderSpell, missing: renderMissing, listen: renderListen, sentence: renderSentence })[g.type]();
+    ({ learn: renderLearn, trace: renderTrace, spell: renderSpell, missing: renderMissing, listen: renderListen, sentence: renderSentence,
+      memory: renderMemory, meteor: renderMeteor, meaning: renderMeaning, catch: renderCatch })[g.type]();
   }
   function nextRound() {
     sfx.tap();
@@ -841,6 +899,7 @@ body { touch-action: manipulation; }
     return { ko, en };
   }
   function oops(el) {
+    if (g) g.oops = (g.oops || 0) + 1;
     sfx.soft();
     if (el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
     mood('think', 1200);
@@ -996,6 +1055,130 @@ body { touch-action: manipulation; }
       btn.classList.add('dim'); oops(btn);
       setTimeout(() => speak(w.en), 350);
     }
+  }
+
+  /* memory */
+  function renderMemory() {
+    const ws = g.queue[g.i];
+    g.cards = shuffle(ws.flatMap(w => [{ en: w.en, pic: true }, { en: w.en, pic: false }]));
+    g.flip = []; g.lock = false; g.done = false;
+    const face = (c) => c.pic ? `<span class="mc-pic">${esc(emojiFor(ws.find(w => w.en === c.en)) || ws.find(w => w.en === c.en).ko || '❓')}</span>` : `<span class="mc-word">${esc(c.en)}</span>`;
+    play().innerHTML = `
+      <div class="game-name">Memory Match · ${g.i + 1} / ${g.queue.length}</div>
+      <div class="mem-grid" style="grid-template-columns:repeat(${g.cards.length > 4 ? 3 : 2}, minmax(0,1fr))">${g.cards.map((c, k) => `
+        <button class="mem-card" data-act="mem" data-k="${k}" aria-label="Card ${k + 1}"><span class="mc-back">${rocketSVG}</span><span class="mc-face">${face(c)}</span></button>`).join('')}</div>
+      ${nextBtnHTML()}`;
+    say('Find a picture and its word.', 'Tap two cards.');
+  }
+  function tapMem(btn) {
+    const k = Number(btn.dataset.k), c = g.cards[k];
+    if (g.lock || g.done || c.done || g.flip.includes(k)) return;
+    btn.classList.add('open'); sfx.pop();
+    if (!c.pic) speak(c.en, { rate: .85 });
+    g.flip.push(k);
+    if (g.flip.length < 2) return;
+    const [a, b] = g.flip.map(i => g.cards[i]), els = g.flip.map(i => document.querySelector(`.mem-card[data-k="${i}"]`));
+    g.flip = [];
+    if (a.en === b.en) {
+      a.done = b.done = true;
+      els.forEach(e => e.classList.add('match'));
+      const p = award(1, els[1], a.en);
+      setTimeout(() => speak(`${a.en}! ${p.ko}`), 300);
+      if (g.cards.every(x => x.done)) { g.done = true; showNext(); }
+    } else {
+      g.lock = true; sfx.soft(); mood('think', 900);
+      say('Not a pair. Try again!', 'Remember where they are.');
+      setTimeout(() => { els.forEach(e => e.classList.remove('open')); g.lock = false; }, 1000);
+    }
+  }
+
+  /* meteor: pick the right spelling */
+  function misspell(word, avoid) {
+    const out = new Set(), V = 'aeiou', C = 'bcdfghklmnprstvwz';
+    const ch = [...word], li = ch.map((c, k) => isLetter(c) ? k : -1).filter(k => k >= 0);
+    for (let n = 0; out.size < 2 && n < 60; n++) {
+      const a = ch.slice(), k = rnd(li), t = n % 4;
+      if (t === 0 && li.length > 1) { const j = li[li.indexOf(k) + 1]; if (j === undefined || a[k] === a[j]) continue; [a[k], a[j]] = [a[j], a[k]]; }
+      else if (t === 1) { const pool = (V.includes(a[k]) ? V : C).replace(a[k], ''); a[k] = rnd([...pool]); }
+      else if (t === 2 && li.length > 2) a.splice(k, 1);
+      else a.splice(k, 0, a[k]);
+      const v = a.join('');
+      if (v !== word && !avoid.includes(v)) out.add(v);
+    }
+    return [...out];
+  }
+  function renderMeteor() {
+    const w = g.queue[g.i];
+    const opts = shuffle([w.en, ...misspell(w.en, state.week.words.map(x => x.en))]);
+    g.done = false;
+    play().innerHTML = `
+      <div class="game-name">Meteor Spell · ${g.i + 1} / ${g.queue.length}</div>
+      ${promptHTML(w)}
+      <div class="meteors">${opts.map((o, k) => `<button class="meteor" data-act="met" data-v="${esc(o)}" style="animation-delay:${k * .25}s"><span aria-hidden="true">☄️</span><b>${esc(o)}</b></button>`).join('')}</div>
+      ${nextBtnHTML()}`;
+    say('Which meteor is spelled right?', 'Look at every letter.');
+    setTimeout(() => speak(w.en), 250);
+  }
+  function tapMeteor(btn) {
+    if (g.done) return;
+    const w = g.queue[g.i];
+    if (btn.dataset.v === w.en) {
+      g.done = true; btn.classList.add('right');
+      document.querySelectorAll('.meteor').forEach(b => { if (b !== btn) b.classList.add('dim'); });
+      const p = award(1, btn, w.en);
+      setTimeout(() => speak(spellOut(w.en), { onend: () => speak(p.ko, { cancel: false, rate: .9 }) }), 400);
+      showNext();
+    } else { btn.classList.add('dim'); oops(btn); }
+  }
+
+  /* meaning: Korean meaning -> English word */
+  function renderMeaning() {
+    const w = g.queue[g.i];
+    const others = shuffle(state.week.words.filter(x => x.en !== w.en)).slice(0, 2);
+    g.done = false;
+    play().innerHTML = `
+      <div class="game-name">Meaning Match · ${g.i + 1} / ${g.queue.length}</div>
+      <div class="ko-big">${esc(w.ko)}</div>
+      <div class="pick-row" style="grid-template-columns:repeat(${others.length + 1}, minmax(0,1fr))">${shuffle([w, ...others]).map(x => `<button class="pick" data-act="mean" data-en="${esc(x.en)}"><span class="pw big">${esc(x.en)}</span></button>`).join('')}</div>
+      ${nextBtnHTML()}`;
+    say('What is this in English?', `"${w.ko}"`);
+  }
+  function tapMeaning(btn) {
+    if (g.done) return;
+    const w = g.queue[g.i];
+    if (btn.dataset.en === w.en) {
+      g.done = true; btn.classList.add('right');
+      btn.insertAdjacentHTML('afterbegin', `<span class="pe" aria-hidden="true">${esc(emojiFor(w))}</span>`);
+      document.querySelectorAll('.pick').forEach(b => { if (b !== btn) b.classList.add('dim'); });
+      const p = award(1, btn, w.en);
+      setTimeout(() => speak(`${w.en}! ${p.ko}`), 400);
+      showNext();
+    } else { btn.classList.add('dim'); oops(btn); }
+  }
+
+  /* catch: tap the falling star with the word you hear */
+  function renderCatch() {
+    const w = g.queue[g.i];
+    const opts = shuffle([w, ...shuffle(state.week.words.filter(x => x.en !== w.en)).slice(0, 2)]);
+    g.done = false;
+    play().innerHTML = `
+      <div class="game-name">Star Catch · ${g.i + 1} / ${g.queue.length}</div>
+      <div class="catch-head"><span class="pic" aria-hidden="true">${esc(emojiFor(w))}</span><button class="say-btn" data-act="say-word">${speakerSVG} Listen</button></div>
+      <div class="catch-sky">${opts.map((x, k) => `<button class="fall" data-act="catch" data-en="${esc(x.en)}" style="left:${8 + k * 31}%;animation-duration:${6 + k * 1.3}s;animation-delay:-${(k * 2.1).toFixed(1)}s"><span aria-hidden="true">${starSVG(46)}</span><b>${esc(x.en)}</b></button>`).join('')}</div>
+      ${nextBtnHTML()}`;
+    say('Catch the star with the word!', 'Listen, then tap it.');
+    setTimeout(() => speak(w.en), 250);
+  }
+  function tapCatch(btn) {
+    if (g.done) return;
+    const w = g.queue[g.i];
+    if (btn.dataset.en === w.en) {
+      g.done = true; btn.classList.add('caught');
+      document.querySelectorAll('.fall').forEach(b => { if (b !== btn) b.classList.add('gone'); });
+      const p = award(1, btn, w.en);
+      setTimeout(() => speak(`${w.en}! ${p.ko}`), 400);
+      showNext();
+    } else { btn.classList.add('gone'); oops(btn); setTimeout(() => speak(w.en), 350); }
   }
 
   /* sentence */
@@ -1297,6 +1480,8 @@ body { touch-action: manipulation; }
 
   /* finish */
   function finishGame() {
+    const bonus = g.type !== 'learn' && g.earned > 0 && !g.oops ? 2 : 0;
+    if (bonus) { state.progress.stars += bonus; g.earned += bonus; saveProgress(); updatePill(); }
     const earned = g.earned, before = g.startPlanet, now = planetIndex(state.progress.stars);
     const type = g.type;
     updateDots();
@@ -1309,13 +1494,14 @@ body { touch-action: manipulation; }
         <div class="coco-wrap">${coco('happy')}</div>
         <h2 id="mTitle">Mission complete!</h2>
         <p>${esc(praise)} You collected ${earned} ${earned === 1 ? 'star' : 'stars'}.</p>
+        ${bonus ? `<p class="bonus">${starSVG(22)} Perfect mission! +${bonus} bonus stars</p>` : ''}
         <div class="earned">${Array.from({ length: Math.min(earned, 12) }, () => starSVG(30)).join('')}</div>
-        ${now > before ? `<div class="new-planet">${planetDot(PLANETS[now], 40)} <span>New planet: ${esc(PLANETS[now].ko)}!</span></div>` : ''}
+        ${now > before ? `<div class="new-planet">${planetDot(planetAt(now), 40)} <span>New planet: ${esc(planetAt(now).ko)}!</span></div>` : ''}
         <div class="modal-btns"><button class="btn sun" data-act="again" data-game="${type}">Play again</button><button class="btn ghost" data-act="home">Home</button></div>
       </div>`;
     document.body.appendChild(back);
     speak(`Mission complete! ${praiseLine()}`);
-    if (now > before) setTimeout(() => speak(`We landed on ${PLANETS[now].ko}!`, { cancel: false }), 200);
+    if (now > before) setTimeout(() => speak(`We landed on ${planetAt(now).ko}!`, { cancel: false }), 200);
   }
   function closeModal() { document.querySelectorAll('.modal-back').forEach(m => m.remove()); }
 
@@ -1623,6 +1809,10 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
       case 'tile': tapTile(b); break;
       case 'opt': tapOpt(b); break;
       case 'pick': tapPick(b); break;
+      case 'mem': tapMem(b); break;
+      case 'met': tapMeteor(b); break;
+      case 'mean': tapMeaning(b); break;
+      case 'catch': tapCatch(b); break;
       case 'say-sent': if (g) speakSentence(false); break;
       case 'say-sent-slow': if (g) speakSentence(true); break;
       case 'phase': sfx.tap(); g.phase = b.dataset.to; renderSentence(); break;
