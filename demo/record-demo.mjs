@@ -46,71 +46,79 @@ const home = () => tap(page.locator('[data-act="home"]').first(), 900);
 const play = (id) => tap(page.locator(`[data-act="play"][data-game="${id}"]`), 900);
 const next = () => tap(page.locator('[data-act="next"]'), 700);
 
+const byKo = async () => { const ko = await page.locator('.prompt .ko').innerText(); return (await week()).find(w => w.ko === ko).en; };
+async function spellTiles(word, pause = 330) { for (const ch of [...word].filter(c => /[a-z]/i.test(c))) await tap(page.locator(`#tiles .tile:not(.used)[data-ch="${ch}"]`).first(), pause); }
+
 await page.goto('http://localhost:8765/index.html');
-// Start just short of the first planet after Star Land so a new planet opens during the demo.
-await page.evaluate(() => { localStorage.clear(); localStorage.setItem('yushin-space-progress', JSON.stringify({ stars: 172, mastery: {} })); });
+// Start a few stars short of a planet so a new one opens during the demo.
+await page.evaluate(() => { localStorage.clear(); localStorage.setItem('yushin-space-progress', JSON.stringify({ stars: 205, mastery: {} })); });
 await page.reload();
 await wait(800);
-await cap('유신이의 Space Words — 우주 테마 영어 단어 학습 앱'); await wait(2400);
+await cap('유신이의 Space Words — 우주 테마 영어 단어 학습 앱'); await wait(2200);
 await tap(page.locator('[data-act="try-example"]'), 1000);
-await cap('게임 10개 · 별을 모아 끝없는 행성 여행'); await wait(2800);
+await cap('게임 16개 — 철자 · 단어 놀이 · 문장 쓰기'); await wait(3000);
 
-// Letter Rocket (one word)
-await cap('Letter Rocket — 글자를 순서대로 눌러 철자 완성');
-await play('spell'); await wait(600);
-let word = await lastSaid();
-for (const ch of [...word].filter(c => /[a-z]/i.test(c))) await tap(page.locator(`#tiles .tile:not(.used)[data-ch="${ch}"]`).first(), 380);
-await wait(1200);
-await home();
+// Vowel Hunt
+await cap('Vowel Hunt — 빠진 모음 a e i o u 채우기');
+await play('vowel'); await wait(700);
+let word = await byKo();
+for (const c of word) if ('aeiou'.includes(c)) await tap(page.locator(`.opt-star[data-ch="${c}"]`), 500);
+await wait(1300); await home();
 
-// NEW: Memory Match (first board)
-await cap('NEW · Memory Match — 그림과 단어 짝 맞추기');
-await play('memory'); await wait(600);
-const words = await week();
-const faces = await page.evaluate(() => [...document.querySelectorAll('.mem-card')].map(c => c.querySelector('.mc-face').textContent.trim()));
-const enOf = (f) => (words.find(w => w.emoji === f || w.ko === f) || { en: f }).en;
-// one miss first, so viewers see cards flip back
-const miss = faces.findIndex((f, k) => k > 0 && enOf(f) !== enOf(faces[0]));
-await tap(page.locator('.mem-card[data-k="0"]'), 400); await tap(page.locator(`.mem-card[data-k="${miss}"]`), 1300);
-const seen = new Set();
-for (let k = 0; k < faces.length; k++) {
-  if (seen.has(k)) continue;
-  const j = faces.findIndex((f, m) => m !== k && enOf(f) === enOf(faces[k]));
-  seen.add(k); seen.add(j);
-  await tap(page.locator(`.mem-card[data-k="${k}"]`), 350); await tap(page.locator(`.mem-card[data-k="${j}"]`), 900);
-}
-await wait(600);
-await home();
+// Chunk Builder
+await cap('Chunk Builder — 단어 조각 이어 붙이기');
+await play('chunk'); await wait(800);
+const parts = await page.evaluate(() => document.querySelector('.bubble small').textContent.split(' + '));
+for (const t of parts) await tap(page.locator(`.blk.chunk:not(.used)[data-t="${t}"]`).first(), 700);
+await wait(1300); await home();
 
-// NEW: Meteor Spell (one word)
-await cap('NEW · Meteor Spell — 철자가 맞는 운석 고르기');
-await play('meteor'); await wait(1500);
-word = await lastSaid();
-await tapMoving(page.locator(`.meteor[data-v="${word}"]`), 1800);
-await home();
+// Peek & Spell
+await cap('Peek & Spell — 단어를 보고, 숨긴 뒤 기억해서 쓰기');
+await play('peek'); await wait(2600);
+word = await page.evaluate(() => [...document.querySelectorAll('#lw .lt')].map(e => e.textContent).join(''));
+await tap(page.locator('[data-act="peek-go"]'), 900);
+await spellTiles(word);
+await wait(1300); await home();
 
-// NEW: Meaning Match (one word)
-await cap('NEW · Meaning Match — 한글 뜻 보고 영어 단어 고르기');
-await play('meaning'); await wait(1500);
-const ko = await page.locator('.ko-big').innerText();
-await tap(page.locator(`.pick[data-en="${words.find(w => w.ko === ko).en}"]`), 1800);
-await home();
+// Spelling Bee
+await cap('Spelling Bee — 듣고 a~z 키보드로 직접 쓰기');
+await play('bee'); await wait(800);
+word = await byKo();
+for (const ch of word) await tap(page.locator(`#tiles .key[data-ch="${ch}"]`), 380);
+await wait(1300); await home();
 
-// NEW: Star Catch (full mission, which lands on a new planet)
-await cap('NEW · Star Catch — 소리 듣고 떨어지는 별 잡기');
-await play('catch'); await wait(1400);
+// Sentence Maker
+await cap('Sentence Maker — 문장 속 빈칸에 단어 철자 채우기');
+await play('frame'); await wait(900);
+await spellTiles(await byKo());
+await wait(1800); await home();
+
+// Sentence Writer
+await cap('Sentence Writer — 문장을 단어 하나씩 써 나가기');
+await play('swrite'); await wait(1000);
+for (const tok of (await page.evaluate(() => JSON.parse(localStorage.getItem('yushin-space-week')).sentences[0].en)).split(' ')) { await spellTiles(tok, 280); await wait(650); }
+await wait(1500); await home();
+
+// Sentence Trace
+await cap('Sentence Trace — Apple Pencil로 문장 따라 쓰기');
+await play('strace'); await wait(1000);
+const pad = await page.locator('#inkC').boundingBox();
+await page.mouse.move(pad.x + pad.width * .05, pad.y + pad.height * .5); await page.mouse.down();
+for (let i = 0; i <= 50; i++) await page.mouse.move(pad.x + pad.width * (.05 + .3 * i / 50), pad.y + pad.height * (.5 + .12 * Math.sin(i / 3)), { steps: 2 });
+await page.mouse.up(); await wait(1200); await home();
+
+// Star Catch (full mission, which lands on a new planet)
+await cap('Star Catch — 소리 듣고 떨어지는 별 잡기');
+await play('catch'); await wait(1300);
 for (let i = 0; i < 5; i++) {
   word = await lastSaid();
-  await tapMoving(page.locator(`.fall[data-en="${word}"]`), i ? 700 : 1300);
+  await tapMoving(page.locator(`.fall[data-en="${word}"]`), i ? 600 : 1100);
   await next();
   if (i === 1) await cap('실수 없이 끝내면 보너스 별 +2');
 }
 await cap('별이 모이면 새 행성 도착! 눌러서 방문해요'); await wait(2200);
 await tap(page.locator('.modal [data-act="visit"]'), 3000);
-await cap('행성마다 이름 · 모습 · 사는 친구들이 달라요'); await wait(1500);
-await tap(page.locator('.modal [data-act="visit"]').first(), 2600);
 await tap(page.locator('.modal [data-act="home"]'), 1000);
 await cap('별에는 끝이 없어요 — 행성이 계속 새로 생겨요'); await wait(2600);
-await tap(page.locator('.stop').last(), 2400);
-await cap('Eushin\'s Space Words ✨'); await wait(2200);
+await cap('Eushin\'s Space Words ✨'); await wait(2000);
 await ctx.close(); await browser.close();
