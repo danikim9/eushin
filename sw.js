@@ -1,8 +1,8 @@
 // Offline support for the home-screen app. build.mjs bumps VERSION on every build.
-const VERSION = '20261016134642';
+const VERSION = '20261016141332';
 const CACHE = `space-words-${VERSION}`;
 const FONT_CACHE = 'space-words-fonts';
-const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png'];
+const CORE = ['./', 'index.html', 'config.js', 'vendor/supabase-2.49.4.js', 'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
@@ -32,6 +32,15 @@ self.addEventListener('fetch', (e) => {
   }
   if (url.origin !== location.origin) return;
 
+  // Settings: network first so a changed Supabase config applies without a rebuild.
+  if (url.pathname.endsWith('/config.js')) {
+    e.respondWith(
+      fetch(req)
+        .then((res) => { const copy = res.clone(); caches.open(CACHE).then((c) => c.put('config.js', copy)); return res; })
+        .catch(() => caches.match('config.js'))
+    );
+    return;
+  }
   // Pages: network first so updates arrive, cache when offline.
   if (req.mode === 'navigate') {
     e.respondWith(

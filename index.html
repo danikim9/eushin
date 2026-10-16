@@ -18,6 +18,7 @@ body { margin: 0; font: 14px/1.4 system-ui, -apple-system, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
+<script src="config.js"></script>
 <title>Eushin's Space Words</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -318,6 +319,33 @@ button.stop:active .planet { transform: scale(.92); }
 .onb-nav-sp { width: 88px; }
 .onb-link { align-self: flex-start; }
 
+/* children & account */
+.kids { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 520px; align-self: center; }
+.parent .kids { align-self: stretch; }
+.kid-row { display: flex; align-items: center; gap: 10px; background: var(--paper-2); border-radius: 16px; padding: 6px 8px 6px 6px; border: 2px solid transparent; }
+.kid-row.on { border-color: var(--teal); }
+.kid-row .field { flex: 1; min-width: 0; font-size: 18px; box-sizing: border-box; }
+.kid-stars { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kid-add { display: flex; gap: 8px; }
+.kid-add .field { flex: 1; min-width: 0; font-size: 17px; box-sizing: border-box; }
+.kid-switch { display: inline-flex; background: var(--space-deep); border: 2px solid var(--space-line); border-radius: 999px; padding: 3px; gap: 2px; }
+.kid-switch button { min-height: 38px; padding: 0 14px; border-radius: 999px; font-family: var(--f-display); font-size: 16px; color: var(--on-space-soft); }
+.kid-switch button.on { background: var(--mint); color: var(--ink); }
+.account { display: flex; flex-direction: column; gap: 10px; border-top: 2px dashed var(--paper-2); padding-top: 16px; }
+.auth { max-width: 520px; }
+.auth .onb-body { gap: 16px; }
+.auth-tabs { align-self: center; }
+.auth-form { display: flex; flex-direction: column; gap: 12px; }
+.auth-form label { display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 15px; }
+.auth-form label small { font-weight: 500; color: var(--ink-soft); }
+.auth-form .field { font-size: 18px; width: 100%; box-sizing: border-box; }
+.auth-form .auth-agree { flex-direction: row; align-items: flex-start; gap: 10px; font-weight: 500; line-height: 1.5; color: var(--ink-soft); }
+.auth-agree input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--teal); flex: none; }
+.auth-form .btn { align-self: stretch; }
+.auth-links { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.linkbtn { color: var(--ink-soft); text-decoration: underline; font-size: 15px; padding: 6px; }
+p.ok { margin: 0; color: var(--teal-deep, #2FA585); font-weight: 700; line-height: 1.5; }
+
 /* spelling & sentence games */
 .word-big .hole.now { border-style: solid; box-shadow: 0 0 0 4px var(--teal-soft); }
 .word-big .hole { font-family: var(--f-word); color: var(--ink); }
@@ -502,9 +530,10 @@ body { touch-action: manipulation; }
 <script>
 (() => {
   'use strict';
-  const LS_WEEK = 'yushin-space-week', LS_PROG = 'yushin-space-progress', LS_SOUND = 'yushin-space-sound', LS_NAME = 'yushin-space-name', LS_ONB = 'yushin-space-onboarded';
-  const NAMES = ['Eushin', 'Harry'];
-  const kid = () => state.name;
+  const LS_WEEK = 'yushin-space-week', LS_PROG = 'yushin-space-progress', LS_SOUND = 'yushin-space-sound', LS_NAME = 'yushin-space-name', LS_ONB = 'yushin-space-onboarded',
+    LS_KIDS = 'yushin-space-kids', LS_KID = 'yushin-space-kid', LS_GUEST = 'yushin-space-guest', LS_OWNER = 'yushin-space-owner',
+    LS_DIRTY = 'yushin-space-dirty', LS_WEEK_AT = 'yushin-space-week-at';
+  const kid = () => (activeKid() || {}).name || 'friend';
   const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const PLANETS = [
@@ -601,67 +630,147 @@ body { touch-action: manipulation; }
     return p;
   }
 
+  /* children: each has its own stars and word progress; this week's words are shared by the family */
+  const MAX_KIDS = 6;
+  const newId = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+    : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+  const cleanName = (n) => String(n || '').replace(/\s+/g, ' ').trim().slice(0, 20);
+  function normKid(d) {
+    const p = normProg(d);
+    return { id: String(d && d.id || newId()), name: cleanName(d && d.name) || 'Star', stars: p.stars, mastery: p.mastery,
+      at: Number(d && d.at) || Date.now(), synced: !!(d && d.synced) };
+  }
+  function loadKids() {
+    const saved = lsGet(LS_KIDS);
+    if (Array.isArray(saved)) return saved.map(normKid);
+    // Before accounts there was one child: keep their name and stars.
+    const old = lsGet(LS_PROG), oldName = lsGet(LS_NAME);
+    if (old || oldName || lsGet(LS_WEEK)) return [normKid({ ...normProg(old), name: oldName || 'Eushin' })];
+    return [];
+  }
+  const EMPTY_PROG = { stars: 0, mastery: {} };
   const state = {
     week: normWeek(lsGet(LS_WEEK)),
-    progress: normProg(lsGet(LS_PROG)),
-    db: null,
+    kids: loadKids(),
+    kidId: lsGet(LS_KID),
     sound: lsGet(LS_SOUND) !== false,
-    name: NAMES.includes(lsGet(LS_NAME)) ? lsGet(LS_NAME) : 'Eushin',
+    user: null,
+    recovery: false,
   };
+  function activeKid() { return state.kids.find(k => k.id === state.kidId) || state.kids[0] || null; }
+  if (state.kids.length && !Array.isArray(lsGet(LS_KIDS))) lsSet(LS_KIDS, state.kids);   // keep the migrated child's id stable
+  Object.defineProperty(state, 'progress', { get: () => activeKid() || EMPTY_PROG });
   let screen = 'home';
   let g = null;           // current game
   let seq = 0;            // speech chain token
 
-  /* ---------- db ---------- */
-  async function connect() {
-    if (!window.claude || !window.claude.use) return;
-    let db = null;
-    try { db = await window.claude.use('db'); } catch { db = null; }
-    if (!db) return;
-    state.db = db;
-    try {
-      const p = await db.doc('study/progress').get();
-      if (p.exists) {
-        const remote = normProg(p.data());
-        if (remote.stars >= state.progress.stars) { state.progress = remote; lsSet(LS_PROG, remote); }
-        else flushProgress();
-      }
-    } catch {}
-    db.doc('study/settings').onSnapshot(snap => {
-      const n = snap.exists && snap.data().name;
-      if (NAMES.includes(n) && n !== state.name) { state.name = n; lsSet(LS_NAME, n); refreshHome(); markName(); }
-    }, () => {});
-    db.doc('study/week').onSnapshot(snap => {
-      if (!snap.exists) { refreshHome(); return; }
-      const w = normWeek(snap.data());
-      if (!w) return;
-      state.week = w; lsSet(LS_WEEK, w);
-      refreshHome();
-    }, () => {});
-    refreshHome();
-  }
+  /* ---------- local save + cloud sync (Supabase) ---------- */
+  const CFG = window.SPACE_WORDS_CONFIG || {};
+  const CLOUD = !!(CFG.supabaseUrl && CFG.supabaseKey);
+  let sb = null;
   function refreshHome() { if (screen === 'home') renderHome(true); }
-
-  let pTimer = null, pWriting = false, pDirty = false;
-  function saveProgress() {
-    lsSet(LS_PROG, state.progress);
-    clearTimeout(pTimer);
-    pTimer = setTimeout(flushProgress, 1200);
+  const dirty = () => lsGet(LS_DIRTY) || {};
+  function markDirty(part, extra) {
+    const d = dirty(); d[part] = true;
+    if (extra) d.deleted = [...new Set((d.deleted || []).concat(extra))];
+    lsSet(LS_DIRTY, d);
   }
-  async function flushProgress() {
-    if (!state.db) return;
-    if (pWriting) { pDirty = true; return; }
-    pWriting = true;
-    try { await state.db.doc('study/progress').set({ stars: state.progress.stars, mastery: { ...state.progress.mastery }, updatedAt: new Date().toISOString() }); } catch {}
-    pWriting = false;
-    if (pDirty) { pDirty = false; flushProgress(); }
+  function saveKids() { lsSet(LS_KIDS, state.kids); if (state.kidId) lsSet(LS_KID, state.kidId); }
+  let pTimer = null;
+  function saveProgress() {
+    const k = activeKid(); if (k) k.at = Date.now();
+    saveKids(); markDirty('kids');
+    clearTimeout(pTimer); pTimer = setTimeout(pushCloud, 1500);
   }
   async function saveWeek(week) {
-    state.week = week; lsSet(LS_WEEK, week);
-    if (!state.db) return 'local';
-    try { await state.db.doc('study/week').set({ ...week, updatedAt: new Date().toISOString() }); return 'db'; }
-    catch (e) { return e && e.code === 'invalid_argument' ? 'denied' : 'failed'; }
+    state.week = week; lsSet(LS_WEEK, week); lsSet(LS_WEEK_AT, Date.now());
+    markDirty('week');
+    if (!sb || !state.user) return 'local';
+    return (await pushCloud()) ? 'db' : 'failed';
   }
+  function loadScript(src) {
+    return new Promise((res, rej) => { const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = rej; document.head.appendChild(el); });
+  }
+  async function initCloud() {
+    if (!CLOUD) return;
+    try {
+      if (!window.supabase) await loadScript(CFG.supabaseLib || 'vendor/supabase-2.49.4.js');
+      sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+    } catch { sb = null; return; }
+    sb.auth.onAuthStateChange((ev, session) => {
+      state.user = session ? session.user : null;
+      if (ev === 'PASSWORD_RECOVERY') { state.recovery = true; renderNewPassword(); }
+    });
+    try { const { data } = await sb.auth.getSession(); state.user = data && data.session ? data.session.user : null; } catch {}
+  }
+  const ts = (ms) => new Date(ms).toISOString();
+  // Pull the family's data and merge with this device: the newer copy of each child and of the week wins.
+  async function pullCloud() {
+    if (!sb || !state.user) return false;
+    const uid = state.user.id;
+    let f, c;
+    try {
+      [f, c] = await Promise.all([
+        sb.from('families').select('week, updated_at').eq('user_id', uid).maybeSingle(),
+        sb.from('children').select('id, name, stars, mastery, updated_at').eq('user_id', uid).order('created_at'),
+      ]);
+    } catch { return false; }
+    if (f.error || c.error) return false;
+    const owner = lsGet(LS_OWNER);
+    if (owner && owner !== uid) {                       // data on this device belongs to another account
+      state.kids = []; state.week = null; lsSet(LS_WEEK, null); lsSet(LS_WEEK_AT, 0); lsSet(LS_DIRTY, {});
+    }
+    lsSet(LS_OWNER, uid);
+    const d = dirty(), deleted = d.deleted || [];
+    const local = new Map(state.kids.map(k => [k.id, k]));
+    const merged = [];
+    for (const row of c.data || []) {
+      if (deleted.includes(row.id)) continue;
+      const mine = local.get(row.id), at = Date.parse(row.updated_at) || 0;
+      if (mine && mine.at > at) { merged.push(mine); markDirty('kids'); }
+      else merged.push(normKid({ ...row, at, synced: true }));
+      local.delete(row.id);
+    }
+    for (const k of local.values()) if (!k.synced) { merged.push(k); markDirty('kids'); }   // added on this device, not uploaded yet
+    state.kids = merged;
+    if (!state.kids.some(k => k.id === state.kidId)) state.kidId = state.kids[0] ? state.kids[0].id : null;
+    saveKids();
+    const cloudWeek = f.data && normWeek(f.data.week), cloudAt = f.data ? Date.parse(f.data.updated_at) || 0 : 0;
+    if (cloudWeek && cloudWeek.words.length && cloudAt >= (Number(lsGet(LS_WEEK_AT)) || 0)) {
+      state.week = cloudWeek; lsSet(LS_WEEK, cloudWeek); lsSet(LS_WEEK_AT, cloudAt);
+    } else if (state.week && state.week.words.length) markDirty('week');
+    if (Object.keys(dirty()).length) await pushCloud();
+    return true;
+  }
+  let pushing = null;
+  async function pushCloud() {
+    if (!sb || !state.user) return false;
+    if (pushing) { await pushing; }
+    pushing = (async () => {
+      const uid = state.user.id, d = dirty();
+      try {
+        if (d.week && state.week) {
+          const r = await sb.from('families').upsert({ user_id: uid, week: state.week, updated_at: ts(Number(lsGet(LS_WEEK_AT)) || Date.now()) });
+          if (r.error) throw r.error;
+        }
+        if (d.kids && state.kids.length) {
+          const r = await sb.from('children').upsert(state.kids.map(k => ({ id: k.id, user_id: uid, name: k.name, stars: k.stars, mastery: k.mastery, updated_at: ts(k.at) })));
+          if (r.error) throw r.error;
+          state.kids.forEach(k => { k.synced = true; }); saveKids();
+        }
+        if (d.deleted && d.deleted.length) {
+          const r = await sb.from('children').delete().in('id', d.deleted);
+          if (r.error) throw r.error;
+        }
+        lsSet(LS_DIRTY, {});
+        return true;
+      } catch { return false; }                         // stays marked; retried on the next change, when back online, or on reopen
+    })();
+    const ok = await pushing; pushing = null; return ok;
+  }
+  async function syncNow() { if (await pullCloud()) refreshHome(); }
+  window.addEventListener('online', () => { if (state.user) pushCloud(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.user && screen === 'home') syncNow(); });
 
   /* ---------- sound ---------- */
   let actx = null;
@@ -912,7 +1021,7 @@ body { touch-action: manipulation; }
     app.innerHTML = `
       <header class="top">
         <div class="brand"><span class="brand-ko">${esc(kid())}'s Space Words</span><span class="brand-en">Spelling adventures with Coco</span></div>
-        <div class="top-r">${starPill()}
+        <div class="top-r">${kidSwitchHTML()}${starPill()}
           <button class="icon-btn ${state.sound ? '' : 'off'}" data-act="sound" aria-label="${state.sound ? 'Turn sound effects off' : 'Turn sound effects on'}">${noteSVG(state.sound)}</button>
           <button class="icon-btn" data-act="parent" aria-label="Grown-ups menu">${lockSVG}</button></div>
       </header>
@@ -1843,7 +1952,7 @@ body { touch-action: manipulation; }
   const ONB_STEPS = [
     () => `
       <div class="onb-hero"><div class="coco-wrap">${coco('happy')}</div></div>
-      <h2>${esc(kid())}의 Space Words에 오신 걸 환영해요!</h2>
+      <h2>Space Words에 오신 걸 환영해요!</h2>
       <p class="onb-lead">5살 아이가 매주 영어 단어 철자와 짧은 문장을 놀이처럼 익히는 앱이에요. 외계인 친구 <b>코코</b>가 게임마다 아이를 안내해요.</p>
       <ul class="onb-points">
         <li><span>📝</span><div><b>매주 단어 10개 + 문장 2개</b>보호자가 이번 주 단어를 넣어주면 모든 게임이 그 단어로 바뀌어요.</div></li>
@@ -1885,12 +1994,12 @@ body { touch-action: manipulation; }
         <li><span>✏️</span><div><b>Apple Pencil</b>따라 쓰기 게임은 애플 펜슬이 가장 좋아요. 손가락으로도 할 수 있어요.</div></li>
         <li><span>⏰</span><div><b>하루 10~15분</b>게임 2~3개씩 짧게, 매일 하는 게 가장 효과적이에요.</div></li>
       </ul>
-      <div class="onb-tip">💡 단어와 별은 이 아이패드에 저장돼요. 새 버전이 안 보이면 앱을 완전히 닫았다가 다시 열어 주세요.</div>`,
+      <div class="onb-tip">💡 ${state.user ? '로그인되어 있어서 단어와 별이 계정에 자동 저장돼요. 다른 기기에서 같은 계정으로 로그인하면 그대로 이어져요.' : '단어와 별은 이 기기에 저장돼요.'} 새 버전이 안 보이면 앱을 완전히 닫았다가 다시 열어 주세요.</div>`,
     () => `
       <div class="onb-hero"><div class="coco-wrap">${coco('happy')}</div></div>
       <h2>이제 시작해 볼까요?</h2>
-      <p class="onb-lead">아이 이름을 골라 주세요. 코코가 이 이름으로 아이를 불러요.</p>
-      <div class="seg onb-seg" role="group" aria-label="아이 이름">${NAMES.map(n => `<button type="button" class="seg-btn ${n === state.name ? 'on' : ''}" data-act="set-name" data-name="${n}" aria-pressed="${n === state.name}">${n}</button>`).join('')}</div>
+      <p class="onb-lead">아이 이름을 적어 주세요. 코코가 이 이름으로 아이를 불러요. 형제자매가 있으면 여러 명 추가할 수 있고, 아이마다 별이 따로 모여요.</p>
+      ${kidsHTML()}
       <div class="onb-start">
         <button class="btn" data-act="onb-words">이번 주 단어 넣기</button>
         <button class="btn ghost" data-act="onb-example">예시 단어로 먼저 해보기</button>
@@ -1913,9 +2022,217 @@ body { touch-action: manipulation; }
     window.scrollTo(0, 0);
   }
   function finishOnboarding(next) {
+    if (next && !state.kids.length) { toast('아이 이름을 먼저 추가해 주세요'); const i = document.getElementById('kidNew'); if (i) i.focus(); return; }
     lsSet(LS_ONB, true);
+    if (!state.kids.length) { renderKidSetup(); return; }
     if (next === 'words') renderParent();
     else { if (next === 'example' && !(state.week && state.week.words.length)) saveWeek(normWeek(EXAMPLE)); renderHome(); }
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- children ---------- */
+  function kidsHTML() {
+    return `<div class="kids" id="kids" lang="ko">
+      ${state.kids.map(k => `<div class="kid-row ${k.id === (activeKid() || {}).id ? 'on' : ''}">
+        <input class="field" data-kid="${k.id}" value="${esc(k.name)}" maxlength="20" autocomplete="off" aria-label="아이 이름">
+        <span class="kid-stars">${starSVG(16)} ${k.stars}</span>
+        <button type="button" class="x-btn" data-act="kid-del" data-id="${k.id}" aria-label="${esc(k.name)} 삭제">×</button></div>`).join('')}
+      ${state.kids.length < MAX_KIDS ? `<div class="kid-add"><input class="field" id="kidNew" maxlength="20" autocomplete="off" placeholder="아이 이름 (예: 유신, Eushin)" aria-label="새 아이 이름">
+        <button type="button" class="btn sm" data-act="kid-add">+ 아이 추가</button></div>` : ''}
+    </div>`;
+  }
+  function refreshKids() { const el = document.getElementById('kids'); if (el) el.outerHTML = kidsHTML(); }
+  function addKid() {
+    const inp = document.getElementById('kidNew'); if (!inp) return;
+    const name = cleanName(inp.value);
+    if (!name) { toast('아이 이름을 적어 주세요'); inp.focus(); return; }
+    if (state.kids.length >= MAX_KIDS) return;
+    const k = normKid({ name, stars: 0, mastery: {} });
+    state.kids.push(k); if (!state.kidId || state.kids.length === 1) state.kidId = k.id;
+    saveKids(); markDirty('kids'); pushCloud();
+    sfx.pop(); refreshKids();
+    const ni = document.getElementById('kidNew'); if (ni) ni.focus();
+  }
+  function renameKid(id, value) {
+    const k = state.kids.find(x => x.id === id); if (!k) return;
+    const name = cleanName(value);
+    if (!name || name === k.name) { refreshKids(); return; }
+    k.name = name; k.at = Date.now(); saveKids(); markDirty('kids'); pushCloud();
+    toast(`이름을 ${name}(으)로 바꿨어요`);
+  }
+  function deleteKid(id) {
+    const k = state.kids.find(x => x.id === id); if (!k) return;
+    if (!confirm(`${k.name}의 별 ${k.stars}개와 단어 기록이 모두 지워져요. 삭제할까요?`)) return;
+    state.kids = state.kids.filter(x => x.id !== id);
+    if (state.kidId === id) state.kidId = state.kids[0] ? state.kids[0].id : null;
+    saveKids(); if (k.synced) markDirty('kids', [id]); pushCloud();
+    refreshKids();
+  }
+  function pickKid(id) {
+    if (!state.kids.some(k => k.id === id)) return;
+    state.kidId = id; lsSet(LS_KID, id); sfx.tap(); renderHome();
+  }
+  function renderKidSetup() {
+    screen = 'kids'; seq++;
+    app.innerHTML = `
+      <section class="onb" lang="ko" aria-label="아이 등록">
+        <div class="onb-body">
+          <div class="onb-hero"><div class="coco-wrap">${coco('happy')}</div></div>
+          <h2>누가 우주 여행을 떠나나요?</h2>
+          <p class="onb-lead">아이 이름을 적어 주세요. 형제자매가 있으면 여러 명 추가할 수 있어요.</p>
+          ${kidsHTML()}
+          <div class="onb-start"><button class="btn sun" data-act="kids-done">시작하기 ›</button></div>
+        </div>
+      </section>`;
+  }
+  function kidSwitchHTML() {
+    if (state.kids.length < 2) return '';
+    const cur = activeKid();
+    return `<div class="kid-switch" role="group" aria-label="Who is playing?">${state.kids.map(k => `<button class="${k.id === cur.id ? 'on' : ''}" data-act="kid-pick" data-id="${k.id}" aria-pressed="${k.id === cur.id}">${esc(k.name)}</button>`).join('')}</div>`;
+  }
+
+  /* ---------- account (Supabase Auth) ---------- */
+  function accountHTML() {
+    if (!CLOUD || !sb) return '';
+    if (state.user) return `<div class="account" lang="ko"><h3>계정</h3>
+      <p class="help"><b>${esc(state.user.email || '')}</b>(으)로 로그인했어요. 단어와 별이 계정에 자동 저장되고, 다른 기기에서 로그인해도 이어져요.</p>
+      <div class="p-actions"><button type="button" class="btn ghost sm" data-act="logout">로그아웃</button><button type="button" class="btn ghost sm" data-act="delete-ask">계정 삭제</button></div>
+      <div id="delBox"></div></div>`;
+    return `<div class="account" lang="ko"><h3>계정</h3>
+      <p class="help">지금은 이 기기에만 저장돼요. 회원가입하면 지금까지 모은 별과 단어를 계정에 옮기고, 다른 기기에서도 이어서 할 수 있어요.</p>
+      <div class="p-actions"><button type="button" class="btn sm" data-act="auth-open" data-mode="signup">회원가입</button><button type="button" class="btn ghost sm" data-act="auth-open" data-mode="login">로그인</button></div></div>`;
+  }
+  const AUTH_ERR = [
+    [/invalid login credentials/i, '이메일 또는 비밀번호가 맞지 않아요.'],
+    [/already registered|already been registered|user already exists/i, '이미 가입된 이메일이에요. 로그인해 주세요.'],
+    [/email not confirmed/i, '메일함에서 가입 확인 링크를 먼저 눌러 주세요.'],
+    [/password should be|weak password|at least 6/i, '비밀번호는 6자 이상으로 정해 주세요.'],
+    [/rate limit|too many|security purposes/i, '요청이 너무 많아요. 잠시 후 다시 시도해 주세요.'],
+    [/invalid email|unable to validate email|email address .* is invalid/i, '이메일 주소를 다시 확인해 주세요.'],
+    [/same password|different from the old/i, '이전과 다른 비밀번호를 정해 주세요.'],
+    [/fetch|network|failed to/i, '인터넷 연결을 확인해 주세요.'],
+  ];
+  const authMsg = (e) => { const m = String(e && (e.message || e) || ''); const hit = AUTH_ERR.find(([re]) => re.test(m)); return hit ? hit[1] : '문제가 생겼어요. 잠시 후 다시 시도해 주세요.'; };
+  let authMode = 'login';
+  function renderAuth(mode = 'login', note = '') {
+    screen = 'auth'; seq++; if (tts) tts.cancel();
+    authMode = mode;
+    const signup = mode === 'signup', reset = mode === 'reset';
+    app.innerHTML = `
+      <section class="onb auth" lang="ko" aria-label="로그인">
+        <div class="onb-body">
+          <div class="onb-hero"><div class="coco-wrap">${coco()}</div></div>
+          <h2>${reset ? '비밀번호 재설정' : 'Space Words'}</h2>
+          <p class="onb-lead">${reset ? '가입한 이메일을 적으면 비밀번호를 다시 정하는 링크를 보내드려요.' : '아이와 함께하는 영어 철자 우주 여행이에요. 보호자 계정으로 로그인하면 여러 기기에서 별과 단어가 이어져요.'}</p>
+          ${reset ? '' : `<div class="seg auth-tabs" role="tablist"><button type="button" class="seg-btn ${signup ? '' : 'on'}" data-act="auth-mode" data-mode="login" role="tab" aria-selected="${!signup}">로그인</button><button type="button" class="seg-btn ${signup ? 'on' : ''}" data-act="auth-mode" data-mode="signup" role="tab" aria-selected="${signup}">회원가입</button></div>`}
+          <form class="auth-form" id="authForm" novalidate>
+            <label>이메일<input class="field" id="authEmail" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" required></label>
+            ${reset ? '' : `<label>비밀번호<input class="field" id="authPw" type="password" autocomplete="${signup ? 'new-password' : 'current-password'}" minlength="6" required>${signup ? '<small>6자 이상</small>' : ''}</label>`}
+            ${signup ? `<label>비밀번호 확인<input class="field" id="authPw2" type="password" autocomplete="new-password" minlength="6" required></label>
+            <label class="auth-agree"><input type="checkbox" id="authAgree"> <span>보호자(만 14세 이상)이며, 아이 이름과 학습 기록(단어, 별)을 계정에 저장하는 것에 동의해요.</span></label>` : ''}
+            <p class="err" id="authErr" ${note ? '' : 'hidden'}>${esc(note)}</p>
+            <p class="ok" id="authOk" hidden></p>
+            <button class="btn" type="submit" id="authGo">${reset ? '재설정 메일 보내기' : signup ? '가입하기' : '로그인'}</button>
+          </form>
+          <div class="auth-links">
+            ${reset ? '<button type="button" class="linkbtn" data-act="auth-mode" data-mode="login">‹ 로그인으로 돌아가기</button>'
+              : signup ? '' : '<button type="button" class="linkbtn" data-act="auth-mode" data-mode="reset">비밀번호를 잊었어요</button>'}
+            ${state.user || reset ? '' : '<button type="button" class="linkbtn" data-act="auth-guest">로그인 없이 이 기기에서만 쓰기</button>'}
+          </div>
+        </div>
+      </section>`;
+    setTimeout(() => { const i = document.getElementById('authEmail'); if (i && !matchMedia('(hover: none)').matches) i.focus(); }, 50);
+  }
+  async function submitAuth() {
+    const err = document.getElementById('authErr'), ok = document.getElementById('authOk'), go = document.getElementById('authGo');
+    const fail = (m) => { err.textContent = m; err.hidden = false; ok.hidden = true; };
+    err.hidden = true; ok.hidden = true;
+    if (!sb) return fail('지금은 계정 기능을 쓸 수 없어요. 인터넷 연결을 확인해 주세요.');
+    const email = document.getElementById('authEmail').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('이메일 주소를 다시 확인해 주세요.');
+    const redirect = location.origin + location.pathname;
+    go.disabled = true;
+    try {
+      if (authMode === 'reset') {
+        const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: redirect });
+        if (error) throw error;
+        ok.textContent = '메일을 보냈어요. 메일의 링크를 누르면 새 비밀번호를 정할 수 있어요.'; ok.hidden = false;
+        return;
+      }
+      const pw = document.getElementById('authPw').value;
+      if (pw.length < 6) return fail('비밀번호는 6자 이상으로 정해 주세요.');
+      if (authMode === 'signup') {
+        if (pw !== document.getElementById('authPw2').value) return fail('비밀번호 확인이 달라요. 다시 적어 주세요.');
+        if (!document.getElementById('authAgree').checked) return fail('동의 항목에 체크해 주세요.');
+        const { data, error } = await sb.auth.signUp({ email, password: pw, options: { emailRedirectTo: redirect } });
+        if (error) throw error;
+        if (data && data.user && Array.isArray(data.user.identities) && !data.user.identities.length) return fail('이미 가입된 이메일이에요. 로그인해 주세요.');
+        if (!data.session) { ok.textContent = `${email}로 가입 확인 메일을 보냈어요. 메일의 링크를 누른 뒤 여기서 로그인해 주세요.`; ok.hidden = false; return; }
+        state.user = data.session.user;
+      } else {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+        if (error) throw error;
+        state.user = data.user;
+      }
+      lsSet(LS_GUEST, false);
+      await afterAuth();
+    } catch (e) { fail(authMsg(e)); }
+    finally { if (document.body.contains(go)) go.disabled = false; }
+  }
+  async function afterAuth() {
+    app.innerHTML = `<section class="onb" lang="ko"><div class="onb-body"><div class="onb-hero"><div class="coco-wrap">${coco()}</div></div><p class="onb-lead" style="text-align:center">불러오는 중…</p></div></section>`;
+    await Promise.race([pullCloud(), new Promise(r => setTimeout(r, 6000))]);
+    routeStart();
+  }
+  function renderNewPassword() {
+    screen = 'auth'; seq++;
+    app.innerHTML = `
+      <section class="onb auth" lang="ko" aria-label="새 비밀번호">
+        <div class="onb-body">
+          <h2>새 비밀번호 정하기</h2>
+          <form class="auth-form" id="newPwForm" novalidate>
+            <label>새 비밀번호<input class="field" id="newPw" type="password" autocomplete="new-password" minlength="6" required><small>6자 이상</small></label>
+            <p class="err" id="authErr" hidden></p>
+            <button class="btn" type="submit">비밀번호 바꾸기</button>
+          </form>
+        </div>
+      </section>`;
+  }
+  async function submitNewPassword() {
+    const err = document.getElementById('authErr'), pw = document.getElementById('newPw').value;
+    if (pw.length < 6) { err.textContent = '비밀번호는 6자 이상으로 정해 주세요.'; err.hidden = false; return; }
+    const { error } = await sb.auth.updateUser({ password: pw });
+    if (error) { err.textContent = authMsg(error); err.hidden = false; return; }
+    state.recovery = false; history.replaceState(null, '', location.pathname);
+    toast('비밀번호를 바꿨어요'); await afterAuth();
+  }
+  function clearLocalAccountData() {
+    [LS_KIDS, LS_KID, LS_WEEK, LS_WEEK_AT, LS_OWNER, LS_DIRTY, LS_PROG, LS_NAME].forEach(k => { try { localStorage.removeItem(k); } catch {} });
+    state.kids = []; state.kidId = null; state.week = null;
+  }
+  async function logout() {
+    if (!confirm('로그아웃할까요? 이 기기에 있는 단어와 별은 지워지고, 다시 로그인하면 계정에서 불러와요.')) return;
+    await pushCloud();
+    try { await sb.auth.signOut(); } catch {}
+    state.user = null; clearLocalAccountData(); lsSet(LS_GUEST, false);
+    renderAuth('login');
+  }
+  async function deleteAccount() {
+    const box = document.getElementById('delBox');
+    const { error } = await sb.rpc('delete_my_account');
+    if (error) { box.innerHTML = `<p class="err">${esc(authMsg(error))}</p>`; return; }
+    try { await sb.auth.signOut(); } catch {}
+    state.user = null; clearLocalAccountData(); lsSet(LS_GUEST, false);
+    renderAuth('login', '계정과 모든 기록을 삭제했어요.');
+    document.getElementById('authErr').className = 'ok';
+  }
+  // Where to go after start-up or sign-in.
+  function routeStart() {
+    if (state.recovery) { renderNewPassword(); return; }
+    if (state.kids.length && !lsGet(LS_ONB)) lsSet(LS_ONB, true);   // e.g. signing in on a second device
+    if (!lsGet(LS_ONB)) renderOnboarding(0);
+    else if (!state.kids.length) renderKidSetup();
+    else renderHome();
     window.scrollTo(0, 0);
   }
 
@@ -1978,9 +2295,9 @@ body { touch-action: manipulation; }
         <div class="p-actions"><button type="button" class="btn ghost sm" data-act="row-add">+ Add a row</button></div>
         </div>
         <div class="p-part p-rest">
-        <h3>Child's name</h3>
-        <p class="help">Coco uses this name on screen and in praise.</p>
-        <div class="seg" role="group" aria-label="Child's name">${NAMES.map(n => `<button type="button" class="seg-btn ${n === state.name ? 'on' : ''}" data-act="set-name" data-name="${n}" aria-pressed="${n === state.name}">${n}</button>`).join('')}</div>
+        <h3 lang="ko">아이</h3>
+        <p class="help" lang="ko">이름을 누르면 고칠 수 있어요. 아이마다 별과 단어 진도가 따로 저장돼요.</p>
+        ${kidsHTML()}
         <h3>2 sentences to learn</h3>
         <p class="help">Short sentences work best, like "I like apples."</p>
         ${s.map((x, i) => `<div class="srow">
@@ -1996,6 +2313,7 @@ body { touch-action: manipulation; }
           <p class="help">${esc(kid())} has ${state.progress.stars} stars. Changing the words keeps the stars.</p>
           <div id="resetBox"><button type="button" class="btn ghost sm" data-act="reset-ask">Start stars over</button></div>
         </div>
+        ${accountHTML()}
         </div>
       </form>`;
   }
@@ -2177,15 +2495,6 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
     refreshScan();
     toast(`Added ${added} words${sAdded ? ` and ${sAdded} sentences` : ''}.${skipped ? ` ${skipped} left out (20 max).` : ''} Check them, then save.`);
   }
-  function markName() {
-    document.querySelectorAll('.seg-btn').forEach(x => { const on = x.dataset.name === state.name; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
-  }
-  async function setName(n) {
-    if (!NAMES.includes(n)) return;
-    state.name = n; lsSet(LS_NAME, n); markName(); sfx.tap();
-    if (state.db) { try { await state.db.doc('study/settings').set({ name: n }); } catch {} }
-    toast(`Name set to ${n}`);
-  }
   function collectWeek() {
     const words = [];
     document.querySelectorAll('#rows .wrow').forEach(r => {
@@ -2242,10 +2551,21 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
       case 'trace-clear': if (pad && !g.done) { pad.ictx.clearRect(0, 0, pad.W, pad.H); sfx.tap(); } break;
       case 'trace-check': if (g.phase === 'trace') checkTrace(true); else checkFree(); break;
       case 'trace-free': startFreeWrite(); break;
-      case 'set-name': setName(b.dataset.name); break;
       case 'onb-open': sfx.tap(); renderOnboarding(0); break;
       case 'onb-go': sfx.tap(); renderOnboarding(Number(b.dataset.step)); break;
       case 'onb-done': sfx.tap(); finishOnboarding(); break;
+      case 'kid-add': addKid(); break;
+      case 'kid-del': deleteKid(b.dataset.id); break;
+      case 'kid-pick': pickKid(b.dataset.id); break;
+      case 'kids-done': if (!state.kids.length) { toast('아이 이름을 먼저 추가해 주세요'); break; } sfx.tap(); lsSet(LS_ONB, true); renderHome(); break;
+      case 'auth-mode': renderAuth(b.dataset.mode); break;
+      case 'auth-open': renderAuth(b.dataset.mode); break;
+      case 'auth-guest': lsSet(LS_GUEST, true); routeStart(); break;
+      case 'logout': logout(); break;
+      case 'delete-ask': document.getElementById('delBox').innerHTML = `<p class="help" lang="ko">계정과 모든 아이의 별, 단어 기록이 영구히 삭제돼요. 되돌릴 수 없어요.</p>
+        <div class="p-actions"><button type="button" class="btn berry sm" data-act="delete-do">영구 삭제</button><button type="button" class="btn ghost sm" data-act="delete-no">취소</button></div>`; break;
+      case 'delete-no': document.getElementById('delBox').innerHTML = ''; break;
+      case 'delete-do': deleteAccount(); break;
       case 'onb-words': sfx.tap(); finishOnboarding('words'); break;
       case 'onb-example': sfx.tap(); finishOnboarding('example'); break;
       case 'row-add': {
@@ -2268,13 +2588,15 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
         break;
       case 'reset-no': document.getElementById('resetBox').innerHTML = `<button type="button" class="btn ghost sm" data-act="reset-ask">Start stars over</button>`; break;
       case 'reset-do':
-        state.progress = { stars: 0, mastery: {} }; saveProgress(); updatePill();
+        if (activeKid()) { activeKid().stars = 0; activeKid().mastery = {}; } saveProgress(); updatePill();
         document.getElementById('resetBox').innerHTML = `<p class="help">Stars reset to 0.</p>`;
         break;
     }
   });
   document.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (e.target.id === 'authForm') { submitAuth(); return; }
+    if (e.target.id === 'newPwForm') { submitNewPassword(); return; }
     if (e.target.id === 'gateForm') {
       const v = Number(document.getElementById('gateIn').value);
       if (v === gateAns) renderParent();
@@ -2288,11 +2610,16 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
       if (words.length < 3) { err.textContent = 'Sound Hunt needs at least 3 words.'; err.hidden = false; return; }
       err.hidden = true;
       const res = await saveWeek({ words, sentences, sample: false });
-      if (res === 'denied') toast('You can\'t save to the shared list here. Saved on this device only.');
-      else if (res === 'failed') toast('Couldn\'t save online. Saved on this device.');
+      if (res === 'failed') toast('Saved on this device. It will sync to your account when you are back online.');
       else toast(`Saved ${words.length} words!`);
       renderHome(); window.scrollTo(0, 0);
     }
+  });
+  document.addEventListener('change', (e) => { if (e.target.dataset && e.target.dataset.kid) renameKid(e.target.dataset.kid, e.target.value); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    if (e.target.id === 'kidNew') { e.preventDefault(); addKid(); }
+    else if (e.target.dataset && e.target.dataset.kid) { e.preventDefault(); e.target.blur(); }
   });
   document.addEventListener('input', (e) => {
     const m = e.target.id && e.target.id.match(/^w-en-(\d+)$/);
@@ -2313,8 +2640,15 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
     }
   });
 
-  if (lsGet(LS_ONB)) renderHome(); else renderOnboarding(0);
-  connect();
+  (async () => {
+    if (CLOUD) {
+      app.innerHTML = '';
+      await initCloud();
+      if (sb && !state.user && !state.recovery && !lsGet(LS_GUEST)) { renderAuth('login'); return; }
+      if (state.user) { await Promise.race([pullCloud(), new Promise(r => setTimeout(r, 4000))]); }
+    }
+    routeStart();
+  })();
   connectSample();
 })();
 </script>
