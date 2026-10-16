@@ -24,6 +24,14 @@ A calm, space-themed English spelling game for a 5-year-old, made for iPad in la
 - **Sentence Trace**: trace the sentence with Apple Pencil, then write it alone.
 - **Sentence Ship**: listen, build the sentence from word blocks, then fill in a blank.
 
+## Themes
+
+Each child picks one of four worlds the first time they play: **Space Adventure** (Coco the alien, planets, stars), **Princess Kingdom** (Rosie the royal kitten, castles and kingdoms, gems), **Robot City** (Bolt the robot, city districts, energy bolts) or **Unicorn Wonderland** (Luna the unicorn, magic lands over the rainbow, crystals). The picture cards show the difference without reading, a tap previews the whole world, and **이 테마로 시작하기** confirms. The theme can be changed any time from the palette button on the home screen or in the grown-ups menu.
+
+All four themes share the same games, stars and levels. A theme only changes colors, the guide character, place names and pictures, and what a star is called, so switching keeps every star, word mastery and visited place, and nothing is awarded twice. Level 3 is Mars, Tea Party Tower, Bolt Bridge or Crystal Cave depending on the theme. Passing a place shows a level-up with that place's badge; at the 3rd and 5th place the guide gets an accessory (all worked out from the star count). Children who already had stars before themes existed stay in Space. Each child keeps their own theme on the device and, after running `supabase/migrations/20261016100000_child_theme.sql`, in their account too.
+
+To add a theme, add one entry to `THEMES` in `src/app.html`: colors, words, 8 places plus name parts for the endless places, and its art.
+
 On first launch a Korean guide for parents walks through adding words, the games, stars and planets, and iPad tips, then lets them pick the child's name. It can be opened again from the lock button (보호자 안내 보기). The guide's last step adds the children's names; names can be changed or more children added later in the grown-ups menu.
 
 Grown-ups add about 10 words and 2 sentences each week from the lock button (it asks a multiplication question first). Children are added and renamed there too, and with more than one child a switcher appears at the top of the home screen.
@@ -35,7 +43,7 @@ Parents can sign up with email and password, add several children (each with the
 Set up once:
 
 1. Create a Supabase project (Seoul region: `ap-northeast-2`).
-2. Run `supabase/migrations/20261016000000_space_words.sql` in the SQL Editor. It creates the `families` and `children` tables with row level security, so each account sees only its own data, plus a `delete_my_account()` function for the in-app account deletion.
+2. Run `supabase/migrations/20261016000000_space_words.sql` and then `20261016100000_child_theme.sql` in the SQL Editor. It creates the `families` and `children` tables with row level security, so each account sees only its own data, plus a `delete_my_account()` function for the in-app account deletion.
 3. Authentication → URL Configuration: set **Site URL** to the app's address (for example the Vercel URL) and add the same address under **Redirect URLs**. Sign-up confirmation and password reset emails link back there.
 4. Authentication → Emails: Supabase's built-in email sender only allows a few emails per hour. Before inviting other families, connect your own SMTP service (for example Resend) under **SMTP Settings**. You can also translate the email templates into Korean there.
 5. Put the project URL and its publishable (anon) key into `config.js`, then commit. The publishable key is safe to publish; row level security protects the data.

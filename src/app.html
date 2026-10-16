@@ -3,26 +3,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Fredoka:wght@500;600&family=Nunito:wght@500;700&family=Gowun+Dodum&family=Jua&display=swap">
 <style>
-/* Layout: one calm night-sky screen; soft paper panels float on it. Home = character + planet journey + game shelf. */
+/* Layout: one calm themed sky; soft paper panels float on it. Home = guide character + place journey + game shelf.
+   Colors are CSS variables set per theme by THEMES in the script; the same components serve every theme. */
 :root {
   color-scheme: light;
-  --space: #4B4E6D;
-  --space-deep: #3F4260;
-  --space-line: #5E6286;
-  --mint: #B8F2E6;
-  --teal: #4AC7A8;
-  --sun: #FFE08A;
-  --berry: #FF8C94;
-  --paper: #FFFDF6;
-  --paper-2: #F4F1E6;
-  --ink: #34374F;
-  --ink-soft: #6C6F8C;
-  --on-space: #F4F3FF;
-  --on-space-soft: #C9CBE6;
-  --berry-soft: #FFD3D6;
-  --teal-soft: #CDEFE6;
-  --sun-soft: #FFF1C4;
-  --lilac: #DCDDF2;
+  /* colors come from THEMES in the script ([data-theme] blocks) */
   --f-display: "Fredoka", "Jua", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   --f-body: "Nunito", "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   --f-word: "Andika", "Comic Neue", "Trebuchet MS", system-ui, sans-serif;
@@ -31,7 +16,7 @@
 }
 html, body { height: 100%; }
 body {
-  background: var(--space);
+  background: var(--bg);
   color: var(--ink);
   font-family: var(--f-body);
   font-size: 16px;
@@ -39,32 +24,44 @@ body {
   overflow-x: hidden;
 }
 button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
-button:focus-visible, input:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
-.sky { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-.sky i { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: var(--on-space); opacity: .45; }
+/* themed background layer: gradient + quiet decorations at the edges, never over the panels' text or buttons */
+.sky { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; background: var(--bg-grad, var(--bg)); }
+.sky i { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: var(--on-bg); opacity: .45; }
 .sky i.tw { animation: twinkle 7s ease-in-out infinite; }
-.sky i.big { width: 5px; height: 5px; background: var(--sun); opacity: .7; }
+.sky i.big { width: 5px; height: 5px; background: var(--accent); opacity: .7; }
+.sky i.sp { width: 12px; height: 12px; border-radius: 0; background: var(--sparkle, var(--accent)); opacity: .6; clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%); }
+.sky i.sp.big { width: 18px; height: 18px; }
+.sky i.blink { width: 6px; height: 6px; border-radius: 2px; background: var(--primary); opacity: .5; animation: twinkle 3.5s ease-in-out infinite; }
+.sky .deco { position: absolute; display: block; }
+.sky .spin { animation: spin 80s linear infinite; }
+.sky .drift { animation: drift-x 40s ease-in-out infinite alternate; }
 @keyframes twinkle { 0%,100% { opacity: .25 } 50% { opacity: .85 } }
+@keyframes drift-x { from { transform: translateX(-24px) } to { transform: translateX(24px) } }
 
 #app { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding-inline: 16px; padding-block: 14px 40px; display: flex; flex-direction: column; gap: 18px; }
 
 /* top bar */
 .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .brand { display: flex; flex-direction: column; min-width: 0; }
-.brand-ko { font-family: var(--f-display); font-size: 24px; color: var(--on-space); line-height: 1.15; }
-.brand-en { font-family: var(--f-word); font-size: 13px; color: var(--on-space-soft); letter-spacing: .06em; }
-.top-r { display: flex; align-items: center; gap: 8px; }
+.brand-ko { font-family: var(--f-display); font-size: 24px; color: var(--on-bg); line-height: 1.15; }
+.brand-en { font-family: var(--f-word); font-size: 13px; color: var(--on-bg-soft); letter-spacing: .06em; }
+.top-r { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .pill { display: inline-flex; align-items: center; gap: 6px; background: var(--paper); color: var(--ink); border-radius: 999px; padding: 6px 14px 6px 8px; font-family: var(--f-display); font-size: 20px; font-variant-numeric: tabular-nums; }
 .pill.bump { animation: bump .5s ease; }
 @keyframes bump { 40% { transform: scale(1.18) } }
-.icon-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--space-deep); display: grid; place-items: center; color: var(--on-space-soft); border: 2px solid var(--space-line); }
+.icon-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--bg-deep); display: grid; place-items: center; color: var(--on-bg-soft); border: 2px solid var(--bg-line); }
 .icon-btn svg { width: 22px; height: 22px; }
 .icon-btn.off { opacity: .55; }
 
 /* hero */
 .hero { display: flex; align-items: center; gap: 14px; }
 .coco-wrap { width: 128px; flex: none; }
+.hero-art { position: relative; flex: none; width: 128px; display: grid; place-items: end center; }
+.hero-art .coco-wrap { position: relative; width: 112px; }
+.hero-bg { position: absolute; inset: 14% 0 0; border-radius: 50%; overflow: hidden; border: 3px solid var(--bg-line); }
+.hero-bg svg, .scene { width: 100%; height: 100%; display: block; }
 .coco { width: 100%; height: auto; display: block; overflow: visible; }
 .coco .body-g { transform-origin: 60px 100px; animation: float 4.5s ease-in-out infinite; }
 .coco .eyes-happy, .coco .mouth-happy { display: none; }
@@ -81,16 +78,18 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--sun); outli
 .bubble small { display: block; font-family: var(--f-word); font-size: 15px; color: var(--ink-soft); margin-top: 2px; }
 
 /* journey */
-.journey { background: var(--space-deep); border-radius: var(--r-lg); padding: 14px 16px 12px; border: 2px solid var(--space-line); }
-.j-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; color: var(--on-space); }
+.journey { background: var(--bg-deep); border-radius: var(--r-lg); padding: 14px 16px 12px; border: 2px solid var(--bg-line); }
+.j-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; color: var(--on-bg); }
 .j-head h2 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 18px; }
-.j-head p { margin: 0; font-size: 14px; color: var(--on-space-soft); }
+.j-head p { margin: 0; font-size: 14px; color: var(--on-bg-soft); }
 .track-scroll { overflow-x: auto; margin-top: 10px; padding-bottom: 4px; scrollbar-width: thin; }
 .track { position: relative; display: flex; gap: 6px; min-width: 620px; padding: 22px 4px 0; }
-.track::before { content: ""; position: absolute; left: 34px; right: 34px; top: 52px; border-top: 3px dashed var(--space-line); }
+.track::before { content: ""; position: absolute; left: 34px; right: 34px; top: 52px; border-top: 3px dashed var(--bg-line); }
 .stop { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .planet { position: relative; width: 44px; height: 44px; border-radius: 50%; }
 .planet.lock { filter: grayscale(.9) brightness(.7); opacity: .55; }
+.planet.place { border-radius: 0; }
+.planet.place svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .planet .spot { position: absolute; width: 20%; height: 20%; border-radius: 50%; background: rgba(52, 55, 79, .18); }
 .planet .moonlet { position: absolute; right: -14%; top: -8%; width: 26%; height: 26%; border-radius: 50%; background: #FFFDF6; box-shadow: inset -2px -2px 0 rgba(52, 55, 79, .15); }
 button.stop { background: none; border: 0; padding: 0; color: inherit; cursor: pointer; }
@@ -99,13 +98,15 @@ button.stop:active .planet { transform: scale(.92); }
 .visit-planet .planet { margin: 0 auto; }
 .visit-planet .who { position: absolute; right: 0; bottom: -4px; font-size: 54px; animation: float 3s ease-in-out infinite; }
 .visit-n { display: inline-flex; align-items: center; gap: 4px; font-size: 15px !important; }
-.planet .ring { position: absolute; left: -12px; right: -12px; top: 50%; height: 12px; margin-top: -6px; border-radius: 50%; border: 3px solid var(--sun); transform: rotate(-16deg); opacity: .85; }
-.stop .nm { font-family: var(--f-display); font-size: 14px; color: var(--on-space); }
-.stop .need { font-size: 12px; color: var(--on-space-soft); display: inline-flex; gap: 3px; align-items: center; font-variant-numeric: tabular-nums; }
+.planet .ring { position: absolute; left: -12px; right: -12px; top: 50%; height: 12px; margin-top: -6px; border-radius: 50%; border: 3px solid var(--accent); transform: rotate(-16deg); opacity: .85; }
+.stop .nm { font-family: var(--f-display); font-size: 14px; color: var(--on-bg); }
+.stop .need { font-size: 12px; color: var(--on-bg-soft); display: inline-flex; gap: 3px; align-items: center; font-variant-numeric: tabular-nums; }
 .stop .rocket { position: absolute; top: -24px; width: 30px; height: 30px; animation: float 3s ease-in-out infinite; }
+.stop .rocket svg, .mem-card .mc-back svg { width: 100%; height: 100%; display: block; }
+.stop.here .nm { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 4px; text-decoration-color: var(--accent); }
 
 /* games */
-.sec-title { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 19px; color: var(--on-space); }
+.sec-title { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 19px; color: var(--on-bg); }
 /* 16 games in a 4 x 4 grid (2 columns on narrow phones); mark beside the title keeps cards short */
 .games { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 @media (max-width: 599px) { .games { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -127,27 +128,29 @@ button.stop:active .planet { transform: scale(.92); }
 .chip .em { font-size: 20px; line-height: 1; }
 .chip .w { font-family: var(--f-word); font-weight: 700; font-size: 17px; }
 .chip .ms { display: inline-flex; gap: 1px; }
-.sample-note { background: var(--sun-soft); border-radius: 14px; padding: 8px 12px; font-size: 14px; color: var(--ink); }
+.sample-note { background: var(--accent-soft); border-radius: 14px; padding: 8px 12px; font-size: 14px; color: var(--ink); }
 .sent-list { display: flex; flex-direction: column; gap: 6px; border-top: 2px dashed var(--paper-2); padding-top: 10px; }
 .sent-list p { margin: 0; font-family: var(--f-word); font-size: 17px; }
 .sent-list p small { font-family: var(--f-body); color: var(--ink-soft); font-size: 14px; margin-left: 6px; }
 
 /* shared buttons */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 54px; padding: 0 22px; border-radius: 999px; font-family: var(--f-display); font-size: 19px; background: var(--teal); color: var(--ink); transition: transform .12s ease; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 54px; padding: 0 22px; border-radius: 999px; font-family: var(--f-display); font-size: 19px; background: var(--primary); color: var(--ink); transition: transform .12s ease; }
 .btn:active { transform: scale(.96); }
-.btn.sun { background: var(--sun); }
+.btn.sun { background: var(--accent); }
 .btn.ghost { background: var(--paper-2); }
-.btn.berry { background: var(--berry); }
+.btn.berry { background: var(--warm); }
 .btn svg { width: 22px; height: 22px; }
 .btn.sm { min-height: 42px; font-size: 16px; padding: 0 16px; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
 
 /* game screen */
 .game-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.back { font-family: var(--f-display); font-size: 17px; color: var(--on-space); background: var(--space-deep); border: 2px solid var(--space-line); border-radius: 999px; padding: 8px 16px; }
+.back { font-family: var(--f-display); font-size: 17px; color: var(--on-bg); background: var(--bg-deep); border: 2px solid var(--bg-line); border-radius: 999px; padding: 8px 16px; }
 .dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
-.dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--space-line); }
-.dots i.done { background: var(--sun); }
-.dots i.now { background: var(--mint); box-shadow: 0 0 0 3px var(--space-deep), 0 0 0 5px var(--mint); }
+.dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--bg-line); display: grid; place-items: center; }
+.dots i.done { background: none; width: 20px; height: 20px; }   /* done = reward shape, not just a color */
+.dots i.done svg { width: 100%; height: 100%; display: block; }
+.dots i.now { background: var(--success); box-shadow: 0 0 0 3px var(--bg-deep), 0 0 0 5px var(--success); }
 .guide { display: flex; align-items: center; gap: 12px; }
 .guide .coco-wrap { width: 92px; }
 .guide .bubble { font-size: 19px; }
@@ -157,49 +160,49 @@ button.stop:active .planet { transform: scale(.92); }
 .prompt { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .pic { font-size: 76px; line-height: 1.1; }
 .ko { font-family: var(--f-display); font-size: 24px; color: var(--ink); }
-.say-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--teal-soft); border-radius: 999px; padding: 8px 16px; font-family: var(--f-display); font-size: 17px; }
+.say-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--primary-soft); border-radius: 999px; padding: 8px 16px; font-family: var(--f-display); font-size: 17px; }
 .say-btn svg { width: 20px; height: 20px; }
 
 .slots { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .slot { width: 52px; height: 64px; border-radius: 16px; border: 3px dashed var(--ink-soft); display: grid; place-items: center; font-family: var(--f-word); font-weight: 700; font-size: 40px; color: var(--ink); background: var(--paper); position: relative; }
 .slot .ghost { color: var(--ink-soft); opacity: .28; }
-.slot.next { border-color: var(--teal); border-style: solid; background: var(--teal-soft); }
-.slot.filled { border-style: solid; border-color: var(--teal); background: var(--mint); }
+.slot.next { border-color: var(--primary); border-style: solid; background: var(--primary-soft); }
+.slot.filled { border-style: solid; border-color: var(--primary); background: var(--success); }
 .slot.filled .ghost { display: none; }
 .slot.pop { animation: pop .35s ease; }
 .gap { width: 18px; font-family: var(--f-word); font-size: 40px; display: grid; place-items: end center; height: 64px; color: var(--ink); }
 @keyframes pop { 50% { transform: scale(1.15) } }
 
 .tiles { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 520px; }
-.tile { width: 62px; height: 62px; border-radius: 18px; background: var(--sun); font-family: var(--f-word); font-weight: 700; font-size: 34px; color: var(--ink); box-shadow: 0 4px 0 #E2C46D; transition: transform .12s ease, opacity .2s; }
-.tile:active { transform: translateY(3px); box-shadow: 0 1px 0 #E2C46D; }
+.tile { width: 62px; height: 62px; border-radius: 18px; background: var(--accent); font-family: var(--f-word); font-weight: 700; font-size: 34px; color: var(--ink); box-shadow: 0 4px 0 var(--accent-shadow); transition: transform .12s ease, opacity .2s; }
+.tile:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--accent-shadow); }
 .tile.used { opacity: 0; pointer-events: none; transform: scale(.6); }
-.tile.hint { box-shadow: 0 0 0 4px var(--teal), 0 4px 0 #E2C46D; }
+.tile.hint { box-shadow: 0 0 0 4px var(--primary), 0 4px 0 var(--accent-shadow); }
 .shake { animation: shake .4s ease; }
 @keyframes shake { 20%,60% { transform: translateX(-6px) } 40%,80% { transform: translateX(6px) } }
 
 .word-big { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; font-family: var(--f-word); font-weight: 700; font-size: 54px; color: var(--ink); line-height: 1.1; }
 .word-big .lt { display: inline-block; padding: 0 2px; border-radius: 10px; transition: background .2s; }
-.word-big .lt.on { background: var(--sun); }
-.word-big .hole { width: 56px; height: 66px; border: 3px dashed var(--teal); border-radius: 16px; display: grid; place-items: center; background: var(--teal-soft); }
-.word-big .hole.filled { border-style: solid; background: var(--mint); }
+.word-big .lt.on { background: var(--accent); }
+.word-big .hole { width: 56px; height: 66px; border: 3px dashed var(--primary); border-radius: 16px; display: grid; place-items: center; background: var(--primary-soft); }
+.word-big .hole.filled { border-style: solid; background: var(--success); }
 
 .opts { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 .opt-star { width: 84px; height: 84px; position: relative; display: grid; place-items: center; font-family: var(--f-word); font-weight: 700; font-size: 34px; color: var(--ink); transition: transform .12s; }
 .opt-star svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.opt-star span { position: relative; margin-top: 6px; }
+.opt-star span { position: relative; margin-top: var(--opt-dy, 0px); }
 .opt-star:active { transform: scale(.94); }
 .opt-star.dim { opacity: .35; }
 
 .pick-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: 100%; max-width: 560px; }
-.pick { background: var(--paper-2); border-radius: 22px; padding: 14px 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; border: 3px solid transparent; transition: transform .12s; }
+.pick { position: relative; background: var(--paper-2); border-radius: 22px; padding: 14px 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; border: 3px solid transparent; transition: transform .12s; }
 .pick .pe { font-size: 52px; line-height: 1.1; }
 .pick .pw { font-family: var(--f-word); font-weight: 700; font-size: 20px; overflow-wrap: anywhere; }
-.pick.right { border-color: var(--teal); background: var(--mint); }
+.pick.right { border-color: var(--primary); background: var(--success); }
 .pick.dim { opacity: .35; }
 .pick:active { transform: scale(.96); }
 
-.listen-big { width: 120px; height: 120px; border-radius: 50%; background: var(--teal-soft); display: grid; place-items: center; border: 4px solid var(--teal); }
+.listen-big { width: 120px; height: 120px; border-radius: 50%; background: var(--primary-soft); display: grid; place-items: center; border: 4px solid var(--primary); }
 .listen-big svg { width: 54px; height: 54px; }
 
 .learn-word { font-family: var(--f-word); font-weight: 700; font-size: 64px; line-height: 1.1; }
@@ -207,20 +210,20 @@ button.stop:active .planet { transform: scale(.92); }
 
 .sentence { font-family: var(--f-word); font-size: 30px; line-height: 1.5; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 10px; max-width: 640px; }
 .sentence .tk { border-radius: 10px; padding: 0 4px; transition: background .2s; }
-.sentence .tk.on { background: var(--sun); }
-.sentence .blank { display: inline-block; min-width: 90px; border-bottom: 4px dashed var(--teal); color: var(--ink); }
-.sentence .blank.filled { border-bottom-style: solid; background: var(--mint); border-radius: 8px 8px 0 0; }
+.sentence .tk.on { background: var(--accent); }
+.sentence .blank { display: inline-block; min-width: 90px; border-bottom: 4px dashed var(--primary); color: var(--ink); }
+.sentence .blank.filled { border-bottom-style: solid; background: var(--success); border-radius: 8px 8px 0 0; }
 .ko-line { font-size: 18px; color: var(--ink-soft); margin-top: -10px; }
 .build-line { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; min-height: 60px; max-width: 640px; }
 .build-line .ph { min-width: 64px; height: 52px; border-radius: 14px; border: 3px dashed var(--ink-soft); opacity: .45; }
-.build-line .placed { height: 52px; padding: 0 14px; border-radius: 14px; background: var(--mint); border: 3px solid var(--teal); font-family: var(--f-word); font-weight: 700; font-size: 24px; display: grid; place-items: center; animation: pop .3s ease; }
+.build-line .placed { height: 52px; padding: 0 14px; border-radius: 14px; background: var(--success); border: 3px solid var(--primary); font-family: var(--f-word); font-weight: 700; font-size: 24px; display: grid; place-items: center; animation: pop .3s ease; }
 .blocks { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 640px; }
-.blk { height: 54px; padding: 0 16px; border-radius: 14px; background: var(--sun); font-family: var(--f-word); font-weight: 700; font-size: 24px; box-shadow: 0 4px 0 #E2C46D; }
+.blk { height: 54px; padding: 0 16px; border-radius: 14px; background: var(--accent); font-family: var(--f-word); font-weight: 700; font-size: 24px; box-shadow: 0 4px 0 var(--accent-shadow); }
 .blk.used { visibility: hidden; }
-.blk.hint { box-shadow: 0 0 0 4px var(--teal), 0 4px 0 #E2C46D; }
+.blk.hint { box-shadow: 0 0 0 4px var(--primary), 0 4px 0 var(--accent-shadow); }
 .step-tag { display: inline-flex; gap: 6px; }
 .step-tag i { font-style: normal; font-size: 13px; padding: 3px 10px; border-radius: 999px; background: var(--paper-2); color: var(--ink-soft); }
-.step-tag i.on { background: var(--sun); color: var(--ink); }
+.step-tag i.on { background: var(--accent); color: var(--ink); }
 
 .next-row { min-height: 54px; display: flex; justify-content: center; }
 
@@ -234,7 +237,7 @@ button.stop:active .planet { transform: scale(.92); }
 .modal p { margin: 0; font-size: 17px; color: var(--ink-soft); }
 .modal .coco-wrap { width: 120px; }
 .earned { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
-.new-planet { display: flex; align-items: center; gap: 12px; background: var(--sun-soft); border-radius: 18px; padding: 10px 16px; font-family: var(--f-display); font-size: 18px; }
+.new-planet { display: flex; align-items: center; gap: 12px; background: var(--accent-soft); border-radius: 18px; padding: 10px 16px; font-family: var(--f-display); font-size: 18px; }
 .modal-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 @keyframes rise { from { transform: translateY(20px); opacity: .4 } }
 
@@ -246,7 +249,7 @@ button.stop:active .planet { transform: scale(.92); }
 .gate { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
 .gate-q { font-family: var(--f-display); font-size: 26px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .field { border: 2px solid var(--paper-2); background: var(--paper); border-radius: 12px; padding: 10px 12px; font: inherit; font-size: 16px; color: var(--ink); width: 100%; min-width: 0; }
-.field:focus { border-color: var(--teal); outline: none; }
+.field:focus { border-color: var(--primary); outline: none; }
 .field.word { font-family: var(--f-word); font-size: 18px; }
 .gate .field { width: 110px; font-size: 22px; }
 .rows { display: flex; flex-direction: column; gap: 8px; }
@@ -259,7 +262,7 @@ button.stop:active .planet { transform: scale(.92); }
 .p-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .seg { display: inline-flex; background: var(--paper-2); border-radius: 999px; padding: 4px; gap: 4px; align-self: flex-start; }
 .seg-btn { min-height: 44px; padding: 0 22px; border-radius: 999px; font-family: var(--f-display); font-size: 18px; color: var(--ink-soft); }
-.seg-btn.on { background: var(--teal); color: var(--ink); }
+.seg-btn.on { background: var(--primary); color: var(--ink); }
 .danger-zone { border-top: 2px dashed var(--paper-2); padding-top: 14px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
 .err { color: #B4434C; font-size: 15px; margin: 0; }
 
@@ -272,7 +275,7 @@ button.stop:active .planet { transform: scale(.92); }
 /* parent onboarding */
 .onb { width: 100%; max-width: 820px; margin: 0 auto; box-sizing: border-box; background: var(--paper); border-radius: var(--r-lg); padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; min-height: calc(100dvh - 72px); word-break: keep-all; }
 .onb-top { display: flex; justify-content: space-between; align-items: center; }
-.onb-tag { font-family: var(--f-display); font-size: 15px; color: var(--teal-deep, #2FA585); background: var(--teal-soft); padding: 6px 14px; border-radius: 999px; }
+.onb-tag { font-family: var(--f-display); font-size: 15px; color: var(--primary-deep, #2FA585); background: var(--primary-soft); padding: 6px 14px; border-radius: 999px; }
 .onb-body { flex: 1; display: flex; flex-direction: column; gap: 14px; }
 .onb h2 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 28px; line-height: 1.3; }
 .onb h3 { margin: 0 0 4px; font-family: var(--f-display); font-weight: 600; font-size: 19px; }
@@ -285,7 +288,7 @@ button.stop:active .planet { transform: scale(.92); }
 .onb-points b { color: var(--ink); }
 .onb-points li > div > b:first-child { display: block; font-size: 18px; }
 .onb-steps { margin: 0; padding-left: 24px; display: flex; flex-direction: column; gap: 10px; font-size: 18px; line-height: 1.55; }
-.onb-tip { background: var(--sun-soft); border-radius: 16px; padding: 12px 16px; font-size: 16px; line-height: 1.55; }
+.onb-tip { background: var(--accent-soft); border-radius: 16px; padding: 12px 16px; font-size: 16px; line-height: 1.55; }
 .onb-games { display: flex; flex-direction: column; gap: 10px; }
 .onb-games section { background: var(--paper-2); border-radius: 18px; padding: 12px 16px; }
 .onb-games p { margin: 0; font-size: 15.5px; line-height: 1.7; color: var(--ink-soft); }
@@ -294,7 +297,7 @@ button.stop:active .planet { transform: scale(.92); }
 .onb-start { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
 .onb-nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .onb-nav .dots i { background: var(--paper-2); }
-.onb-nav .dots i.now, .onb-nav .dots i.done { background: var(--teal); box-shadow: none; }
+.onb-nav .dots i.now, .onb-nav .dots i.done { background: var(--primary); box-shadow: none; }
 .onb-nav-sp { width: 88px; }
 .onb-link { align-self: flex-start; }
 
@@ -302,14 +305,15 @@ button.stop:active .planet { transform: scale(.92); }
 .kids { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 520px; align-self: center; }
 .parent .kids { align-self: stretch; }
 .kid-row { display: flex; align-items: center; gap: 10px; background: var(--paper-2); border-radius: 16px; padding: 6px 8px 6px 6px; border: 2px solid transparent; }
-.kid-row.on { border-color: var(--teal); }
+.kid-row.on { border-color: var(--primary); }
 .kid-row .field { flex: 1; min-width: 0; font-size: 18px; box-sizing: border-box; }
 .kid-stars { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .kid-add { display: flex; gap: 8px; }
 .kid-add .field { flex: 1; min-width: 0; font-size: 17px; box-sizing: border-box; }
-.kid-switch { display: inline-flex; background: var(--space-deep); border: 2px solid var(--space-line); border-radius: 999px; padding: 3px; gap: 2px; }
-.kid-switch button { min-height: 38px; padding: 0 14px; border-radius: 999px; font-family: var(--f-display); font-size: 16px; color: var(--on-space-soft); }
-.kid-switch button.on { background: var(--mint); color: var(--ink); }
+.kid-switch { display: inline-flex; background: var(--bg-deep); border: 2px solid var(--bg-line); border-radius: 999px; padding: 3px; gap: 2px; }
+.kid-switch button { min-height: 38px; padding: 0 14px; border-radius: 999px; font-family: var(--f-display); font-size: 16px; color: var(--on-bg-soft); }
+.kid-switch button.on { background: var(--success); color: var(--ink); font-weight: 700; }
+.kid-switch button.on::before { content: "✓ "; }
 .account { display: flex; flex-direction: column; gap: 10px; border-top: 2px dashed var(--paper-2); padding-top: 16px; }
 .auth { max-width: 520px; }
 .auth .onb-body { gap: 16px; }
@@ -319,14 +323,14 @@ button.stop:active .planet { transform: scale(.92); }
 .auth-form label small { font-weight: 500; color: var(--ink-soft); }
 .auth-form .field { font-size: 18px; width: 100%; box-sizing: border-box; }
 .auth-form .auth-agree { flex-direction: row; align-items: flex-start; gap: 10px; font-weight: 500; line-height: 1.5; color: var(--ink-soft); }
-.auth-agree input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--teal); flex: none; }
+.auth-agree input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--primary); flex: none; }
 .auth-form .btn { align-self: stretch; }
 .auth-links { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .linkbtn { color: var(--ink-soft); text-decoration: underline; font-size: 15px; padding: 6px; }
-p.ok { margin: 0; color: var(--teal-deep, #2FA585); font-weight: 700; line-height: 1.5; }
+p.ok { margin: 0; color: var(--primary-deep, #2FA585); font-weight: 700; line-height: 1.5; }
 
 /* spelling & sentence games */
-.word-big .hole.now { border-style: solid; box-shadow: 0 0 0 4px var(--teal-soft); }
+.word-big .hole.now { border-style: solid; box-shadow: 0 0 0 4px var(--primary-soft); }
 .word-big .hole { font-family: var(--f-word); color: var(--ink); }
 .blk.chunk { font-size: 30px; min-width: 70px; }
 .build-line.joined { gap: 0; }
@@ -338,14 +342,14 @@ p.ok { margin: 0; color: var(--teal-deep, #2FA585); font-weight: 700; line-heigh
 .keyboard .tile { width: 58px; height: 58px; font-size: 30px; }
 .frame-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; font-family: var(--f-word); font-weight: 700; font-size: 36px; color: var(--ink); }
 .frame-line .slots { flex-wrap: nowrap; }
-.frame-line.done .slot { background: var(--mint); }
+.frame-line.done .slot { background: var(--success); }
 .write-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 16px; font-family: var(--f-word); font-weight: 700; font-size: 34px; color: var(--ink); max-width: 900px; }
-.write-line .wdone { color: var(--teal-deep, #2FA585); }
+.write-line .wdone { color: var(--primary-deep, #2FA585); }
 .write-line .wtodo { color: var(--ink-soft); opacity: .45; letter-spacing: 4px; }
 .write-line .slots { flex-wrap: nowrap; }
 /* new games */
 .mem-grid { display: grid; gap: 14px; width: 100%; max-width: 620px; }
-.mem-card { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; background: var(--space-deep); border: 3px solid var(--space-line); display: grid; place-items: center; transition: transform .15s, background .2s; }
+.mem-card { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; background: var(--bg-deep); border: 3px solid var(--bg-line); display: grid; place-items: center; transition: transform .15s, background .2s; }
 .mem-card .mc-back { width: 56px; height: 56px; }
 .mem-card .mc-back svg { width: 100%; height: 100%; display: block; }
 .game-card .mark.emo { font-size: 24px; }
@@ -353,34 +357,103 @@ p.ok { margin: 0; color: var(--teal-deep, #2FA585); font-weight: 700; line-heigh
 .mem-card.open { background: var(--paper-2); border-color: var(--paper-2); }
 .mem-card.open .mc-back { display: none; }
 .mem-card.open .mc-face { display: block; }
-.mem-card.match { background: var(--mint); border-color: var(--teal); }
+.mem-card.match { background: var(--success); border-color: var(--primary); }
 .mc-pic { font-size: 54px; line-height: 1; }
+/* right answers get a check mark too, so color is never the only signal */
+.pick.right::after, .meteor.right::after, .mem-card.match::after, .fall.caught::after, .tp-card.on::after {
+  content: "✓"; position: absolute; top: -10px; right: -10px; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--primary-deep); color: #fff; font: 700 20px/32px var(--f-body); text-align: center; box-shadow: 0 0 0 3px var(--paper); z-index: 2; }
+.fall.caught::after { top: -6px; right: 10%; }
 .mem-card .mc-face { max-width: 100%; padding: 0 8px; }
 .mc-word { font-family: var(--f-word); font-weight: 700; font-size: 30px; color: var(--ink); white-space: nowrap; display: block; overflow: hidden; text-overflow: ellipsis; }
 .meteors { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
-.meteor { display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 999px; background: var(--paper-2); border: 3px solid transparent; font-family: var(--f-word); font-size: 32px; color: var(--ink); animation: drift 3s ease-in-out infinite; }
-.meteor span { font-size: 28px; }
-.meteor.right { background: var(--mint); border-color: var(--teal); }
+.meteor { position: relative; display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 999px; background: var(--paper-2); border: 3px solid transparent; font-family: var(--f-word); font-size: 32px; color: var(--ink); animation: drift 3s ease-in-out infinite; }
+.meteor span { display: inline-flex; }
+.meteor.right { background: var(--success); border-color: var(--primary); }
 .meteor.dim { opacity: .35; }
 @keyframes drift { 50% { transform: translateY(-6px) } }
 .peek-bar { width: min(420px, 80%); height: 10px; border-radius: 999px; background: var(--paper-2); overflow: hidden; }
-.peek-bar i { display: block; height: 100%; background: var(--teal); animation: peekbar linear forwards; }
+.peek-bar i { display: block; height: 100%; background: var(--primary); animation: peekbar linear forwards; }
 @keyframes peekbar { from { width: 100% } to { width: 0 } }
 .catch-head { display: flex; align-items: center; gap: 16px; }
 .catch-head .pic { font-size: 64px; }
-.catch-sky { position: relative; width: 100%; max-width: 760px; height: 340px; border-radius: 24px; background: var(--space-deep); overflow: hidden; }
+.catch-sky { position: relative; width: 100%; max-width: 760px; height: 340px; border-radius: 24px; background: var(--bg-deep); overflow: hidden; }
 .fall { position: absolute; top: -90px; width: 28%; display: flex; flex-direction: column; align-items: center; gap: 2px; animation: fall linear infinite; }
-.fall b { font-family: var(--f-word); font-size: 26px; color: var(--on-space); background: rgba(0,0,0,.25); padding: 2px 12px; border-radius: 999px; }
+.fall b { font-family: var(--f-word); font-size: 26px; color: var(--ink); background: var(--paper); padding: 2px 12px; border-radius: 999px; box-shadow: 0 2px 0 rgba(0,0,0,.12); }
 .fall.gone { visibility: hidden; }
 .fall.caught { animation-play-state: paused; }
-.fall.caught b { background: var(--teal); color: #fff; }
+.fall.caught b { background: var(--success); color: var(--ink); }
 @keyframes fall { from { transform: translateY(0) } to { transform: translateY(440px) } }
-.bonus { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--ink); background: var(--sun-soft); padding: 6px 14px; border-radius: 999px; }
+.bonus { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--ink); background: var(--accent-soft); padding: 6px 14px; border-radius: 999px; }
 @media (prefers-reduced-motion: reduce) { .fall { top: 30%; } }
 
+/* reward burst on a right answer (short; never covers the next tap target for long) */
+.burst { position: fixed; z-index: 55; width: 24px; height: 24px; pointer-events: none; }
+.burst svg { width: 100%; height: 100%; display: block; }
+
+/* level up, badges, guide upgrades */
+.levelup { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; background: var(--accent-soft); border-radius: 20px; padding: 12px 14px; }
+.levelup .new-planet { background: var(--paper); }
+.lvl-tag { font-family: var(--f-display); font-size: 20px; color: var(--ink); }
+.levelup .planet { animation: glow 1.4s ease-in-out 2; }
+@keyframes glow { 50% { transform: scale(1.1); filter: drop-shadow(0 0 8px var(--accent)); } }
+.badge { display: inline-flex; align-items: center; gap: 8px; background: var(--paper); border-radius: 999px; padding: 4px 14px 4px 4px; font-family: var(--f-display); font-size: 16px; color: var(--ink); max-width: 100%; }
+.badge svg { width: 36px; height: 36px; flex: none; }
+.badge span { min-width: 0; overflow-wrap: anywhere; text-align: left; }
+.upgrade { display: flex; align-items: center; gap: 10px; font-family: var(--f-display); font-size: 16px; text-align: left; }
+.upgrade .coco-wrap { width: 58px; }
+.badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+
+/* empty + loading */
+.empty-art { width: 100%; max-width: 360px; aspect-ratio: 5 / 3; border-radius: 20px; overflow: hidden; align-self: center; }
+.loading { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 48px 16px; color: var(--on-bg); text-align: center; }
+.loading .coco-wrap { width: 132px; }
+.loading .load-spin { width: 44px; height: 44px; animation: spin 1.6s linear infinite; }
+.loading .load-spin svg { width: 100%; height: 100%; display: block; }
+.loading p { margin: 0; font-family: var(--f-display); font-size: 20px; }
+
+/* theme picker: four self-themed cards (each card carries its own data-theme), a live preview and one confirm button */
+.tp { display: flex; flex-direction: column; gap: 16px; }
+.tp-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.tp-head > div { flex: 1; min-width: 220px; }
+.tp-head h1 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 28px; line-height: 1.2; color: var(--on-bg); }
+.tp-head p { margin: 4px 0 0; font-size: 17px; color: var(--on-bg-soft); word-break: keep-all; }
+.tp-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.tp-card { position: relative; display: flex; flex-direction: column; gap: 2px; text-align: left; padding: 8px 8px 14px; border-radius: 26px; background: var(--bg-grad, var(--bg)); background-color: var(--bg); color: var(--on-bg); border: 4px solid var(--bg-line); transition: transform .15s ease, box-shadow .15s ease; min-width: 0; }
+.tp-card:active { transform: scale(.98); }
+.tp-img { display: block; border-radius: 18px; overflow: hidden; aspect-ratio: 5 / 3; }
+.tp-name { font-family: var(--f-display); font-weight: 600; font-size: 20px; line-height: 1.15; padding: 8px 6px 0; }
+.tp-ko { font-family: var(--f-display); font-size: 16px; color: var(--on-bg-soft); padding: 0 6px; }
+.tp-desc { font-size: 14.5px; line-height: 1.4; color: var(--on-bg-soft); padding: 2px 6px 0; word-break: keep-all; }
+.tp-pick { align-self: flex-start; margin: 8px 6px 0; font-family: var(--f-display); font-size: 15px; padding: 4px 12px; border-radius: 999px; background: var(--paper); color: var(--ink); border: 2px dashed var(--bg-line); }
+.tp-card.on { border-color: var(--accent); border-width: 6px; padding: 6px 6px 12px; transform: translateY(-4px); box-shadow: 0 0 0 4px var(--paper), 0 10px 24px rgba(0, 0, 0, .2); }
+.tp-card.on .tp-pick { border-style: solid; border-color: var(--accent); background: var(--accent); font-weight: 600; }
+.tp-preview { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; background: var(--bg-deep); border: 2px solid var(--bg-line); border-radius: var(--r-lg); padding: 14px 16px; color: var(--on-bg); }
+.tp-preview .hero { flex: 1 1 300px; min-width: 0; }
+.tp-preview .coco-wrap { width: 96px; }
+.tp-preview .bubble { font-size: 18px; }
+.tp-pv-side { display: flex; flex-direction: column; gap: 10px; flex: 1 1 240px; min-width: 0; }
+.tp-pv-map { display: flex; align-items: center; gap: 8px; }
+.tp-pv-map .nm { font-family: var(--f-display); font-size: 13px; color: var(--on-bg); text-align: center; overflow-wrap: anywhere; }
+.tp-pv-map > span { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 0; }
+.tp-pv-map i { flex: none; width: 16px; border-top: 3px dashed var(--bg-line); }
+.tp-pv-play { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tp-pv-play .tile { width: 46px; height: 46px; font-size: 26px; border-radius: 14px; display: inline-grid; place-items: center; }
+.tp-hint { margin: 0; font-family: var(--f-display); font-size: 20px; color: var(--on-bg); text-align: center; padding: 18px 8px; }
+.tp-hint small { display: block; font-size: 15px; color: var(--on-bg-soft); }
+.tp-foot { position: sticky; bottom: 0; z-index: 5; display: flex; justify-content: center; padding: 10px 0 calc(10px + env(safe-area-inset-bottom, 0px)); }
+.tp-foot .btn { min-width: min(100%, 320px); box-shadow: 0 6px 18px rgba(0, 0, 0, .22); }
+
 @media (max-width: 520px) {
+  .keyboard .krow { gap: 6px; }
+  .keyboard .tile { width: min(50px, calc((100vw - 104px) / 6)); height: 52px; font-size: 28px; }
   .brand-ko { font-size: 20px; }
   .coco-wrap { width: 96px; }
+  .hero-art { width: 100px; }
+  .hero-art .coco-wrap { width: 88px; }
+  .tp-head h1 { font-size: 23px; }
+  .tp-name { font-size: 17px; }
+  .tp-desc { font-size: 13.5px; }
   .bubble { font-size: 18px; }
   .guide .coco-wrap { width: 72px; }
   .guide .bubble { font-size: 16px; padding: 10px 14px; }
@@ -399,7 +472,7 @@ p.ok { margin: 0; color: var(--teal-deep, #2FA585); font-weight: 700; line-heigh
 /* trace & write */
 .trace-head { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
 .trace-head .pic { font-size: 56px; }
-.model-word { font-family: var(--f-word); font-weight: 700; font-size: 40px; color: var(--ink); background: var(--sun-soft); border-radius: 16px; padding: 2px 18px; }
+.model-word { font-family: var(--f-word); font-weight: 700; font-size: 40px; color: var(--ink); background: var(--accent-soft); border-radius: 16px; padding: 2px 18px; }
 .pad { position: relative; width: 100%; height: clamp(220px, 40vh, 340px); background: var(--paper); border: 3px solid var(--paper-2); border-radius: 24px; overflow: hidden; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .pad canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .pad canvas.ink { touch-action: none; cursor: crosshair; }
@@ -415,16 +488,16 @@ p.ok { margin: 0; color: var(--teal-deep, #2FA585); font-weight: 700; line-heigh
 
 /* photo import */
 .vh { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
-.scan { background: var(--teal-soft); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.scan { background: var(--primary-soft); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .scan-status { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .paste-box { display: flex; flex-direction: column; gap: 10px; }
 .field.paste { font-family: var(--f-word); font-size: 17px; line-height: 1.5; resize: vertical; min-height: 110px; }
 .scan-thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 12px; border: 3px solid var(--paper); }
-.spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--paper); border-top-color: var(--teal); animation: spin 1s linear infinite; }
+.spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--paper); border-top-color: var(--primary); animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg) } }
 .scan-list { display: flex; flex-wrap: wrap; gap: 8px; }
 .scan-item { display: inline-flex; align-items: center; gap: 6px; background: var(--paper); border-radius: 999px; padding: 6px 12px 6px 8px; cursor: pointer; }
-.scan-item input { width: 20px; height: 20px; accent-color: var(--teal); }
+.scan-item input { width: 20px; height: 20px; accent-color: var(--primary); }
 .scan-item .w { font-family: var(--f-word); font-weight: 700; font-size: 17px; }
 .scan-item small { color: var(--ink-soft); font-size: 14px; }
 .scan-sent { display: flex; flex-direction: column; gap: 6px; }
@@ -452,7 +525,10 @@ body { touch-action: manipulation; }
   .home-grid { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 22px; align-items: start; }
   .col-l, .col-r { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
   .home-grid .hero { flex-direction: column; align-items: stretch; gap: 16px; }
-  .home-grid .hero .coco-wrap { width: 150px; align-self: center; }
+  .home-grid .hero .hero-art { width: 100%; height: 200px; }
+  .home-grid .hero .hero-art .coco-wrap { width: 150px; }
+  .home-grid .hero .hero-bg { inset: 0; border-radius: 24px; }
+  .tp-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .bubble { font-size: 22px; }
   .home-grid .hero .bubble::before, .guide .bubble::before { left: 50%; top: -9px; transform: translateX(-50%) rotate(45deg); }
   .track { min-width: 0; }
@@ -514,42 +590,387 @@ body { touch-action: manipulation; }
   const kid = () => (activeKid() || {}).name || 'friend';
   const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const PLANETS = [
-    { ko: 'Earth', at: 0, c1: '#4AC7A8', c2: '#B8F2E6' },
-    { ko: 'Moon', at: 5, c1: '#D9D6C8', c2: '#FFFDF6' },
-    { ko: 'Mars', at: 15, c1: '#FF8C94', c2: '#FFD3D6' },
-    { ko: 'Jupiter', at: 30, c1: '#F2B880', c2: '#FFE08A' },
-    { ko: 'Saturn', at: 50, c1: '#FFE08A', c2: '#FFF7DC', ring: true },
-    { ko: 'Uranus', at: 75, c1: '#8FDCCB', c2: '#E4FBF6' },
-    { ko: 'Neptune', at: 105, c1: '#7E86C9', c2: '#C6CAF0' },
-    { ko: 'Star Land', at: 140, c1: '#FFE08A', c2: '#FFFDF6', star: true },
-  ];
-  // After Star Land the trip never ends: new planets keep appearing, a little farther apart each time (40 stars, growing to 80).
-  const P_HEAD = ['Bubble', 'Twinkle', 'Zippy', 'Cosmo', 'Jelly', 'Sparkle', 'Puffy', 'Glow', 'Fizzy', 'Candy', 'Snowy', 'Lucky', 'Rainbow', 'Moonbeam', 'Comet', 'Cocoa'];
-  const P_TAIL = ['ville', 'land', 'topia', ' Star', ' World', 'berry', ' Isle', 'oria'];
-  const P_WHO = [['🐙', 'Happy octopus friends'], ['🦄', 'Sparkly unicorns'], ['🐳', 'Space whales'], ['🤖', 'Kind robots'], ['🦖', 'Little dinosaurs'], ['🐧', 'Penguin pilots'], ['🐰', 'Moon bunnies'], ['🐉', 'Friendly dragons'], ['🦊', 'Clever foxes'], ['🐝', 'Busy star bees'], ['👽', 'Coco\'s cousins'], ['🐢', 'Slow sky turtles'], ['🦋', 'Glowing butterflies'], ['🐼', 'Sleepy pandas']];
-  const P_LIKE = ['love to read books', 'dance on the rings', 'sing the ABC song', 'collect shiny stars', 'bake moon cookies', 'play hide and seek', 'ride on comets', 'paint the sky', 'count to one hundred', 'spell big words'];
-  const BASE_WHO = [['🌍', 'People like you', 'live with lots of words'], ['🐇', 'Moon bunnies', 'hop in the craters'], ['🤖', 'Rover robots', 'dig in the red sand'], ['🌪️', 'Storm clouds', 'spin and spin'], ['💍', 'Ring skaters', 'race around the rings'], ['🧊', 'Ice friends', 'roll sideways'], ['🐳', 'Blue whales', 'swim in the wind'], ['⭐', 'Star helpers', 'cheer for every right answer']];
-  const hashN = (n, m) => { let x = (n + 1) * 2654435761 % 4294967296; x ^= x >>> 15; return Math.abs(x) % m; };
+  /* ---------- themes ----------
+     All themes share the same games, stars and levels (LEVEL_AT); a theme only changes how they look and what they are called.
+     A child's level is the same number in every theme: level 3 is Mars, Tea Party Tower, Bolt Bridge or Crystal Cave.
+     To add a theme, add one entry to THEMES: colors (vars), words, 8 base places plus name parts for the endless places
+     that follow, and its art (guide character, place icon, map marker, reward shape, answer-button shape, scene, background). */
+  const LEVEL_AT = [0, 5, 15, 30, 50, 75, 105, 140];
+  // After the 8th place the trip never ends: new places keep appearing, a little farther apart each time (40 stars, growing to 80).
   const farGap = (k) => Math.min(80, 40 + 5 * Math.floor(k / 4));
-  const farAt = [];
-  function planetAt(i) {
-    if (i < PLANETS.length) {
-      const b = BASE_WHO[i] || BASE_WHO[0];
-      return { ...PLANETS[i], who: b[0], whoName: b[1], like: b[2] };
-    }
-    const k = i - PLANETS.length;
-    while (farAt.length <= k) farAt.push((farAt.length ? farAt[farAt.length - 1] : PLANETS[PLANETS.length - 1].at) + farGap(farAt.length));
-    const n = P_HEAD.length * P_TAIL.length, slot = k % n, round = Math.floor(k / n);
-    const name = P_HEAD[(slot * 7) % P_HEAD.length] + P_TAIL[(slot + Math.floor(slot / P_HEAD.length)) % P_TAIL.length] + (round ? ' ' + (round + 1) : '');
-    const hue = (k * 67 + 200) % 360, who = P_WHO[hashN(k, P_WHO.length)];
-    return { ko: name, at: farAt[k], c1: `hsl(${hue} 62% 64%)`, c2: `hsl(${(hue + 30) % 360} 85% 88%)`,
-      ring: hashN(k + 7, 3) === 0, star: hashN(k + 3, 5) === 0, spots: hashN(k + 11, 2) === 0, moon: hashN(k + 5, 3) === 1,
-      who: who[0], whoName: who[1], like: P_LIKE[hashN(k + 13, P_LIKE.length)] };
+  const hashN = (n, m) => { let x = (n + 1) * 2654435761 % 4294967296; x ^= x >>> 15; return Math.abs(x) % m; };
+  const STAR_D = 'M12 2.6l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.4l-5.4 2.9 1.1-6.1L3.2 9l6.1-.8z';
+  const BLOB = 'M60 32 C86 32 100 50 100 70 C100 92 84 104 60 104 C36 104 20 92 20 70 C20 50 34 32 60 32Z';
+  const ROCKET_IN = '<path d="M16 3c4 3 6 8 6 13l-2 5h-8l-2-5c0-5 2-10 6-13z" fill="#FFFDF6" stroke="#34374F" stroke-width="1.6" stroke-linejoin="round"/><circle cx="16" cy="13" r="2.6" fill="#B8F2E6" stroke="#34374F" stroke-width="1.4"/><path d="M10 16l-3 5 4-1M22 16l3 5-4-1" fill="#FF8C94" stroke="#34374F" stroke-width="1.4" stroke-linejoin="round"/><path d="M13.5 22.5c.5 2.5 1.5 4 2.5 5 1-1 2-2.5 2.5-5z" fill="#FFE08A"/>';
+  const rocketSVG = `<svg viewBox="0 0 32 32" aria-hidden="true">${ROCKET_IN}</svg>`;
+
+  // Guide characters share one face, so the happy / thinking moods work the same in every theme.
+  function face(o = {}) {
+    const [a, b] = o.ex || [46, 74], y = o.ey || 64, m = o.my || 77, ink = o.eye || '#34374F', cy = o.cy || 76;
+    return `<g class="eyes-open"><ellipse cx="${a}" cy="${y}" rx="5.5" ry="7" fill="${ink}"/><ellipse cx="${b}" cy="${y}" rx="5.5" ry="7" fill="${ink}"/>
+        <circle cx="${a + 2}" cy="${y - 3}" r="2" fill="#FFFDF6"/><circle cx="${b + 2}" cy="${y - 3}" r="2" fill="#FFFDF6"/></g>
+      <g class="eyes-happy" fill="none" stroke="${ink}" stroke-width="3.2" stroke-linecap="round"><path d="M${a - 6} ${y + 2} Q${a} ${y - 7} ${a + 6} ${y + 2}"/><path d="M${b - 6} ${y + 2} Q${b} ${y - 7} ${b + 6} ${y + 2}"/></g>
+      <ellipse cx="${a - 10}" cy="${cy}" rx="6" ry="3.6" fill="${o.cheek || '#FF8C94'}" opacity=".55"/><ellipse cx="${b + 10}" cy="${cy}" rx="6" ry="3.6" fill="${o.cheek || '#FF8C94'}" opacity=".55"/>
+      <path class="mouth-calm" d="M54 ${m} Q60 ${m + 5} 66 ${m}" fill="none" stroke="${ink}" stroke-width="2.6" stroke-linecap="round"/>
+      <path class="mouth-happy" d="M52 ${m - 2} Q60 ${m - 2} 68 ${m - 2} Q66 ${m + 9} 60 ${m + 9} Q54 ${m + 9} 52 ${m - 2}Z" fill="#FF8C94" stroke="${ink}" stroke-width="2.2" stroke-linejoin="round"/>`;
   }
-  const praiseLine = () => rnd([`Great job, ${kid()}!`, 'Wow, amazing!', 'You are a star!', 'Super spelling!', 'Brilliant, space explorer!', `Way to go, ${kid()}!`]);
+  function sparkle(x, y, r, fill) { return `<path d="M${x} ${y - r}Q${x} ${y} ${x + r} ${y}Q${x} ${y} ${x} ${y + r}Q${x} ${y} ${x - r} ${y}Q${x} ${y} ${x} ${y - r}Z" fill="${fill}"/>`; }
+  function cloudShape(fill) { return `<g fill="${fill}"><circle cx="0" cy="0" r="10"/><circle cx="12" cy="-6" r="12"/><circle cx="25" cy="0" r="9"/><rect x="0" y="-1" width="25" height="10" rx="5"/></g>`; }
+  function gearPath(cx, cy, ro, ri, n) {
+    const pts = [];
+    for (let k = 0; k < n * 4; k++) { const a = k / (n * 4) * Math.PI * 2, r = k % 4 < 2 ? ro : ri; pts.push(`${(cx + r * Math.cos(a)).toFixed(2)} ${(cy + r * Math.sin(a)).toFixed(2)}`); }
+    return 'M' + pts.join('L') + 'Z';
+  }
+  function skyBits(n, make) {
+    let h = '';
+    for (let i = 0; i < n; i++) h += make(i, (Math.random() * 100).toFixed(2), (Math.random() * 100).toFixed(2), (Math.random() * 7).toFixed(1));
+    return h;
+  }
+  const placeWrap = (inner, size, locked) => `<div class="planet place ${locked ? 'lock' : ''}" style="width:${size}px;height:${size}px"><svg viewBox="0 0 48 48" aria-hidden="true">${inner}</svg></div>`;
+  const sceneWrap = (id, grad, body) => `<svg class="scene" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="sc-${id}" x1="0" y1="0" x2=".4" y2="1">${grad.map((c, k) => `<stop offset="${k / (grad.length - 1)}" stop-color="${c}"/>`).join('')}</linearGradient></defs><rect width="200" height="120" fill="url(#sc-${id})"/>${body}</svg>`;
+  const rFill = (on) => on ? 'var(--reward)' : 'var(--paper-2)', rLine = (on) => on ? 'var(--reward-line)' : 'var(--muted-line)';
+
+  const THEMES = {
+    space: {
+      id: 'space', name: 'Space Adventure', ko: '우주 탐험', desc: '작은 우주 탐험가가 되어 새로운 행성을 발견해요.',
+      world: 'Space Words', guide: 'Coco', guideKo: '코코', friend: 'your space friend', pitch: 'Let\'s fly to new planets together!',
+      place: 'planet', placeKo: '행성', go: 'fly to', reward: ['star', 'stars'], rewardKo: '별', meteor: 'meteor',
+      explorer: 'space explorer', mission: 'Mission complete!', finish: 'Finish mission!', newPlace: 'New planet', badge: 'Explorer badge',
+      homeSub: 'Pick a game to fly to the next planet.', waitSub: 'When this week\'s words arrive, we can blast off!',
+      youAre: (p) => `You are on ${p}`, landed: (p) => `We landed on ${p}!`, praise: 'You are a star!', cheer: 'Let\'s try again, explorer!',
+      upgrades: ['a shiny star badge', 'a space helmet'],
+      games: { spell: 'Letter Rocket', missing: 'Missing Star', meteor: 'Meteor Spell', catch: 'Star Catch', sentence: 'Sentence Ship' },
+      vars: { bg: '#272B5E', 'bg-deep': '#1F2250', 'bg-line': '#41479A', 'bg-grad': 'radial-gradient(90% 60% at 85% 0%, #3E3283 0%, transparent 70%), linear-gradient(180deg, #272B5E 0%, #1E2150 100%)',
+        'on-bg': '#F4F3FF', 'on-bg-soft': '#C5C9F2', primary: '#82AAFF', 'primary-soft': '#DDE7FF', 'primary-deep': '#3561D6', success: '#C2E2FF',
+        accent: '#FFD75E', 'accent-soft': '#FFF1C4', 'accent-line': '#C9971F', 'accent-shadow': '#D9AF3A', warm: '#B89FFF', 'warm-soft': '#E6DDFF', lilac: '#DCDDF7',
+        paper: '#FFFDF6', 'paper-2': '#F1EFF8', ink: '#24274D', 'ink-soft': '#5B5F8C', 'muted-line': '#D3D1E3', reward: '#FFD75E', 'reward-line': '#C9971F', 'opt-dy': '6px' },
+      base: [
+        { name: 'Earth', c1: '#4AC7A8', c2: '#B8F2E6', who: ['🌍', 'People like you', 'live with lots of words'] },
+        { name: 'Moon', c1: '#D9D6C8', c2: '#FFFDF6', who: ['🐇', 'Moon bunnies', 'hop in the craters'] },
+        { name: 'Mars', c1: '#FF8C94', c2: '#FFD3D6', who: ['🤖', 'Rover robots', 'dig in the red sand'] },
+        { name: 'Jupiter', c1: '#F2B880', c2: '#FFE08A', who: ['🌪️', 'Storm clouds', 'spin and spin'] },
+        { name: 'Saturn', c1: '#FFE08A', c2: '#FFF7DC', ring: true, who: ['💍', 'Ring skaters', 'race around the rings'] },
+        { name: 'Uranus', c1: '#8FDCCB', c2: '#E4FBF6', who: ['🧊', 'Ice friends', 'roll sideways'] },
+        { name: 'Neptune', c1: '#7E86C9', c2: '#C6CAF0', who: ['🐳', 'Blue whales', 'swim in the wind'] },
+        { name: 'Star Land', c1: '#FFE08A', c2: '#FFFDF6', star: true, who: ['⭐', 'Star helpers', 'cheer for every right answer'] },
+      ],
+      head: ['Bubble', 'Twinkle', 'Zippy', 'Cosmo', 'Jelly', 'Sparkle', 'Puffy', 'Glow', 'Fizzy', 'Candy', 'Snowy', 'Lucky', 'Rainbow', 'Moonbeam', 'Comet', 'Cocoa'],
+      tail: ['ville', 'land', 'topia', ' Star', ' World', 'berry', ' Isle', 'oria'],
+      whos: [['🐙', 'Happy octopus friends'], ['🦄', 'Sparkly unicorns'], ['🐳', 'Space whales'], ['🤖', 'Kind robots'], ['🦖', 'Little dinosaurs'], ['🐧', 'Penguin pilots'], ['🐰', 'Moon bunnies'], ['🐉', 'Friendly dragons'], ['🦊', 'Clever foxes'], ['🐝', 'Busy star bees'], ['👽', 'Coco\'s cousins'], ['🐢', 'Slow sky turtles'], ['🦋', 'Glowing butterflies'], ['🐼', 'Sleepy pandas']],
+      likes: ['love to read books', 'dance on the rings', 'sing the ABC song', 'collect shiny stars', 'bake moon cookies', 'play hide and seek', 'ride on comets', 'paint the sky', 'count to one hundred', 'spell big words'],
+      art: {
+        guide: (t) => `
+          <path d="M60 34 Q58 22 62 12" fill="none" stroke="#34374F" stroke-width="3" stroke-linecap="round"/>
+          <path d="M62 3.5l2.4 4.9 5.4.7-3.9 3.7 1 5.3L62 15.6l-4.9 2.5 1-5.3-3.9-3.7 5.4-.7z" fill="#FFE08A" stroke="#D9B653" stroke-width="1.2" stroke-linejoin="round"/>
+          <ellipse cx="22" cy="74" rx="8" ry="11" fill="#4AC7A8" transform="rotate(-20 22 74)"/><ellipse cx="98" cy="74" rx="8" ry="11" fill="#4AC7A8" transform="rotate(20 98 74)"/>
+          <ellipse cx="44" cy="105" rx="11" ry="6" fill="#4AC7A8"/><ellipse cx="76" cy="105" rx="11" ry="6" fill="#4AC7A8"/>
+          <path d="${BLOB}" fill="#B8F2E6" stroke="#4AC7A8" stroke-width="3"/>
+          <ellipse cx="60" cy="86" rx="20" ry="12" fill="#FFFDF6" opacity=".55"/>
+          ${face()}
+          ${t >= 1 ? `<path transform="translate(52 89) scale(.66)" d="${STAR_D}" fill="#FFD75E" stroke="#C9971F" stroke-width="1.8" stroke-linejoin="round"/>` : ''}
+          ${t >= 2 ? '<circle cx="60" cy="68" r="47" fill="#CFE3FF" fill-opacity=".16" stroke="#9FC2FF" stroke-width="3"/><path d="M28 50 Q35 33 52 27" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity=".75"/>' : ''}`,
+        place: (p, size, locked) => `<div class="planet ${locked ? 'lock' : ''}" style="width:${size}px;height:${size}px;background:radial-gradient(circle at 34% 30%, ${p.c2}, ${p.c1} 72%)">${p.spots ? '<span class="spot" style="left:22%;top:52%"></span><span class="spot" style="left:58%;top:30%;transform:scale(.7)"></span>' : ''}${p.moon ? '<span class="moonlet"></span>' : ''}${p.ring ? '<span class="ring"></span>' : ''}${p.star ? `<span style="position:absolute;inset:18%">${starSVG('100%', '#FFFDF6', '#E2B94F')}</span>` : ''}</div>`,
+        marker: () => rocketSVG,
+        reward: (on) => `<path d="${STAR_D}" fill="${rFill(on)}" stroke="${rLine(on)}" stroke-width="1.4" stroke-linejoin="round"/>`,
+        opt: () => `<path d="${STAR_D}" fill="var(--accent)" stroke="var(--accent-line)" stroke-width="1.2" stroke-linejoin="round"/>`,
+        scene: (bare) => sceneWrap('space', ['#1B1E4B', '#3B2F7E'], `
+          ${[[18, 16], [44, 30], [76, 10], [120, 22], [150, 8], [186, 48], [12, 64], [100, 40], [132, 50], [190, 92]].map(([x, y], k) => `<circle cx="${x}" cy="${y}" r="${k % 3 ? 1.2 : 2}" fill="${k % 4 ? '#FFFFFF' : '#FFD75E'}"/>`).join('')}
+          <circle cx="178" cy="20" r="9" fill="#FFFDF6"/><circle cx="175" cy="17" r="2.2" fill="#E3E0D2"/><circle cx="181" cy="24" r="1.6" fill="#E3E0D2"/>
+          <circle cx="166" cy="72" r="17" fill="#B89FFF"/><circle cx="160" cy="66" r="4" fill="#D9CCFF"/>
+          <ellipse cx="166" cy="72" rx="29" ry="6.5" fill="none" stroke="#FFD75E" stroke-width="3" transform="rotate(-14 166 72)"/>
+          <circle cx="34" cy="160" r="66" fill="#82AAFF"/><circle cx="18" cy="104" r="5" fill="#6189E6"/><circle cx="58" cy="100" r="3.5" fill="#6189E6"/>
+          <g transform="translate(22 8) rotate(32 16 16) scale(1.35)">${ROCKET_IN}</g>
+          ${bare ? '' : `<g transform="translate(72 46) scale(.58)">${THEMES.space.art.guide(0)}</g>`}`),
+        sky: () => skyBits(46, (i, x, y, d) => `<i class="${i % 11 === 0 ? 'big' : ''} ${i % 4 === 0 ? 'tw' : ''}" style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`)
+          + '<svg class="deco" style="left:-60px;bottom:-70px;width:240px;opacity:.3" viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="var(--warm)"/><ellipse cx="50" cy="50" rx="62" ry="12" fill="none" stroke="var(--accent)" stroke-width="4" transform="rotate(-16 50 50)"/></svg>'
+          + '<svg class="deco" style="right:-28px;top:46%;width:90px;opacity:.22" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="var(--primary)"/></svg>',
+      },
+    },
+
+    princess: {
+      id: 'princess', name: 'Princess Kingdom', ko: '공주 왕국', desc: '여러 왕국과 성을 여행하며 나만의 이야기를 만들어요.',
+      world: 'Word Kingdom', guide: 'Rosie', guideKo: '로지', friend: 'your royal kitten friend', pitch: 'Let\'s visit castles and kingdoms!',
+      place: 'kingdom', placeKo: '왕국', go: 'travel to', reward: ['gem', 'gems'], rewardKo: '보석', meteor: 'jewel',
+      explorer: 'royal explorer', mission: 'Quest complete!', finish: 'Finish the quest!', newPlace: 'New kingdom', badge: 'Kingdom badge',
+      homeSub: 'Pick a game to travel to the next kingdom.', waitSub: 'When this week\'s words arrive, the castle gates will open!',
+      youAre: (p) => `You are at ${p}`, landed: (p) => `We arrived at ${p}!`, praise: 'You shine like a jewel!', cheer: 'Let\'s try again, brave explorer!',
+      upgrades: ['a magic key necklace', 'a jewel crown'],
+      games: { spell: 'Letter Crown', missing: 'Missing Gem', meteor: 'Jewel Spell', catch: 'Gem Catch', sentence: 'Sentence Carriage' },
+      vars: { bg: '#F6D4E0', 'bg-deep': '#FFF3F7', 'bg-line': '#E8AFC5', 'bg-grad': 'linear-gradient(180deg, #F8DCE7 0%, #EDD5F0 100%)',
+        'on-bg': '#5B2147', 'on-bg-soft': '#7E4569', primary: '#EF86AE', 'primary-soft': '#FCDDE9', 'primary-deep': '#B83A70', success: '#E7DBFB',
+        accent: '#F5C84C', 'accent-soft': '#FFF3D1', 'accent-line': '#B88A12', 'accent-shadow': '#D6A93A', warm: '#C2A6EE', 'warm-soft': '#EFE5FC', lilac: '#F1E6FA',
+        paper: '#FFFBF3', 'paper-2': '#F7ECE4', ink: '#45203D', 'ink-soft': '#77526D', 'muted-line': '#E5D3CC', reward: '#F07FAE', 'reward-line': '#A83A6C', 'opt-dy': '0px' },
+      base: [
+        { name: 'Rose Garden', c1: '#EE7BA6', c2: '#FFF3E4', who: ['🐰', 'Garden bunnies', 'water the roses'] },
+        { name: 'Ribbon Bridge', c1: '#B79BEA', c2: '#FFF8EE', spots: true, who: ['🦢', 'Kind swans', 'glide under the bridge'] },
+        { name: 'Tea Party Tower', c1: '#F5C84C', c2: '#FFF5F8', ring: true, who: ['🧸', 'Teddy bears', 'pour pretend tea'] },
+        { name: 'Lavender Castle', c1: '#A98BE0', c2: '#FFF6EC', moon: true, who: ['🦋', 'Lavender butterflies', 'dance in the great hall'] },
+        { name: 'Golden Gate', c1: '#E8B634', c2: '#FFF7E8', ring: true, star: true, who: ['🐴', 'Pony guards', 'open the golden gate'] },
+        { name: 'Pearl Palace', c1: '#7FCBE0', c2: '#FFF8F2', spots: true, moon: true, who: ['🐚', 'Pearl shells', 'sing by the fountain'] },
+        { name: 'Moonlit Castle', c1: '#8E86D8', c2: '#FFF3F7', ring: true, spots: true, who: ['🦉', 'Wise owls', 'read stories at night'] },
+        { name: 'Crown Kingdom', c1: '#EE7BA6', c2: '#FFF5DC', ring: true, star: true, moon: true, who: ['👑', 'Kingdom friends', 'cheer for every right answer'] },
+      ],
+      head: ['Rosy', 'Pearl', 'Velvet', 'Honey', 'Tulip', 'Silver', 'Ribbon', 'Daisy', 'Sugar', 'Lily', 'Cherry', 'Sunny'],
+      tail: [' Castle', ' Kingdom', ' Palace', ' Garden', ' Court', ' Tower', ' Manor', ' Hall'],
+      whos: [['🐰', 'Garden bunnies'], ['🦢', 'Gentle swans'], ['🧸', 'Teddy bear knights'], ['🐴', 'Ponies'], ['🦋', 'Butterflies'], ['🐞', 'Ladybug gardeners'], ['🦔', 'Hedgehog bakers'], ['🐿️', 'Squirrel musicians'], ['🐦', 'Songbirds'], ['🦊', 'Fox librarians'], ['🐭', 'Mouse tailors'], ['🐢', 'Tortoise gardeners']],
+      likes: ['plant tulips', 'bake jam cookies', 'sew tiny capes', 'sing in the garden', 'paint the castle walls', 'read story books', 'dance at the ball', 'polish the gems', 'spell big words', 'play hide and seek'],
+      art: {
+        guide: (t) => `
+          <ellipse cx="44" cy="105" rx="11" ry="6" fill="#EE7BA6"/><ellipse cx="76" cy="105" rx="11" ry="6" fill="#EE7BA6"/>
+          <ellipse cx="22" cy="75" rx="8" ry="11" fill="#FFF4E8" stroke="#EE7BA6" stroke-width="2.5" transform="rotate(-20 22 75)"/>
+          <ellipse cx="98" cy="75" rx="8" ry="11" fill="#FFF4E8" stroke="#EE7BA6" stroke-width="2.5" transform="rotate(20 98 75)"/>
+          <path d="M27 54 L30 22 L54 36 Z" fill="#FFF4E8" stroke="#EE7BA6" stroke-width="3" stroke-linejoin="round"/><path d="M33 45 L35 31 L46 37Z" fill="#F9C2D6"/>
+          <path d="M93 54 L90 22 L66 36 Z" fill="#FFF4E8" stroke="#EE7BA6" stroke-width="3" stroke-linejoin="round"/><path d="M87 45 L85 31 L74 37Z" fill="#F9C2D6"/>
+          <path d="${BLOB}" fill="#FFF4E8" stroke="#EE7BA6" stroke-width="3"/>
+          <ellipse cx="60" cy="88" rx="20" ry="11" fill="#FFFFFF" opacity=".7"/>
+          <path d="M25 70 L35 72 M25 77 L35 75 M95 70 L85 72 M95 77 L85 75" stroke="#D9A3B8" stroke-width="2" stroke-linecap="round"/>
+          <path d="M57 70.5 h6 l-3 3.5z" fill="#EE7BA6"/>
+          ${face({ eye: '#45203D', cheek: '#F07FAE' })}
+          <path d="M44 34 L42 15 L51.5 24 L60 11 L68.5 24 L78 15 L76 34 Z" fill="#F5C84C" stroke="#C99A1E" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="60" cy="27" r="3" fill="#EE7BA6"/>
+          ${t >= 1 ? '<path d="M45 85 Q60 96 75 85" fill="none" stroke="#C99A1E" stroke-width="2"/><circle cx="60" cy="94" r="3.6" fill="none" stroke="#C99A1E" stroke-width="2.4"/><path d="M60 97.6 V104 M60 101.5 H63" stroke="#C99A1E" stroke-width="2.4" stroke-linecap="round"/>' : ''}
+          ${t >= 2 ? `<circle cx="49" cy="29" r="2.4" fill="#B79BEA"/><circle cx="71" cy="29" r="2.4" fill="#7FD3E8"/>${sparkle(88, 12, 6, '#F5C84C')}${sparkle(32, 10, 4, '#F5C84C')}` : ''}`,
+        place: (p, size, locked) => placeWrap(`
+          <ellipse cx="24" cy="45.5" rx="20" ry="2.6" fill="rgba(69,32,61,.14)"/>
+          <g stroke="#7A3E66" stroke-width="1.4" stroke-linejoin="round">
+            <rect x="19" y="14" width="10" height="11" fill="${p.c2}"/><path d="M17 15 L24 2.5 L31 15Z" fill="${p.c1}"/>
+            <rect x="6" y="19" width="7.5" height="26" fill="${p.c2}"/><path d="M4.5 20 L9.75 9 L15 20Z" fill="${p.c1}"/>
+            <rect x="34.5" y="19" width="7.5" height="26" fill="${p.c2}"/><path d="M33 20 L38.25 9 L43.5 20Z" fill="${p.c1}"/>
+            <path d="M13.5 45 V25 H15.8 V22 H18.6 V25 H21.4 V22 H24.2 V25 H27 V22 H29.8 V25 H32.6 V22 H34.5 V45Z" fill="${p.c2}"/>
+            <path d="M20 45 V38.5 a4 4 0 0 1 8 0 V45Z" fill="${p.c1}"/>
+          </g>
+          <circle cx="24" cy="19.5" r="1.8" fill="${p.c1}"/>
+          ${p.spots ? '<path d="M17 31.5c0-1.2 1.6-1.6 2 0 .4-1.6 2-1.2 2 0 0 1.2-2 2.4-2 2.4s-2-1.2-2-2.4zM27 31.5c0-1.2 1.6-1.6 2 0 .4-1.6 2-1.2 2 0 0 1.2-2 2.4-2 2.4s-2-1.2-2-2.4z" fill="#EE7BA6"/>' : ''}
+          ${p.ring ? '<path d="M9.75 9 V3.5 L14 5 L9.75 6.5Z M38.25 9 V3.5 L42.5 5 L38.25 6.5Z" fill="#F5C84C" stroke="#7A3E66" stroke-width="1"/>' : ''}
+          ${p.moon ? '<path d="M24 0 L26.4 3 L24 6 L21.6 3Z" fill="#7FD3E8" stroke="#7A3E66" stroke-width="1"/>' : ''}
+          ${p.star ? `<path transform="translate(15.5 25) scale(.7)" d="${STAR_D}" fill="#F5C84C" stroke="#7A3E66" stroke-width="1.2"/>` : ''}`, size, locked),
+        marker: () => '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 23 L3.5 9 L11 15 L16 5 L21 15 L28.5 9 L27 23 Z" fill="#F5C84C" stroke="#7A3E66" stroke-width="1.6" stroke-linejoin="round"/><rect x="5" y="23" width="22" height="5" rx="2" fill="#F5C84C" stroke="#7A3E66" stroke-width="1.6"/><circle cx="16" cy="18" r="2.6" fill="#EE7BA6"/><circle cx="9.5" cy="19" r="1.6" fill="#B79BEA"/><circle cx="22.5" cy="19" r="1.6" fill="#7FD3E8"/></svg>',
+        reward: (on) => `<path d="M6.5 3.5h11l4.5 6L12 21.5 2 9.5z" fill="${rFill(on)}" stroke="${rLine(on)}" stroke-width="1.4" stroke-linejoin="round"/><path d="M2 9.5h20M9.5 3.5 8 9.5l4 12 4-12-1.5-6" fill="none" stroke="${rLine(on)}" stroke-width="1" stroke-linejoin="round" opacity=".7"/>${on ? '<path d="M5.6 8 7.2 5.6" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".85"/>' : ''}`,
+        opt: () => '<path d="M8 1.5h8l6.5 6.5v8L16 22.5H8L1.5 16V8z" fill="var(--accent)" stroke="var(--accent-line)" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 1.5 9.5 5h5L16 1.5M1.5 8 5 9.5v5L1.5 16M22.5 8 19 9.5v5l3.5 1.5M8 22.5 9.5 19h5l1.5 3.5" fill="none" stroke="var(--accent-line)" stroke-width=".7" opacity=".5"/>',
+        scene: (bare) => sceneWrap('princess', ['#FBE3EC', '#EBD5F3'], `
+          <circle cx="28" cy="22" r="12" fill="#FFF3D1"/>
+          ${sparkle(62, 14, 4, '#F5C84C')}${sparkle(186, 28, 3.5, '#F5C84C')}${sparkle(14, 50, 3, '#FFFFFF')}${sparkle(90, 34, 2.6, '#FFFFFF')}
+          <path d="M0 92 Q50 74 100 90 T200 84 V120 H0Z" fill="#E1CFF4"/>
+          <g stroke="#B8467A" stroke-width="1.5" stroke-linejoin="round">
+            <rect x="129" y="30" width="18" height="28" fill="#FFF6E9"/><path d="M125 31 L138 6 L151 31Z" fill="#B79BEA"/>
+            <rect x="104" y="42" width="15" height="56" fill="#FFF6E9"/><path d="M101 43 L111.5 18 L122 43Z" fill="#EE7BA6"/>
+            <rect x="157" y="42" width="15" height="56" fill="#FFF6E9"/><path d="M154 43 L164.5 18 L175 43Z" fill="#EE7BA6"/>
+            <path d="M119 98 V56 H119 V50 H125.3 V56 H131.7 V50 H138 V56 H144.3 V50 H150.7 V56 H157 V98Z" fill="#FFF6E9"/>
+            <path d="M131 98 V85 a7 7 0 0 1 14 0 V98Z" fill="#EE7BA6"/>
+            <path d="M111.5 18 V8" fill="none"/><path d="M111.5 8 L120 10.5 L111.5 13Z" fill="#F5C84C"/>
+            <path d="M164.5 18 V8" fill="none"/><path d="M164.5 8 L173 10.5 L164.5 13Z" fill="#F5C84C"/>
+          </g>
+          <circle cx="111.5" cy="58" r="3" fill="#B79BEA"/><circle cx="164.5" cy="58" r="3" fill="#B79BEA"/><circle cx="138" cy="42" r="3.6" fill="#F5C84C"/>
+          <path d="M0 104 Q30 96 60 103 T120 101 T200 103 V120 H0Z" fill="#BFE6C4"/>
+          <path d="M138 98 Q132 108 122 120 H154 Q144 108 138 98Z" fill="#FFF3D1"/>
+          ${[[10, 108, '#EE7BA6'], [24, 113, '#F5C84C'], [44, 107, '#B79BEA'], [92, 111, '#EE7BA6'], [178, 108, '#F5C84C'], [192, 114, '#EE7BA6'], [166, 115, '#B79BEA'], [110, 112, '#F5C84C']].map(([x, y, c]) => `<circle cx="${x}" cy="${y}" r="2.8" fill="${c}"/>`).join('')}
+          <g transform="translate(72 26) rotate(-28)"><circle cx="0" cy="0" r="5" fill="none" stroke="#E0AE2C" stroke-width="2.6"/><path d="M5 0 H18 M14 0 V4.5 M17.5 0 V3.5" stroke="#E0AE2C" stroke-width="2.6" stroke-linecap="round"/></g>
+          ${bare ? '' : `<g transform="translate(20 50) scale(.56)">${THEMES.princess.art.guide(0)}</g>`}`),
+        sky: () => skyBits(16, (i, x, y, d) => `<i class="sp tw ${i % 5 === 0 ? 'big' : ''}" style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`)
+          + '<svg class="deco" style="left:0;bottom:0;width:100%;height:90px;opacity:.55" viewBox="0 0 400 90" preserveAspectRatio="none"><path fill="var(--bg-line)" d="M0 90 V60 Q60 42 120 58 T240 54 T400 50 V90Z"/></svg>'
+          + '<svg class="deco" style="right:2%;bottom:0;width:min(34vw,300px);opacity:.5" viewBox="280 30 92 110"><path fill="var(--bg-line)" d="M286 140 V78 h14 V140Z M282 80 L293 52 L304 80Z M300 140 V84 h7 v6 h7 v-6 h7 v6 h8 v-6 h7 v6 h7 v-6 h7 v6 V140Z M318 90 V64 h14 V90Z M314 66 L325 36 L336 66Z M350 140 V80 h14 V140Z M346 82 L357 54 L368 82Z"/></svg>'
+          + `<svg class="deco" style="left:-30px;top:30%;width:120px;opacity:.35" viewBox="0 0 40 40">${sparkle(20, 20, 18, 'var(--accent)')}</svg>`,
+      },
+    },
+
+    robot: {
+      id: 'robot', name: 'Robot City', ko: '로봇 시티', desc: '로봇 친구와 함께 미래 도시를 탐험하고 불을 밝혀요.',
+      world: 'Word City', guide: 'Bolt', guideKo: '볼트', friend: 'your robot friend', pitch: 'Let\'s power up the city together!',
+      place: 'district', placeKo: '구역', go: 'power up', reward: ['bolt', 'bolts'], rewardKo: '에너지', meteor: 'signal',
+      explorer: 'city builder', mission: 'Power up complete!', finish: 'Finish the job!', newPlace: 'New district', badge: 'Energy badge',
+      homeSub: 'Pick a game to power up the next district.', waitSub: 'When this week\'s words arrive, the city lights turn on!',
+      youAre: (p) => `You are in ${p}`, landed: (p) => `${p} is powered up!`, praise: 'Beep boop, brilliant!', cheer: 'Let\'s try again, builder!',
+      upgrades: ['a glowing energy core', 'a star antenna'],
+      games: { spell: 'Letter Robot', missing: 'Missing Bolt', meteor: 'Signal Spell', catch: 'Bolt Catch', sentence: 'Sentence Train' },
+      vars: { bg: '#2558B5', 'bg-deep': '#1D4796', 'bg-line': '#4D7ED8', 'bg-grad': 'linear-gradient(180deg, #2B62C4 0%, #1E4A9C 100%)',
+        'on-bg': '#F3F8FF', 'on-bg-soft': '#CDDDF8', primary: '#52DDB8', 'primary-soft': '#D2F6EC', 'primary-deep': '#0E8A6E', success: '#BDF1E2',
+        accent: '#FFAE57', 'accent-soft': '#FFE7CF', 'accent-line': '#C46E14', 'accent-shadow': '#D9852D', warm: '#FF9A78', 'warm-soft': '#FFE1D6', lilac: '#E4E9F0',
+        paper: '#FAFCFE', 'paper-2': '#E8EDF4', ink: '#16294A', 'ink-soft': '#526481', 'muted-line': '#CCD5E1', reward: '#FFAE57', 'reward-line': '#C46E14', 'opt-dy': '0px' },
+      base: [
+        { name: 'Gear Garage', c1: '#C9D5E6', c2: '#52DDB8', who: ['🔧', 'Fixer bots', 'fix things with a smile'] },
+        { name: 'Battery Park', c1: '#7CE0C4', c2: '#FFFFFF', moon: true, who: ['🔋', 'Battery buddies', 'charge up in the sun'] },
+        { name: 'Bolt Bridge', c1: '#FFAE57', c2: '#FFF4E6', spots: true, who: ['🚝', 'Sky trains', 'zoom over the bridge'] },
+        { name: 'Circuit Square', c1: '#8FB4F5', c2: '#FFE08A', ring: true, who: ['💡', 'Light bots', 'light up the square'] },
+        { name: 'Solar Tower', c1: '#E4E9F0', c2: '#FFAE57', star: true, who: ['☀️', 'Sun catchers', 'catch the sunshine'] },
+        { name: 'Magnet Market', c1: '#9BE3CF', c2: '#2558B5', ring: true, spots: true, who: ['🧲', 'Magnet movers', 'stick and lift boxes'] },
+        { name: 'Rocket Station', c1: '#FFC98F', c2: '#52DDB8', moon: true, star: true, who: ['🛰️', 'Satellite pals', 'wave from the sky'] },
+        { name: 'Mega City', c1: '#F3F6FA', c2: '#FFAE57', ring: true, star: true, moon: true, who: ['🤖', 'Mayor bots', 'cheer for every right answer'] },
+      ],
+      head: ['Volt', 'Gizmo', 'Turbo', 'Pixel', 'Sprocket', 'Neon', 'Zappy', 'Chrome', 'Beep', 'Widget'],
+      tail: [' District', ' Plaza', ' Works', ' Tower', ' Hub', ' Station', ' Park', ' Lab'],
+      whos: [['🤖', 'Helper bots'], ['🔧', 'Fixer bots'], ['🔋', 'Battery buddies'], ['💡', 'Light bots'], ['🛰️', 'Satellite pals'], ['🚁', 'Copter couriers'], ['🧲', 'Magnet movers'], ['🚝', 'Sky trains'], ['🎛️', 'DJ bots'], ['🧹', 'Sweeper bots'], ['🌱', 'Garden bots'], ['📦', 'Delivery bots']],
+      likes: ['build tall towers', 'sort shiny bolts', 'sing beep-boop songs', 'water the roof gardens', 'race on the tracks', 'fix the street lights', 'count to one hundred', 'spell big words', 'dance in the plaza', 'recycle bottles'],
+      art: {
+        guide: (t) => `
+          <rect x="36" y="99" width="18" height="10" rx="4" fill="#4C7DD6"/><rect x="66" y="99" width="18" height="10" rx="4" fill="#4C7DD6"/>
+          <rect x="9" y="62" width="13" height="26" rx="6.5" fill="#C9D5E6" stroke="#2558B5" stroke-width="2.5"/>
+          <rect x="98" y="62" width="13" height="26" rx="6.5" fill="#C9D5E6" stroke="#2558B5" stroke-width="2.5"/>
+          <path d="M60 33 V20" stroke="#2558B5" stroke-width="3" stroke-linecap="round"/>
+          ${t >= 2 ? `<circle cx="60" cy="14" r="12" fill="#FFE08A" opacity=".45"/><path transform="translate(49.5 3.5) scale(.88)" d="${STAR_D}" fill="#FFD75E" stroke="#C46E14" stroke-width="1.8" stroke-linejoin="round"/>` : '<circle cx="60" cy="15" r="6" fill="#FFAE57" stroke="#C46E14" stroke-width="2"/>'}
+          <rect x="20" y="32" width="80" height="72" rx="24" fill="#EEF2F8" stroke="#2558B5" stroke-width="3"/>
+          <circle cx="20" cy="56" r="5" fill="#FFAE57" stroke="#2558B5" stroke-width="2"/><circle cx="100" cy="56" r="5" fill="#FFAE57" stroke="#2558B5" stroke-width="2"/>
+          <rect x="30" y="43" width="60" height="44" rx="16" fill="#1C2E52"/>
+          ${face({ eye: '#6FF0CC', ey: 62, my: 75, cheek: '#FFAE57', cy: 74 })}
+          ${t >= 1 ? '<circle cx="60" cy="95" r="9" fill="#52DDB8" opacity=".3"/><circle cx="60" cy="95" r="5.5" fill="#52DDB8" stroke="#0E8A6E" stroke-width="2"/>' : '<rect x="48" y="92" width="24" height="6" rx="3" fill="#C9D5E6"/>'}`,
+        place: (p, size, locked) => placeWrap(`
+          <ellipse cx="24" cy="45.5" rx="21" ry="2.6" fill="rgba(22,41,74,.16)"/>
+          <g stroke="#16294A" stroke-width="1.4" stroke-linejoin="round">
+            <path d="M24 9 V3" fill="none"/>
+            <rect x="14" y="9" width="20" height="36" rx="3" fill="${p.c1}"/>
+            <rect x="3.5" y="25" width="12" height="20" rx="2.5" fill="${p.c1}"/>
+            <rect x="32.5" y="20" width="12" height="25" rx="2.5" fill="${p.c1}"/>
+            ${p.ring ? `<path d="M32.5 20 a6 5.5 0 0 1 12 0Z" fill="${p.c2}"/>` : ''}
+          </g>
+          <circle cx="24" cy="3" r="2.2" fill="#FFAE57" stroke="#16294A" stroke-width="1"/>
+          ${[0, 1, 2, 3].map(r => [18, 26].map(x => p.spots ? `<circle cx="${x + 2}" cy="${15 + r * 7}" r="2" fill="${p.c2}"/>` : `<rect x="${x}" y="${13 + r * 7}" width="4" height="4" rx="1" fill="${p.c2}"/>`).join('')).join('')}
+          <rect x="6.5" y="30" width="6" height="3" rx="1" fill="${p.c2}"/><rect x="6.5" y="36" width="6" height="3" rx="1" fill="${p.c2}"/>
+          <rect x="35.5" y="26" width="6" height="3" rx="1" fill="${p.c2}"/><rect x="35.5" y="32" width="6" height="3" rx="1" fill="${p.c2}"/><rect x="35.5" y="38" width="6" height="3" rx="1" fill="${p.c2}"/>
+          ${p.star ? '<circle cx="9.5" cy="20" r="4.5" fill="#FFAE57" stroke="#16294A" stroke-width="1.2"/><path d="M10.3 16.8 7.8 20.6h2.1l-.6 2.8 2.7-3.9h-2.1z" fill="#fff"/>' : ''}
+          ${p.moon ? '<path d="M3.5 25 a3 3 0 0 1 6 0 a3 3 0 0 1 6 0Z" fill="#52DDB8" stroke="#16294A" stroke-width="1"/>' : ''}`, size, locked),
+        marker: () => '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 7 V3.5" stroke="#16294A" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="3" r="2.4" fill="#FFAE57"/><rect x="5" y="7" width="22" height="19" rx="7" fill="#EEF2F8" stroke="#16294A" stroke-width="1.8"/><rect x="8.5" y="11" width="15" height="10" rx="4" fill="#1C2E52"/><circle cx="13" cy="16" r="1.8" fill="#6FF0CC"/><circle cx="19" cy="16" r="1.8" fill="#6FF0CC"/><rect x="10" y="26" width="4" height="4" rx="1" fill="#4C7DD6"/><rect x="18" y="26" width="4" height="4" rx="1" fill="#4C7DD6"/></svg>',
+        reward: (on) => `<circle cx="12" cy="12" r="10" fill="${rFill(on)}" stroke="${rLine(on)}" stroke-width="1.4"/><path d="M13.2 4.8 7.6 13h3.8l-1 6.2 6-8.4h-3.9z" fill="${on ? '#FFFFFF' : 'var(--muted-line)'}" stroke="${rLine(on)}" stroke-width=".9" stroke-linejoin="round"/>`,
+        opt: () => `<path d="${gearPath(12, 12, 11.6, 9.2, 10)}" fill="var(--accent)" stroke="var(--accent-line)" stroke-width="1" stroke-linejoin="round"/><circle cx="12" cy="12" r="7.4" fill="var(--accent-soft)"/>`,
+        scene: (bare) => sceneWrap('robot', ['#3470D6', '#1E4A9C'], `
+          <path d="M0 25H200M0 50H200M0 75H200M25 0V120M50 0V120M75 0V120M100 0V120M125 0V120M150 0V120M175 0V120" stroke="#FFFFFF" stroke-opacity=".08"/>
+          <path d="${gearPath(28, 26, 15, 12, 10)}" fill="#FFAE57" stroke="#C46E14" stroke-width="1.4"/><circle cx="28" cy="26" r="5" fill="#2F68CC"/>
+          <path d="${gearPath(50, 13, 8, 6.2, 8)}" fill="#52DDB8"/><circle cx="50" cy="13" r="2.6" fill="#2F68CC"/>
+          <path d="M84 102 V62 H98 V50 H110 V102Z M150 102 V50 H160 V38 H170 V102Z" fill="#4C7DD6"/>
+          <g stroke="#16294A" stroke-width="1.5" stroke-linejoin="round">
+            <path d="M112 50 a14 10 0 0 1 28 0Z" fill="#52DDB8"/>
+            <rect x="112" y="50" width="28" height="52" rx="4" fill="#E4E9F0"/>
+            <rect x="146" y="64" width="24" height="38" rx="4" fill="#C9F3E6"/>
+            <path d="M185 36 V24" fill="none"/>
+            <rect x="174" y="36" width="22" height="66" rx="4" fill="#FFE3C4"/>
+          </g>
+          <circle cx="185" cy="21" r="3.4" fill="#FFAE57"/><circle cx="185" cy="21" r="7" fill="#FFAE57" opacity=".3"/>
+          ${[[117, 57, 3, 5, '#52DDB8'], [150, 70, 2, 4, '#FFAE57'], [178, 42, 2, 7, '#4C7DD6']].map(([x, y, c, r, f]) => Array.from({ length: c * r }, (_, k) => `<rect x="${x + (k % c) * 8}" y="${y + Math.floor(k / c) * 8}" width="5" height="4" rx="1" fill="${f}"/>`).join('')).join('')}
+          <rect x="0" y="102" width="200" height="18" fill="#16294A"/>
+          <path d="M6 111 H24 M40 111 H58 M74 111 H92 M108 111 H126 M142 111 H160 M176 111 H194" stroke="#52DDB8" stroke-width="2.4" stroke-linecap="round"/>
+          ${bare ? '' : `<g transform="translate(30 44) scale(.56)">${THEMES.robot.art.guide(0)}</g>`}`),
+        sky: () => '<svg class="deco" style="inset:0;width:100%;height:100%;opacity:.15" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="var(--on-bg)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M0 40 H90 L120 70 H200"/><path d="M400 64 H320 L290 94 H240"/><path d="M0 222 H70 L100 192 H160"/><path d="M400 250 H300 L270 220 H220"/><path d="M60 300 V262 L90 242"/><path d="M340 0 V30 L310 50"/></g><g fill="var(--on-bg)"><circle cx="200" cy="70" r="5"/><circle cx="240" cy="94" r="5"/><circle cx="160" cy="192" r="5"/><circle cx="220" cy="220" r="5"/><circle cx="90" cy="242" r="5"/><circle cx="310" cy="50" r="5"/></g></svg>'
+          + `<svg class="deco spin" style="left:-56px;bottom:-56px;width:180px;opacity:.16" viewBox="0 0 100 100"><path d="${gearPath(50, 50, 46, 38, 12)}" fill="none" stroke="var(--on-bg)" stroke-width="5" stroke-linejoin="round"/><circle cx="50" cy="50" r="15" fill="none" stroke="var(--on-bg)" stroke-width="5"/></svg>`
+          + `<svg class="deco spin" style="right:-44px;top:42%;width:120px;opacity:.14" viewBox="0 0 100 100"><path d="${gearPath(50, 50, 46, 38, 10)}" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linejoin="round"/><circle cx="50" cy="50" r="14" fill="none" stroke="var(--accent)" stroke-width="6"/></svg>`
+          + skyBits(10, (i, x, y, d) => `<i class="blink" style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`),
+      },
+    },
+
+    unicorn: {
+      id: 'unicorn', name: 'Unicorn Wonderland', ko: '유니콘 원더랜드', desc: '유니콘 친구와 무지개 너머 마법의 땅을 찾아가요.',
+      world: 'Word Wonderland', guide: 'Luna', guideKo: '루나', friend: 'your unicorn friend', pitch: 'Let\'s find magic lands over the rainbow!',
+      place: 'land', placeKo: '마법의 땅', go: 'float to', reward: ['crystal', 'crystals'], rewardKo: '크리스털', meteor: 'bubble',
+      explorer: 'rainbow explorer', mission: 'Adventure complete!', finish: 'Finish the adventure!', newPlace: 'New magic land', badge: 'Rainbow badge',
+      homeSub: 'Pick a game to float to the next magic land.', waitSub: 'When this week\'s words arrive, the rainbow will appear!',
+      youAre: (p) => `You are in ${p}`, landed: (p) => `We found ${p}!`, praise: 'That was magical!', cheer: 'Let\'s try again together!',
+      upgrades: ['a flower crown', 'a crystal necklace'],
+      games: { spell: 'Letter Rainbow', missing: 'Missing Crystal', meteor: 'Bubble Spell', catch: 'Crystal Catch', sentence: 'Sentence Cloud' },
+      vars: { bg: '#DCEFF5', 'bg-deep': '#F8F5FF', 'bg-line': '#C9BEF0', 'bg-grad': 'linear-gradient(160deg, #E7DFFC 0%, #D6F2F4 55%, #FCE3EF 100%)',
+        'on-bg': '#3A2C6E', 'on-bg-soft': '#5E5294', primary: '#5BCBD4', 'primary-soft': '#D4F4F6', 'primary-deep': '#14808A', success: '#E9DFFF',
+        accent: '#FFB8D5', 'accent-soft': '#FFE6F0', 'accent-line': '#C9628E', 'accent-shadow': '#E49CBC', warm: '#C7AAFF', 'warm-soft': '#EEE5FF', lilac: '#E6E1FA',
+        paper: '#FFFFFF', 'paper-2': '#F2EFFA', ink: '#2C2557', 'ink-soft': '#625B8E', 'muted-line': '#DCD6EE', reward: '#9FE3EA', 'reward-line': '#3E98AA', 'opt-dy': '5px', sparkle: 'var(--warm)' },
+      base: [
+        { name: 'Cloud Meadow', c1: '#BDEBC9', c2: '#FFB6D3', who: ['🦄', 'Baby unicorns', 'nap on soft clouds'] },
+        { name: 'Rainbow Falls', c1: '#9FE3EA', c2: '#C3A6FF', ring: true, who: ['🐟', 'Rainbow fish', 'splash in the falls'] },
+        { name: 'Crystal Cave', c1: '#D7C6FF', c2: '#9FE3EA', star: true, who: ['💎', 'Crystal sprites', 'make the cave glow'] },
+        { name: 'Bubble Lake', c1: '#FFD3E6', c2: '#8EDCE6', spots: true, who: ['🐸', 'Bubble frogs', 'blow giant bubbles'] },
+        { name: 'Mushroom Forest', c1: '#C9F0D6', c2: '#E7A6FF', spots: true, moon: true, who: ['🍄', 'Mushroom pixies', 'hide under spotty hats'] },
+        { name: 'Starflower Hill', c1: '#FFE6A8', c2: '#FFB6D3', moon: true, who: ['🌼', 'Flower bees', 'hum happy tunes'] },
+        { name: 'Moonbeam Valley', c1: '#C3D7FF', c2: '#FFF0A8', ring: true, moon: true, who: ['🦉', 'Dream owls', 'watch the moonbeams'] },
+        { name: 'Rainbow Peak', c1: '#FFC9E3', c2: '#9FE3EA', ring: true, star: true, moon: true, who: ['🌈', 'Rainbow friends', 'cheer for every right answer'] },
+      ],
+      head: ['Moon', 'Sparkle', 'Dream', 'Bubble', 'Mist', 'Glitter', 'Petal', 'Twinkle', 'Cotton', 'Opal'],
+      tail: [' Meadow', ' Falls', ' Grove', ' Hills', ' Lagoon', ' Glade', ' Valley', ' Isle'],
+      whos: [['🦄', 'Baby unicorns'], ['🦋', 'Glowing butterflies'], ['🐰', 'Cloud bunnies'], ['🐟', 'Rainbow fish'], ['🦔', 'Pastel hedgehogs'], ['🐝', 'Flower bees'], ['🦌', 'Starry deer'], ['🐦', 'Bluebirds'], ['🐱', 'Cloud kittens'], ['🐉', 'Pocket dragons'], ['🐌', 'Sparkle snails'], ['🦉', 'Dream owls']],
+      likes: ['slide down rainbows', 'paint the clouds', 'plant star flowers', 'sing lullabies', 'collect crystals', 'splash in puddles', 'make wishes', 'spell big words', 'dance in the rain', 'bake cloud cakes'],
+      art: {
+        guide: (t) => `
+          <ellipse cx="44" cy="105" rx="11" ry="6" fill="#C3A6FF"/><ellipse cx="76" cy="105" rx="11" ry="6" fill="#C3A6FF"/>
+          <ellipse cx="22" cy="75" rx="8" ry="11" fill="#FFFFFF" stroke="#C3A6FF" stroke-width="2.5" transform="rotate(-20 22 75)"/>
+          <ellipse cx="98" cy="75" rx="8" ry="11" fill="#FFFFFF" stroke="#C3A6FF" stroke-width="2.5" transform="rotate(20 98 75)"/>
+          <path d="M53 36 L61 3 L69 36 Z" fill="#FFE08A" stroke="#D9B04A" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M56 27 L66 24.5 M58 18 L64.5 16 M59.5 10 L63 9" stroke="#D9B04A" stroke-width="2" stroke-linecap="round"/>
+          <path d="M78 44 L86 22 L94 46 Z" fill="#FFFFFF" stroke="#C3A6FF" stroke-width="3" stroke-linejoin="round"/><path d="M83 40 L86 30 L89 41Z" fill="#FFD3E6"/>
+          <path d="${BLOB}" fill="#FFFFFF" stroke="#C3A6FF" stroke-width="3"/>
+          <circle cx="44" cy="35" r="9" fill="#FFB6D3"/><circle cx="32" cy="42" r="8.5" fill="#FFE08A"/><circle cx="25" cy="53" r="7.5" fill="#9FE3EA"/><circle cx="22" cy="64" r="6.5" fill="#C3A6FF"/><circle cx="54" cy="33" r="6" fill="#C3A6FF"/>
+          <ellipse cx="60" cy="88" rx="20" ry="11" fill="#F3EEFF" opacity=".85"/>
+          ${face({ eye: '#2C2557', cheek: '#FFB6D3' })}
+          ${t >= 1 ? [[74, 34, '#FFB6D3'], [84, 38, '#FFE08A'], [92, 47, '#9FE3EA']].map(([x, y, c]) => `<circle cx="${x}" cy="${y}" r="4.6" fill="${c}" stroke="#FFFFFF" stroke-width="1.5"/><circle cx="${x}" cy="${y}" r="1.6" fill="#FFFFFF"/>`).join('') : ''}
+          ${t >= 2 ? '<path d="M46 85 Q60 95 74 85" fill="none" stroke="#C3A6FF" stroke-width="2"/><path d="M60 89 L65 95.5 L60 104 L55 95.5 Z" fill="#9FE3EA" stroke="#3E98AA" stroke-width="1.6" stroke-linejoin="round"/>' : ''}`,
+        place: (p, size, locked) => placeWrap(`
+          ${p.ring ? ['#FFB6D3', '#FFF0A8', '#9FE3EA'].map((c, k) => `<path d="M${5 + k * 3} 31 A${19 - k * 3} ${19 - k * 3} 0 0 1 ${43 - k * 3} 31" fill="none" stroke="${c}" stroke-width="3"/>`).join('') : ''}
+          <path d="M9 34 Q24 12 39 34Z" fill="${p.c1}" stroke="#7A6BB8" stroke-width="1.4" stroke-linejoin="round"/>
+          <path d="M31 30 V22" stroke="#B98C6A" stroke-width="2.4"/><circle cx="31" cy="19" r="5.6" fill="${p.c2}" stroke="#7A6BB8" stroke-width="1.4"/>
+          ${p.star ? '<path d="M15.5 30 L19 19 L22.5 30 L19 33Z" fill="#9FE3EA" stroke="#3E98AA" stroke-width="1.2" stroke-linejoin="round"/>' : ''}
+          ${p.spots ? '<path d="M17 32 V28.5" stroke="#FFF6E9" stroke-width="2.4"/><path d="M12.5 29 a4.5 4 0 0 1 9 0Z" fill="#FF8FB5" stroke="#7A6BB8" stroke-width="1"/><circle cx="15.5" cy="27.4" r=".9" fill="#fff"/><circle cx="18.5" cy="27.2" r=".9" fill="#fff"/>' : ''}
+          <g stroke="#B5A8E6" stroke-width="2.6"><circle cx="13" cy="37" r="6.5"/><circle cx="24" cy="38.5" r="8"/><circle cx="35" cy="37" r="6.5"/></g>
+          <g fill="#FFFFFF"><circle cx="13" cy="37" r="6.5"/><circle cx="24" cy="38.5" r="8"/><circle cx="35" cy="37" r="6.5"/></g>
+          ${p.moon ? sparkle(41, 9, 5, '#FFD75E') + sparkle(7, 15, 3, '#C3A6FF') : ''}`, size, locked),
+        marker: () => '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M14.5 9.5 L17 0.8 L19.5 9.5Z" fill="#FFE08A" stroke="#C99A1E" stroke-width="1.2" stroke-linejoin="round"/><circle cx="17" cy="18.5" r="10" fill="#FFFFFF" stroke="#9C86E0" stroke-width="1.8"/><circle cx="9.5" cy="11.5" r="4" fill="#FFB6D3"/><circle cx="7" cy="17.5" r="3.4" fill="#FFE08A"/><circle cx="7.5" cy="23.5" r="3" fill="#9FE3EA"/><circle cx="14.5" cy="18.5" r="1.6" fill="#2C2557"/><circle cx="21" cy="18.5" r="1.6" fill="#2C2557"/><path d="M15.5 23 Q18 25 20.5 23" stroke="#2C2557" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>',
+        reward: (on) => `<path d="M12 1.8 18.2 8 15.4 22H8.6L5.8 8z" fill="${rFill(on)}" stroke="${rLine(on)}" stroke-width="1.4" stroke-linejoin="round"/><path d="M5.8 8h12.4M12 1.8 9.6 8l2.4 14 2.4-14z" fill="none" stroke="${rLine(on)}" stroke-width=".9" stroke-linejoin="round" opacity=".6"/>${on ? '<path d="M8 10.5 9 15" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".9"/>' : ''}`,
+        opt: () => '<path d="M6.5 19.5a4.6 4.6 0 0 1-.6-9.1 6.3 6.3 0 0 1 12.1-1.6 4.7 4.7 0 0 1 .5 10.7z" fill="var(--accent)" stroke="var(--accent-line)" stroke-width="1.1" stroke-linejoin="round"/>',
+        scene: (bare) => sceneWrap('unicorn', ['#E6DEFC', '#D3F1F4', '#FDE3EF'], `
+          ${['#FFB6D3', '#FFD6A5', '#FFF0A8', '#BFF0D4', '#A9E4F5', '#D7C6FF'].map((c, k) => `<path d="M${68 + k * 8} 112 A${72 - k * 8} ${72 - k * 8} 0 0 1 ${212 - k * 8} 112" fill="none" stroke="${c}" stroke-width="8"/>`).join('')}
+          ${sparkle(28, 18, 4.5, '#FFFFFF')}${sparkle(60, 30, 3, '#C3A6FF')}${sparkle(116, 16, 3.5, '#FFFFFF')}${sparkle(188, 20, 3, '#FFB6D3')}
+          <path d="M0 98 Q50 88 100 96 T200 94 V120 H0Z" fill="#CDEFD9"/>
+          <g><rect x="12" y="74" width="3.5" height="26" fill="#C9A27E"/><circle cx="14" cy="68" r="12" fill="#D7C6FF"/><circle cx="10" cy="64" r="3" fill="#FFFFFF" opacity=".6"/>
+            <rect x="33" y="80" width="3" height="20" fill="#C9A27E"/><circle cx="34.5" cy="76" r="9.5" fill="#9FE3EA"/>
+            <rect x="52" y="86" width="2.6" height="14" fill="#C9A27E"/><circle cx="53.3" cy="83" r="7" fill="#FFB6D3"/></g>
+          <path d="M146 102 L151 86 L156 102Z" fill="#9FE3EA" stroke="#3E98AA" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M153 102 L159 80 L165 102Z" fill="#D7C6FF" stroke="#8B73D6" stroke-width="1.2" stroke-linejoin="round"/>
+          <g transform="translate(58 104) scale(1.05)">${cloudShape('#FFFFFF')}</g>
+          <g transform="translate(176 106) scale(1.1)">${cloudShape('#FFFFFF')}</g>
+          <g transform="translate(92 18) scale(.7)" opacity=".9">${cloudShape('#FFFFFF')}</g>
+          ${bare ? '' : `<g transform="translate(82 44) scale(.56)">${THEMES.unicorn.art.guide(0)}</g>`}`),
+        sky: () => '<svg class="deco" style="right:-90px;bottom:-30px;width:360px;opacity:.45" viewBox="0 0 200 110">'
+            + ['#FFB6D3', '#FFD6A5', '#FFF0A8', '#BFF0D4', '#A9E4F5', '#D7C6FF'].map((c, k) => `<path d="M${10 + k * 8} 110 A${90 - k * 8} ${90 - k * 8} 0 0 1 ${190 - k * 8} 110" fill="none" stroke="${c}" stroke-width="8"/>`).join('') + '</svg>'
+          + [[-5, 22, 150], [6, 74, 120], [74, 12, 110], [82, 60, 140]].map(([x, y, w]) => `<svg class="deco drift" style="left:${x}%;top:${y}%;width:${w}px;opacity:.75" viewBox="-12 -20 50 32">${cloudShape('#FFFFFF')}</svg>`).join('')
+          + skyBits(14, (i, x, y, d) => `<i class="sp tw ${i % 4 === 0 ? 'big' : ''}" style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`),
+      },
+    },
+  };
+  const THEME_IDS = Object.keys(THEMES);
+  (function themeVars() {   // one [data-theme] block per theme; any element can carry data-theme to show another theme inside it (picker cards)
+    const st = document.createElement('style');
+    st.textContent = Object.values(THEMES).map(t => `${t.id === 'space' ? ':root, ' : ''}[data-theme="${t.id}"] { ${Object.entries(t.vars).map(([k, v]) => `--${k}: ${v};`).join(' ')} }`).join('\n');
+    document.head.appendChild(st);
+  })();
+
+  let curId = 'space';
+  const T = () => THEMES[curId];
+  const themeOf = (k) => k && THEMES[k.theme] ? k.theme : 'space';
+  // A child with no theme picks one first. Children who already had stars before themes existed stay in space.
+  const needsTheme = (k) => !!k && !THEMES[k.theme] && !(k.stars > 0 || Object.keys(k.mastery || {}).length);
+  function applyTheme(id) {
+    id = THEMES[id] ? id : themeOf(activeKid());
+    if (curId === id && document.documentElement.dataset.theme === id) return;
+    curId = id;
+    const t = THEMES[id], root = document.documentElement;
+    root.dataset.theme = id; root.style.background = t.vars.bg;
+    const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', t.vars.bg);
+    const sky = document.getElementById('sky'); if (sky) sky.innerHTML = t.art.sky();
+  }
+  const farAt = [];
+  function levelAt(i) {
+    if (i < LEVEL_AT.length) return LEVEL_AT[i];
+    const k = i - LEVEL_AT.length;
+    while (farAt.length <= k) farAt.push((farAt.length ? farAt[farAt.length - 1] : LEVEL_AT[LEVEL_AT.length - 1]) + farGap(farAt.length));
+    return farAt[k];
+  }
+  // Place i of a theme. Same i = same stars in every theme.
+  function planetAt(i, t = T()) {
+    const at = levelAt(i);
+    if (i < t.base.length) { const b = t.base[i]; return { ...b, th: t.id, at, ko: b.name, who: b.who[0], whoName: b.who[1], like: b.who[2] }; }
+    const k = i - t.base.length;
+    const n = t.head.length * t.tail.length, slot = k % n, round = Math.floor(k / n);
+    const name = t.head[(slot * 7) % t.head.length] + t.tail[(slot + Math.floor(slot / t.head.length)) % t.tail.length] + (round ? ' ' + (round + 1) : '');
+    const hue = (k * 67 + 200) % 360, who = t.whos[hashN(k, t.whos.length)];
+    return { th: t.id, ko: name, at, c1: `hsl(${hue} 62% 64%)`, c2: `hsl(${(hue + 30) % 360} 85% 88%)`,
+      ring: hashN(k + 7, 3) === 0, star: hashN(k + 3, 5) === 0, spots: hashN(k + 11, 2) === 0, moon: hashN(k + 5, 3) === 1,
+      who: who[0], whoName: who[1], like: t.likes[hashN(k + 13, t.likes.length)] };
+  }
+  const rw = (n, t = T()) => n === 1 ? t.reward[0] : t.reward[1];
+  const praiseLine = () => rnd([`Great job, ${kid()}!`, 'Wow, amazing!', T().praise, 'Super spelling!', `Brilliant, ${T().explorer}!`, `Way to go, ${kid()}!`]);
   const PRAISE_EN = ['Keep it up!', 'You did it!', 'Well done!', 'Wonderful!', 'Nice work!'];
-  const CHEER = ['That\'s okay, try again!', 'Take your time.', 'Almost there!', 'Let\'s listen one more time.'];
+  const cheerLine = () => rnd(['That\'s okay, try again!', 'Take your time.', 'Almost there!', 'Let\'s listen one more time.', T().cheer]);
   const EXAMPLE = {
     words: [
       { en: 'sun', ko: '해', emoji: '☀️' }, { en: 'moon', ko: '달', emoji: '🌙' },
@@ -616,6 +1037,7 @@ body { touch-action: manipulation; }
   function normKid(d) {
     const p = normProg(d);
     return { id: String(d && d.id || newId()), name: cleanName(d && d.name) || 'Star', stars: p.stars, mastery: p.mastery,
+      theme: d && THEMES[d.theme] ? d.theme : null,
       at: Number(d && d.at) || Date.now(), synced: !!(d && d.synced) };
   }
   function loadKids() {
@@ -690,7 +1112,7 @@ body { touch-action: manipulation; }
     try {
       [f, c] = await Promise.all([
         sb.from('families').select('week, updated_at').eq('user_id', uid).maybeSingle(),
-        sb.from('children').select('id, name, stars, mastery, updated_at').eq('user_id', uid).order('created_at'),
+        sb.from('children').select('*').eq('user_id', uid).order('created_at'),   // '*' so the theme column is read once the database has it
       ]);
     } catch { return false; }
     if (f.error || c.error) return false;
@@ -706,7 +1128,7 @@ body { touch-action: manipulation; }
       if (deleted.includes(row.id)) continue;
       const mine = local.get(row.id), at = Date.parse(row.updated_at) || 0;
       if (mine && mine.at > at) { merged.push(mine); markDirty('kids'); }
-      else merged.push(normKid({ ...row, at, synced: true }));
+      else merged.push(normKid({ ...row, theme: row.theme || (mine && mine.theme), at, synced: true }));   // keep this device's theme if the database has none
       local.delete(row.id);
     }
     for (const k of local.values()) if (!k.synced) { merged.push(k); markDirty('kids'); }   // added on this device, not uploaded yet
@@ -720,7 +1142,7 @@ body { touch-action: manipulation; }
     if (Object.keys(dirty()).length) await pushCloud();
     return true;
   }
-  let pushing = null;
+  let pushing = null, themeColumn = true;
   async function pushCloud() {
     if (!sb || !state.user) return false;
     if (pushing) { await pushing; }
@@ -732,7 +1154,10 @@ body { touch-action: manipulation; }
           if (r.error) throw r.error;
         }
         if (d.kids && state.kids.length) {
-          const r = await sb.from('children').upsert(state.kids.map(k => ({ id: k.id, user_id: uid, name: k.name, stars: k.stars, mastery: k.mastery, updated_at: ts(k.at) })));
+          const rows = (withTheme) => state.kids.map(k => ({ id: k.id, user_id: uid, name: k.name, stars: k.stars, mastery: k.mastery, ...(withTheme && k.theme ? { theme: k.theme } : {}), updated_at: ts(k.at) }));
+          let r = await sb.from('children').upsert(rows(themeColumn));
+          // Databases set up before themes have no theme column: save everything else, keep the theme on this device.
+          if (r.error && themeColumn && /theme/i.test(r.error.message || '')) { themeColumn = false; r = await sb.from('children').upsert(rows(false)); }
           if (r.error) throw r.error;
           state.kids.forEach(k => { k.synced = true; }); saveKids();
         }
@@ -839,44 +1264,31 @@ body { touch-action: manipulation; }
   function shuffleNew(a) { if (a.length < 2) return a.slice(); let b; let n = 0; do { b = shuffle(a); n++; } while (b.join('|') === a.join('|') && n < 8); return b; }
   const emojiFor = (w) => w.emoji || EMOJI[w.en] || '';
   const clean = (t) => t.replace(/[^A-Za-z'-]/g, '');
-  function planetIndex(stars) {
-    const last = PLANETS.length - 1;
-    if (stars >= PLANETS[last].at) { let i = last; while (planetAt(i + 1).at <= stars) i++; return i; }
-    let i = 0; PLANETS.forEach((p, k) => { if (stars >= p.at) i = k; }); return i;
-  }
+  function planetIndex(stars) { let i = 0; while (levelAt(i + 1) <= stars) i++; return i; }
+  // The guide's look upgrades with the level (3rd and 5th place), so upgrades come from stars alone: nothing extra is stored or awarded.
+  const tierOf = (pi) => pi >= 4 ? 2 : pi >= 2 ? 1 : 0;
+  const curTier = () => tierOf(planetIndex(state.progress.stars));
 
-  const starSVG = (s = 20, fill = 'var(--sun)', stroke = '#E2B94F') =>
-    `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.4l-5.4 2.9 1.1-6.1L3.2 9l6.1-.8z" fill="${fill}" stroke="${stroke}" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
+  const starSVG = (s = 20, fill = 'var(--accent)', stroke = 'var(--accent-line)') =>
+    `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="${STAR_D}" fill="${fill}" stroke="${stroke}" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
+  // Theme art. A different theme's art gets its own data-theme so its colors stay right (e.g. a sibling's count in the grown-ups menu).
+  const themeAttr = (id) => id === curId ? '' : `data-theme="${id}"`;
+  const rIcon = (s = 20, on = true, id = curId) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true" ${themeAttr(id)}>${THEMES[id].art.reward(on)}</svg>`;
+  const optShape = () => `<svg viewBox="0 0 24 24" aria-hidden="true">${T().art.opt()}</svg>`;
+  const markerSVG = (id = curId) => THEMES[id].art.marker();
+  const placeIcon = (p, size = 44, locked = false) => THEMES[p.th].art.place(p, size, locked);
+  const sceneSVG = (bare, id = curId) => THEMES[id].art.scene(bare);
+  const badgeSVG = () => `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M12 24 7 38l6-2.5L16 40l5-13zM28 24l5 14-6-2.5L24 40l-5-13z" fill="var(--warm)" stroke="var(--ink)" stroke-width="1" stroke-linejoin="round"/><circle cx="20" cy="17" r="14" fill="var(--accent)" stroke="var(--accent-line)" stroke-width="2"/><circle cx="20" cy="17" r="10" fill="var(--paper)"/><svg x="12" y="9" width="16" height="16" viewBox="0 0 24 24">${T().art.reward(true)}</svg></svg>`;
+  const paletteSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1.1-.9-1.4-.9-2.4 0-.9.7-1.6 1.7-1.6H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.2" fill="currentColor"/><circle cx="10.5" cy="7" r="1.2" fill="currentColor"/><circle cx="15" cy="7.5" r="1.2" fill="currentColor"/></svg>`;
+  const gameName = (id) => T().games[id] || GAMES.find(x => x.id === id).ko;
   const speakerSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>`;
   const lockSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="3"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>`;
   const noteSVG = (on) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18V5l10-2v13"/><circle cx="6.5" cy="18" r="2.5" fill="currentColor"/><circle cx="16.5" cy="16" r="2.5" fill="currentColor"/>${on ? '' : '<path d="M3 3l18 18"/>'}</svg>`;
   const pencilSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/></svg>`;
-  const rocketSVG = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3c4 3 6 8 6 13l-2 5h-8l-2-5c0-5 2-10 6-13z" fill="#FFFDF6" stroke="#34374F" stroke-width="1.6" stroke-linejoin="round"/><circle cx="16" cy="13" r="2.6" fill="#B8F2E6" stroke="#34374F" stroke-width="1.4"/><path d="M10 16l-3 5 4-1M22 16l3 5-4-1" fill="#FF8C94" stroke="#34374F" stroke-width="1.4" stroke-linejoin="round"/><path d="M13.5 22.5c.5 2.5 1.5 4 2.5 5 1-1 2-2.5 2.5-5z" fill="#FFE08A"/></svg>`;
 
-  function coco(cls = '') {
-    return `<svg class="coco ${cls}" viewBox="0 0 120 120" role="img" aria-label="Coco, your space friend">
-      <g class="body-g">
-        <path d="M60 34 Q58 22 62 12" fill="none" stroke="#34374F" stroke-width="3" stroke-linecap="round"/>
-        <path d="M62 3.5l2.4 4.9 5.4.7-3.9 3.7 1 5.3L62 15.6l-4.9 2.5 1-5.3-3.9-3.7 5.4-.7z" fill="#FFE08A" stroke="#D9B653" stroke-width="1.2" stroke-linejoin="round"/>
-        <ellipse cx="22" cy="74" rx="8" ry="11" fill="#4AC7A8" transform="rotate(-20 22 74)"/>
-        <ellipse cx="98" cy="74" rx="8" ry="11" fill="#4AC7A8" transform="rotate(20 98 74)"/>
-        <ellipse cx="44" cy="105" rx="11" ry="6" fill="#4AC7A8"/>
-        <ellipse cx="76" cy="105" rx="11" ry="6" fill="#4AC7A8"/>
-        <path d="M60 32 C86 32 100 50 100 70 C100 92 84 104 60 104 C36 104 20 92 20 70 C20 50 34 32 60 32Z" fill="#B8F2E6" stroke="#4AC7A8" stroke-width="3"/>
-        <ellipse cx="60" cy="86" rx="20" ry="12" fill="#FFFDF6" opacity=".55"/>
-        <g class="eyes-open">
-          <ellipse cx="46" cy="64" rx="5.5" ry="7" fill="#34374F"/><ellipse cx="74" cy="64" rx="5.5" ry="7" fill="#34374F"/>
-          <circle cx="48" cy="61" r="2" fill="#FFFDF6"/><circle cx="76" cy="61" r="2" fill="#FFFDF6"/>
-        </g>
-        <g class="eyes-happy" fill="none" stroke="#34374F" stroke-width="3.2" stroke-linecap="round">
-          <path d="M40 66 Q46 57 52 66"/><path d="M68 66 Q74 57 80 66"/>
-        </g>
-        <ellipse cx="36" cy="76" rx="6" ry="3.6" fill="#FF8C94" opacity=".55"/>
-        <ellipse cx="84" cy="76" rx="6" ry="3.6" fill="#FF8C94" opacity=".55"/>
-        <path class="mouth-calm" d="M54 77 Q60 82 66 77" fill="none" stroke="#34374F" stroke-width="2.6" stroke-linecap="round"/>
-        <path class="mouth-happy" d="M52 75 Q60 75 68 75 Q66 86 60 86 Q54 86 52 75Z" fill="#FF8C94" stroke="#34374F" stroke-width="2.2" stroke-linejoin="round"/>
-      </g>
-    </svg>`;
+  function mascot(cls = '', id = curId, tier = curTier()) {
+    const t = THEMES[id];
+    return `<svg class="coco ${cls}" viewBox="0 0 120 120" role="img" aria-label="${esc(t.guide)}, ${esc(t.friend)}"><g class="body-g">${t.art.guide(tier)}</g></svg>`;
   }
   function mood(m, ms = 1700) {
     document.querySelectorAll('.coco').forEach(c => { c.classList.remove('happy', 'think'); void c.getBoundingClientRect(); if (m) c.classList.add(m); });
@@ -891,10 +1303,7 @@ body { touch-action: manipulation; }
     const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
     document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
   }
-  function planetDot(p, size = 44, locked = false) {
-    return `<div class="planet ${locked ? 'lock' : ''}" style="width:${size}px;height:${size}px;background:radial-gradient(circle at 34% 30%, ${p.c2}, ${p.c1} 72%)">${p.spots ? '<span class="spot" style="left:22%;top:52%"></span><span class="spot" style="left:58%;top:30%;transform:scale(.7)"></span>' : ''}${p.moon ? '<span class="moonlet"></span>' : ''}${p.ring ? '<span class="ring"></span>' : ''}${p.star ? `<span style="position:absolute;inset:18%">${starSVG('100%', '#FFFDF6', '#E2B94F')}</span>` : ''}</div>`;
-  }
-  const starPill = () => `<span class="pill" id="starPill">${starSVG(24)}<span id="starCount">${state.progress.stars}</span></span>`;
+  const starPill = () => `<span class="pill" id="starPill">${rIcon(24)}<span id="starCount">${state.progress.stars}</span></span>`;
   function updatePill() {
     const c = document.getElementById('starCount'); if (c) c.textContent = state.progress.stars;
     const p = document.getElementById('starPill'); if (p) { p.classList.remove('bump'); void p.offsetWidth; p.classList.add('bump'); }
@@ -903,7 +1312,7 @@ body { touch-action: manipulation; }
     const target = document.getElementById('starPill');
     if (!fromEl || !target || reduced || !document.body.animate) { updatePill(); return; }
     const a = fromEl.getBoundingClientRect(), b = target.getBoundingClientRect();
-    const s = document.createElement('div'); s.className = 'fly'; s.innerHTML = starSVG(36);
+    const s = document.createElement('div'); s.className = 'fly'; s.innerHTML = rIcon(36);
     const x0 = a.left + a.width / 2 - 18, y0 = a.top + a.height / 2 - 18;
     s.style.left = x0 + 'px'; s.style.top = y0 + 'px';
     document.body.appendChild(s);
@@ -916,54 +1325,64 @@ body { touch-action: manipulation; }
     an.onfinish = () => { s.remove(); updatePill(); };
   }
 
-  /* ---------- sky ---------- */
-  (function buildSky() {
-    const sky = document.getElementById('sky'); let h = '';
-    for (let i = 0; i < 46; i++) {
-      const big = i % 11 === 0, tw = i % 4 === 0;
-      h += `<i class="${big ? 'big' : ''} ${tw ? 'tw' : ''}" style="left:${(Math.random() * 100).toFixed(2)}%;top:${(Math.random() * 100).toFixed(2)}%;animation-delay:${(Math.random() * 7).toFixed(1)}s"></i>`;
+  // A short burst of the theme's reward shape around a right answer.
+  function burst(el) {
+    if (!el || reduced || !document.body.animate) return;
+    const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    for (let k = 0; k < 6; k++) {
+      const s = document.createElement('div'); s.className = 'burst'; s.innerHTML = rIcon(24);
+      s.style.left = cx - 12 + 'px'; s.style.top = cy - 12 + 'px';
+      document.body.appendChild(s);
+      const a = k / 6 * Math.PI * 2 + Math.random() * .5, d = 60 + Math.random() * 30;
+      s.animate([{ transform: 'translate(0,0) scale(.3)', opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px, ${Math.sin(a) * d}px) scale(1)`, opacity: 0 }],
+        { duration: 650, easing: 'ease-out' }).onfinish = () => s.remove();
     }
-    sky.innerHTML = h;
-  })();
+  }
+  function loadingHTML(msg = 'Loading…') {
+    return `<section class="loading" role="status"><div class="coco-wrap">${mascot()}</div><span class="load-spin">${rIcon(44)}</span><p>${esc(msg)}</p></section>`;
+  }
 
   /* ---------- home ---------- */
   const GAMES = [
-    { id: 'learn', grp: 'spell', ko: 'Word Cards', sub: 'Look, listen, and say', bg: 'var(--mint)', mark: 'Aa' },
-    { id: 'spell', grp: 'spell', ko: 'Letter Rocket', sub: 'Spell it letter by letter', bg: 'var(--sun)', mark: 'abc' },
-    { id: 'missing', grp: 'spell', ko: 'Missing Star', sub: 'Find the missing letter', bg: 'var(--berry-soft)', mark: 'c_t' },
+    { id: 'learn', grp: 'spell', ko: 'Word Cards', sub: 'Look, listen, and say', bg: 'var(--success)', mark: 'Aa' },
+    { id: 'spell', grp: 'spell', ko: 'Letter Rocket', sub: 'Spell it letter by letter', bg: 'var(--accent)', mark: 'abc' },
+    { id: 'missing', grp: 'spell', ko: 'Missing Star', sub: 'Find the missing letter', bg: 'var(--warm-soft)', mark: 'c_t' },
     { id: 'vowel', grp: 'spell', ko: 'Vowel Hunt', sub: 'Fill in a, e, i, o, u', bg: 'var(--lilac)', mark: 'a e' },
-    { id: 'chunk', grp: 'spell', ko: 'Chunk Builder', sub: 'Join the word parts', bg: 'var(--teal-soft)', mark: '🧩' },
-    { id: 'peek', grp: 'spell', ko: 'Peek & Spell', sub: 'Look, hide, spell it', bg: 'var(--mint)', mark: '👀' },
-    { id: 'bee', grp: 'spell', ko: 'Spelling Bee', sub: 'Hear it, type it', bg: 'var(--sun-soft)', mark: '🐝' },
-    { id: 'meteor', grp: 'spell', ko: 'Meteor Spell', sub: 'Pick the right spelling', bg: 'var(--berry-soft)', mark: '☄️' },
-    { id: 'trace', grp: 'spell', ko: 'Trace & Write', sub: 'Write with Apple Pencil', bg: 'var(--sun-soft)', mark: pencilSVG },
-    { id: 'listen', grp: 'play', ko: 'Sound Hunt', sub: 'Listen and pick the picture', bg: 'var(--teal-soft)', mark: speakerSVG },
-    { id: 'memory', grp: 'play', ko: 'Memory Match', sub: 'Find the pairs', bg: 'var(--teal-soft)', mark: '🃏' },
-    { id: 'catch', grp: 'play', ko: 'Star Catch', sub: 'Catch the falling word', bg: 'var(--sun-soft)', mark: '🌠' },
-    { id: 'frame', grp: 'sent', ko: 'Sentence Maker', sub: 'Spell a word into a sentence', bg: 'var(--mint)', mark: 'I see' },
-    { id: 'swrite', grp: 'sent', ko: 'Sentence Writer', sub: 'Spell every word', bg: 'var(--sun)', mark: 'Abc.' },
-    { id: 'strace', grp: 'sent', ko: 'Sentence Trace', sub: 'Trace and write a sentence', bg: 'var(--berry-soft)', mark: pencilSVG },
+    { id: 'chunk', grp: 'spell', ko: 'Chunk Builder', sub: 'Join the word parts', bg: 'var(--primary-soft)', mark: '🧩' },
+    { id: 'peek', grp: 'spell', ko: 'Peek & Spell', sub: 'Look, hide, spell it', bg: 'var(--success)', mark: '👀' },
+    { id: 'bee', grp: 'spell', ko: 'Spelling Bee', sub: 'Hear it, type it', bg: 'var(--accent-soft)', mark: '🐝' },
+    { id: 'meteor', grp: 'spell', ko: 'Meteor Spell', sub: 'Pick the right spelling', bg: 'var(--warm-soft)', mark: () => rIcon(26) },
+    { id: 'trace', grp: 'spell', ko: 'Trace & Write', sub: 'Write with Apple Pencil', bg: 'var(--accent-soft)', mark: pencilSVG },
+    { id: 'listen', grp: 'play', ko: 'Sound Hunt', sub: 'Listen and pick the picture', bg: 'var(--primary-soft)', mark: speakerSVG },
+    { id: 'memory', grp: 'play', ko: 'Memory Match', sub: 'Find the pairs', bg: 'var(--primary-soft)', mark: '🃏' },
+    { id: 'catch', grp: 'play', ko: 'Star Catch', sub: 'Catch the falling word', bg: 'var(--accent-soft)', mark: () => rIcon(26) },
+    { id: 'frame', grp: 'sent', ko: 'Sentence Maker', sub: 'Spell a word into a sentence', bg: 'var(--success)', mark: 'I see' },
+    { id: 'swrite', grp: 'sent', ko: 'Sentence Writer', sub: 'Spell every word', bg: 'var(--accent)', mark: 'Abc.' },
+    { id: 'strace', grp: 'sent', ko: 'Sentence Trace', sub: 'Trace and write a sentence', bg: 'var(--warm-soft)', mark: pencilSVG },
     { id: 'sentence', grp: 'sent', ko: 'Sentence Ship', sub: 'Build with word blocks', bg: 'var(--lilac)', mark: 'I see' },
   ];
   const gameOff = (id, w) => ['sentence', 'swrite', 'strace'].includes(id) ? (w.sentences.length ? '' : 'Add sentences first')
     : id === 'vowel' && !w.words.some(x => /[aeiou]/.test(x.en)) ? 'Needs words with vowels'
     : (id === 'memory' || id === 'catch') && w.words.length < 2 ? 'Add 2 or more words' : '';
   function renderHome(keepBubble) {
+    if (needsTheme(activeKid())) { renderThemePick(true); return; }   // first visit for this child: pick a world first
+    applyTheme();
     screen = 'home'; g = null; seq++;
+    const t = T();
     const w = state.week, has = !!(w && w.words.length);
     const stars = state.progress.stars;
     const pi = planetIndex(stars), next = planetAt(pi + 1);
     const from = Math.max(0, pi - 3), stops = Array.from({ length: 8 }, (_, k) => from + k);
     const oldBubble = keepBubble && document.getElementById('bubble') ? document.getElementById('bubble').innerHTML : null;
     const greet = has
-      ? `Hi ${esc(kid())}! What shall we play today?<small>Pick a game to fly to the next planet.</small>`
-      : `Hi ${esc(kid())}! I'm Coco, your space friend.<small>When this week's words arrive, we can blast off!</small>`;
+      ? `Hi ${esc(kid())}! What shall we play today?<small>${esc(t.homeSub)}</small>`
+      : `Hi ${esc(kid())}! I'm ${esc(t.guide)}, ${esc(t.friend)}.<small>${esc(t.waitSub)}</small>`;
     const journey = `
-      <section class="journey" aria-label="Planet map">
-        <div class="j-head"><h2>You are on ${esc(planetAt(pi).ko)}</h2>
-          <p>${next.at - stars} more ${next.at - stars === 1 ? 'star' : 'stars'} to reach ${esc(next.ko)} · ${pi + 1} ${pi ? 'places' : 'place'} visited</p></div>
+      <section class="journey" aria-label="${esc(t.name)} map">
+        <div class="j-head"><h2>${esc(t.youAre(planetAt(pi).ko))}</h2>
+          <p>${next.at - stars} more ${rw(next.at - stars)} to reach ${esc(next.ko)} · ${pi + 1} ${pi ? 'places' : 'place'} visited</p></div>
         <div class="track-scroll"><div class="track">
-          ${stops.map(i => [planetAt(i), i]).map(([p, i]) => `<button class="stop" data-act="visit" data-i="${i}" aria-label="${esc(p.ko)}">${i === pi ? `<span class="rocket">${rocketSVG}</span>` : ''}${planetDot(p, 44, stars < p.at)}<span class="nm">${esc(p.ko)}</span><span class="need">${starSVG(12)}${p.at}</span></button>`).join('')}
+          ${stops.map(i => [planetAt(i), i]).map(([p, i]) => `<button class="stop ${i === pi ? 'here' : ''}" data-act="visit" data-i="${i}" aria-label="${esc(p.ko)}${i === pi ? ' (you are here)' : stars < p.at ? ' (locked)' : ''}">${i === pi ? `<span class="rocket">${markerSVG()}</span>` : ''}${placeIcon(p, 44, stars < p.at)}<span class="nm">${esc(p.ko)}</span><span class="need">${rIcon(12)}${p.at}</span></button>`).join('')}
         </div></div>
       </section>`;
     let body, shelf = '';
@@ -973,9 +1392,10 @@ body { touch-action: manipulation; }
         <div class="games">
           ${GAMES.map(gm => {
             const off = gameOff(gm.id, w), dis = !!off;
+            const mark = typeof gm.mark === 'function' ? gm.mark() : gm.mark;
             return `<button class="game-card" style="background:${gm.bg}" data-act="play" data-game="${gm.id}" ${dis ? 'disabled' : ''}>
-              <span class="mark ${/^\p{Extended_Pictographic}/u.test(gm.mark) ? 'emo' : ''}" style="${gm.mark.length > 4 && !gm.mark.startsWith('<') ? 'font-size:14px' : ''}">${gm.mark}</span>
-              <b>${gm.ko}</b><span>${dis ? off : gm.sub}</span></button>`;
+              <span class="mark ${/^\p{Extended_Pictographic}/u.test(mark) ? 'emo' : ''}" style="${mark.length > 4 && !mark.startsWith('<') ? 'font-size:14px' : ''}">${mark}</span>
+              <b>${esc(gameName(gm.id))}</b><span>${dis ? off : gm.sub}</span></button>`;
           }).join('')}
         </div></section>`;
       shelf = `
@@ -984,13 +1404,14 @@ body { touch-action: manipulation; }
           ${w.sample ? `<div class="sample-note">These are example words. Tap the lock button at the top right to add this week's words.</div>` : ''}
           <div class="chips">${w.words.map(x => {
             const m = Math.min(3, state.progress.mastery[x.en] || 0);
-            return `<span class="chip"><span class="em">${esc(emojiFor(x))}</span><span class="w">${esc(x.en)}</span><span class="ms" aria-label="${m} of 3 stars">${[0, 1, 2].map(k => starSVG(13, k < m ? 'var(--sun)' : 'var(--paper-2)', k < m ? '#E2B94F' : '#D8D4C4')).join('')}</span></span>`;
+            return `<span class="chip"><span class="em">${esc(emojiFor(x))}</span><span class="w">${esc(x.en)}</span><span class="ms" aria-label="${m} of 3 ${t.reward[1]}">${[0, 1, 2].map(k => rIcon(14, k < m)).join('')}</span></span>`;
           }).join('')}</div>
           ${w.sentences.length ? `<div class="sent-list">${w.sentences.map(s => `<p>${esc(s.en)}<small>${esc(s.ko)}</small></p>`).join('')}</div>` : ''}
         </section>`;
     } else {
       body = `
         <section class="empty">
+          <div class="empty-art">${sceneSVG(false)}</div>
           <h3>Waiting for this week's words</h3>
           <p>Add about 10 English words and 2 sentences in the grown-ups menu to open all the games. You can also try it with example words first.</p>
           <div class="p-actions"><button class="btn" data-act="parent">Open grown-ups menu</button><button class="btn ghost" data-act="try-example">Try example words</button></div>
@@ -998,14 +1419,15 @@ body { touch-action: manipulation; }
     }
     app.innerHTML = `
       <header class="top">
-        <div class="brand"><span class="brand-ko">${esc(kid())}'s Space Words</span><span class="brand-en">Spelling adventures with Coco</span></div>
+        <div class="brand"><span class="brand-ko">${esc(kid())}'s ${esc(t.world)}</span><span class="brand-en">Spelling adventures with ${esc(t.guide)}</span></div>
         <div class="top-r">${kidSwitchHTML()}${starPill()}
+          <button class="icon-btn" data-act="theme-open" aria-label="Change theme">${paletteSVG}</button>
           <button class="icon-btn ${state.sound ? '' : 'off'}" data-act="sound" aria-label="${state.sound ? 'Turn sound effects off' : 'Turn sound effects on'}">${noteSVG(state.sound)}</button>
           <button class="icon-btn" data-act="parent" aria-label="Grown-ups menu">${lockSVG}</button></div>
       </header>
       <div class="home-grid">
         <div class="col-l">
-          <section class="hero"><div class="coco-wrap">${coco()}</div><div class="bubble" id="bubble">${oldBubble || greet}</div></section>
+          <section class="hero"><div class="hero-art"><span class="hero-bg">${sceneSVG(true)}</span><div class="coco-wrap">${mascot()}</div></div><div class="bubble" id="bubble">${oldBubble || greet}</div></section>
           ${shelf}
         </div>
         <div class="col-r">${journey}${body}</div>
@@ -1024,18 +1446,19 @@ body { touch-action: manipulation; }
     if (!queue.length) return;
     g = { type, queue, i: 0, earned: 0, startPlanet: planetIndex(state.progress.stars) };
     screen = 'game';
-    const name = GAMES.find(x => x.id === type).ko;
+    const name = gameName(type);
     app.innerHTML = `
       <header class="game-top"><button class="back" data-act="home">‹ Home</button><div class="dots" id="dots"></div>${starPill()}</header>
       <div class="game-grid">
-        <section class="guide"><div class="coco-wrap">${coco()}</div><div class="bubble" id="bubble"></div></section>
+        <section class="guide"><div class="coco-wrap">${mascot()}</div><div class="bubble" id="bubble"></div></section>
         <section class="play" id="play" aria-label="${esc(name)}"></section>
       </div>`;
     renderRound();
   }
   function updateDots() {
     const d = document.getElementById('dots'); if (!d || !g) return;
-    d.innerHTML = g.queue.map((_, k) => `<i class="${k < g.i ? 'done' : k === g.i ? 'now' : ''}"></i>`).join('');
+    d.innerHTML = g.queue.map((_, k) => `<i class="${k < g.i ? 'done' : k === g.i ? 'now' : ''}">${k < g.i ? rIcon(20) : ''}</i>`).join('');
+    d.setAttribute('aria-label', `${Math.min(g.i, g.queue.length)} of ${g.queue.length} done`);
   }
   function renderRound() {
     seq++;
@@ -1055,7 +1478,7 @@ body { touch-action: manipulation; }
   function showNext(label = 'Next') {
     const r = document.getElementById('nextRow'); if (!r) return;
     const last = g.i >= g.queue.length - 1;
-    r.innerHTML = `<button class="btn sun" data-act="next">${last ? 'Finish mission!' : label} ${last ? starSVG(22) : '<span aria-hidden="true">›</span>'}</button>`;
+    r.innerHTML = `<button class="btn sun" data-act="next">${last ? esc(T().finish) : label} ${last ? rIcon(22) : '<span aria-hidden="true">›</span>'}</button>`;
   }
   function award(n, el, word) {
     state.progress.stars += n;
@@ -1063,6 +1486,7 @@ body { touch-action: manipulation; }
     if (word) state.progress.mastery[word] = (state.progress.mastery[word] || 0) + 1;
     saveProgress();
     sfx.good(); setTimeout(() => sfx.star(), 320);
+    burst(el);
     flyStar(el);
     if (n > 1) setTimeout(() => flyStar(el), 250);
     mood('happy');
@@ -1075,7 +1499,7 @@ body { touch-action: manipulation; }
     sfx.soft();
     if (el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
     mood('think', 1200);
-    say(rnd(CHEER));
+    say(cheerLine());
   }
   const promptHTML = (w) => `
     <div class="prompt">
@@ -1120,7 +1544,7 @@ body { touch-action: manipulation; }
     const tiles = shuffleNew(letters.concat(decoys));
     g.chars = chars; g.pos = -1; g.miss = 0; g.done = false; g.onSpelled = null;
     play().innerHTML = `
-      <div class="game-name">Letter Rocket · ${g.i + 1} / ${g.queue.length}</div>
+      <div class="game-name">${esc(gameName('spell'))} · ${g.i + 1} / ${g.queue.length}</div>
       ${promptHTML(w)}
       <div class="slots" id="slots">${chars.map((c, k) => isLetter(c)
         ? `<span class="slot" data-k="${k}"><span class="ghost">${ghost ? esc(c) : ''}</span></span>`
@@ -1178,12 +1602,12 @@ body { touch-action: manipulation; }
     const others = shuffle('abcdefghijklmnopqrstuvwxyz'.split('').filter(c => c !== right)).slice(0, 2);
     g.hole = hole; g.right = right; g.done = false;
     play().innerHTML = `
-      <div class="game-name">Missing Star · ${g.i + 1} / ${g.queue.length}</div>
+      <div class="game-name">${esc(gameName('missing'))} · ${g.i + 1} / ${g.queue.length}</div>
       ${promptHTML(w)}
       <div class="word-big" id="mw">${chars.map((c, k) => k === hole ? `<span class="hole" id="hole"></span>` : `<span class="lt">${c === ' ' ? '&nbsp;' : esc(c)}</span>`).join('')}</div>
-      <div class="opts">${shuffle([right, ...others]).map(c => `<button class="opt-star" data-act="opt" data-ch="${esc(c)}" aria-label="${L(c)}">${starSVG('100%', 'var(--sun)', '#E2B94F')}<span>${esc(c)}</span></button>`).join('')}</div>
+      <div class="opts">${shuffle([right, ...others]).map(c => `<button class="opt-star" data-act="opt" data-ch="${esc(c)}" aria-label="${L(c)}">${optShape()}<span>${esc(c)}</span></button>`).join('')}</div>
       ${nextBtnHTML()}`;
-    say('Which star fills the gap?', 'Find the missing letter.');
+    say(`Which ${T().reward[0]} fills the gap?`, 'Find the missing letter.');
     setTimeout(() => speak(w.en), 250);
   }
   function tapOpt(btn) {
@@ -1257,7 +1681,7 @@ body { touch-action: manipulation; }
       <div class="game-name">Vowel Hunt · ${g.i + 1} / ${g.queue.length}</div>
       ${promptHTML(w)}
       <div class="word-big" id="vw">${chars.map((c, k) => g.holes.includes(k) ? `<span class="hole" data-k="${k}"></span>` : `<span class="lt">${c === ' ' ? '&nbsp;' : esc(c)}</span>`).join('')}</div>
-      <div class="opts">${VOWELS.map(v => `<button class="opt-star" data-act="vow" data-ch="${v}" aria-label="${L(v)}">${starSVG('100%', 'var(--sun)', '#E2B94F')}<span>${v}</span></button>`).join('')}</div>
+      <div class="opts">${VOWELS.map(v => `<button class="opt-star" data-act="vow" data-ch="${v}" aria-label="${L(v)}">${optShape()}<span>${v}</span></button>`).join('')}</div>
       ${nextBtnHTML()}`;
     markVowel();
     say('The vowels flew away!', 'Put a, e, i, o, u back.');
@@ -1353,7 +1777,8 @@ body { touch-action: manipulation; }
   /* spelling bee: hear it and type it on an ABC keyboard */
   function renderBee() {
     const w = g.queue[g.i];
-    const rows = ['abcdefghi', 'jklmnopqr', 'stuvwxyz'];
+    // Narrow phones get 6 keys per row so the keyboard never runs off the screen.
+    const rows = innerWidth < 600 ? ['abcdef', 'ghijkl', 'mnopqr', 'stuvwx', 'yz'] : ['abcdefghi', 'jklmnopqr', 'stuvwxyz'];
     play().innerHTML = `
       <div class="game-name">Spelling Bee · ${g.i + 1} / ${g.queue.length}</div>
       ${promptHTML(w)}
@@ -1445,7 +1870,7 @@ body { touch-action: manipulation; }
     play().innerHTML = `
       <div class="game-name">Memory Match · ${g.i + 1} / ${g.queue.length}</div>
       <div class="mem-grid" style="grid-template-columns:repeat(${g.cards.length > 4 ? 3 : 2}, minmax(0,1fr))">${g.cards.map((c, k) => `
-        <button class="mem-card" data-act="mem" data-k="${k}" aria-label="Card ${k + 1}"><span class="mc-back">${rocketSVG}</span><span class="mc-face">${face(c)}</span></button>`).join('')}</div>
+        <button class="mem-card" data-act="mem" data-k="${k}" aria-label="Card ${k + 1}"><span class="mc-back">${markerSVG()}</span><span class="mc-face">${face(c)}</span></button>`).join('')}</div>
       ${nextBtnHTML()}`;
     say(g.cards.some(c => c.pic) ? 'Find the pairs: a picture and its word, or two same words.' : 'Find two cards with the same word.', 'Tap two cards.');
   }
@@ -1491,11 +1916,11 @@ body { touch-action: manipulation; }
     const opts = shuffle([w.en, ...misspell(w.en, state.week.words.map(x => x.en))]);
     g.done = false;
     play().innerHTML = `
-      <div class="game-name">Meteor Spell · ${g.i + 1} / ${g.queue.length}</div>
+      <div class="game-name">${esc(gameName('meteor'))} · ${g.i + 1} / ${g.queue.length}</div>
       ${promptHTML(w)}
-      <div class="meteors">${opts.map((o, k) => `<button class="meteor" data-act="met" data-v="${esc(o)}" style="animation-delay:${k * .25}s"><span aria-hidden="true">☄️</span><b>${esc(o)}</b></button>`).join('')}</div>
+      <div class="meteors">${opts.map((o, k) => `<button class="meteor" data-act="met" data-v="${esc(o)}" style="animation-delay:${k * .25}s"><span aria-hidden="true">${rIcon(30)}</span><b>${esc(o)}</b></button>`).join('')}</div>
       ${nextBtnHTML()}`;
-    say('Which meteor is spelled right?', 'Look at every letter.');
+    say(`Which ${T().meteor} is spelled right?`, 'Look at every letter.');
     setTimeout(() => speak(w.en), 250);
   }
   function tapMeteor(btn) {
@@ -1558,11 +1983,11 @@ body { touch-action: manipulation; }
     const opts = shuffle([w, ...shuffle(state.week.words.filter(x => x.en !== w.en)).slice(0, 2)]);
     g.done = false;
     play().innerHTML = `
-      <div class="game-name">Star Catch · ${g.i + 1} / ${g.queue.length}</div>
+      <div class="game-name">${esc(gameName('catch'))} · ${g.i + 1} / ${g.queue.length}</div>
       <div class="catch-head"><span class="pic" aria-hidden="true">${esc(emojiFor(w))}</span><button class="say-btn" data-act="say-word">${speakerSVG} Listen</button></div>
-      <div class="catch-sky">${opts.map((x, k) => `<button class="fall" data-act="catch" data-en="${esc(x.en)}" style="left:${8 + k * 31}%;animation-duration:${6 + k * 1.3}s;animation-delay:-${(k * 2.1).toFixed(1)}s"><span aria-hidden="true">${starSVG(46)}</span><b>${esc(x.en)}</b></button>`).join('')}</div>
+      <div class="catch-sky">${opts.map((x, k) => `<button class="fall" data-act="catch" data-en="${esc(x.en)}" style="left:${8 + k * 31}%;animation-duration:${6 + k * 1.3}s;animation-delay:-${(k * 2.1).toFixed(1)}s"><span aria-hidden="true">${rIcon(46)}</span><b>${esc(x.en)}</b></button>`).join('')}</div>
       ${nextBtnHTML()}`;
-    say('Catch the star with the word!', 'Listen, then tap it.');
+    say(`Catch the ${T().reward[0]} with the word!`, 'Listen, then tap it.');
     setTimeout(() => speak(w.en), 250);
   }
   function tapCatch(btn) {
@@ -1588,7 +2013,7 @@ body { touch-action: manipulation; }
     const ko = s.ko ? `<div class="ko-line">${esc(s.ko)}</div>` : '';
     if (g.phase === 'listen') {
       play().innerHTML = `
-        <div class="game-name">Sentence Ship · ${g.i + 1} / ${g.queue.length}</div>${steps}
+        <div class="game-name">${esc(gameName('sentence'))} · ${g.i + 1} / ${g.queue.length}</div>${steps}
         <div class="sentence" id="sent">${g.toks.map((t, k) => `<span class="tk" data-k="${k}">${esc(t)}</span>`).join('')}</div>${ko}
         <div class="learn-nav"><button class="btn" data-act="say-sent">${speakerSVG} Hear it</button><button class="btn ghost" data-act="say-sent-slow">Hear it slowly</button></div>
         <div class="next-row"><button class="btn sun" data-act="phase" data-to="build">I said it! ›</button></div>`;
@@ -1598,7 +2023,7 @@ body { touch-action: manipulation; }
       g.order = shuffleNew(g.toks.map((t, k) => k));
       g.pos = 0; g.miss = 0;
       play().innerHTML = `
-        <div class="game-name">Sentence Ship · ${g.i + 1} / ${g.queue.length}</div>${steps}${ko}
+        <div class="game-name">${esc(gameName('sentence'))} · ${g.i + 1} / ${g.queue.length}</div>${steps}${ko}
         <div class="build-line" id="line">${g.toks.map(() => `<span class="ph"></span>`).join('')}</div>
         <div class="blocks" id="blocks">${g.order.map(k => `<button class="blk" data-act="blk" data-k="${k}">${esc(g.toks[k])}</button>`).join('')}</div>
         <button class="say-btn" data-act="say-sent">${speakerSVG} Listen again</button>`;
@@ -1610,7 +2035,7 @@ body { touch-action: manipulation; }
       const pool = state.week.words.map(x => x.en).concat(g.toks.map(clean)).filter(x => x && x.toLowerCase() !== g.right.toLowerCase());
       const opts = shuffle([g.right, ...shuffle([...new Set(pool)]).slice(0, 2)]);
       play().innerHTML = `
-        <div class="game-name">Sentence Ship · ${g.i + 1} / ${g.queue.length}</div>${steps}
+        <div class="game-name">${esc(gameName('sentence'))} · ${g.i + 1} / ${g.queue.length}</div>${steps}
         <div class="sentence" id="sent">${g.toks.map((t, k) => k === best
           ? `<span class="tk"><span class="blank" id="sblank">&nbsp;</span>${esc(t.replace(g.right, ''))}</span>`
           : `<span class="tk">${esc(t)}</span>`).join('')}</div>${ko}
@@ -1758,6 +2183,7 @@ body { touch-action: manipulation; }
     pad.ictx.clearRect(0, 0, W, H);
     drawGuide();
   }
+  const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
   function drawGuide() {
     const { gctx: c, W, H, base, asc, xh, desc } = pad;
     c.clearRect(0, 0, W, H);
@@ -1772,9 +2198,9 @@ body { touch-action: manipulation; }
     c.font = pad.font;
     for (const l of pad.letters) {
       if (!isLetter(l.ch)) continue;
-      c.fillStyle = l.done ? '#B8F2E6' : '#ECE8DA';
+      c.fillStyle = l.done ? cssVar('--success') : '#ECE8DA';
       c.fillText(l.ch, l.x0, base);
-      c.setLineDash([5, 6]); c.lineWidth = 2; c.strokeStyle = l.done ? '#4AC7A8' : '#B3AE9B';
+      c.setLineDash([5, 6]); c.lineWidth = 2; c.strokeStyle = l.done ? cssVar('--primary-deep') : '#B3AE9B';
       c.strokeText(l.ch, l.x0, base);
       c.setLineDash([]);
     }
@@ -1879,33 +2305,43 @@ body { touch-action: manipulation; }
     const bonus = g.type !== 'learn' && g.earned > 0 && !g.oops ? 2 : 0;
     if (bonus) { state.progress.stars += bonus; g.earned += bonus; saveProgress(); updatePill(); }
     const earned = g.earned, before = g.startPlanet, now = planetIndex(state.progress.stars);
-    const type = g.type;
+    const type = g.type, t = T();
     updateDots();
     sfx.fanfare(); mood('happy', 3000);
     const praise = praiseLine();
+    // Level up: every place passed in this round, its badge, and the guide's upgrade (all derived from stars, so a theme change never repeats them).
+    const up = now > before, passed = up ? Array.from({ length: now - before }, (_, k) => planetAt(before + 1 + k)) : [];
+    const newTier = tierOf(now) > tierOf(before) ? tierOf(now) : 0;
     const back = document.createElement('div');
     back.className = 'modal-back';
     back.innerHTML = `
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-        <div class="coco-wrap">${coco('happy')}</div>
-        <h2 id="mTitle">Mission complete!</h2>
-        <p>${esc(praise)} You collected ${earned} ${earned === 1 ? 'star' : 'stars'}.</p>
-        ${bonus ? `<p class="bonus">${starSVG(22)} Perfect mission! +${bonus} bonus stars</p>` : ''}
-        <div class="earned">${Array.from({ length: Math.min(earned, 12) }, () => starSVG(30)).join('')}</div>
-        ${now > before ? `<button class="new-planet" data-act="visit" data-i="${now}">${planetDot(planetAt(now), 40)} <span>New planet: ${esc(planetAt(now).ko)}! ${planetAt(now).who}</span></button>` : ''}
+        <div class="coco-wrap">${mascot('happy')}</div>
+        <h2 id="mTitle">${esc(t.mission)}</h2>
+        <p>${esc(praise)} You collected ${earned} ${rw(earned)}.</p>
+        ${bonus ? `<p class="bonus">${rIcon(22)} Perfect! +${bonus} bonus ${rw(bonus)}</p>` : ''}
+        <div class="earned" aria-hidden="true">${Array.from({ length: Math.min(earned, 12) }, () => rIcon(30)).join('')}</div>
+        ${up ? `<div class="levelup">
+          <strong class="lvl-tag">Level up! Level ${now + 1}</strong>
+          <button class="new-planet" data-act="visit" data-i="${now}">${placeIcon(planetAt(now), 48)} <span>${esc(t.newPlace)}: ${esc(planetAt(now).ko)}!</span></button>
+          <div class="badges">${passed.map(p => `<span class="badge">${badgeSVG()}<span>${esc(p.ko)} ${esc(t.badge)}</span></span>`).join('')}</div>
+          ${newTier ? `<div class="upgrade"><div class="coco-wrap">${mascot('', curId, newTier)}</div><span>${esc(t.guide)} got ${esc(t.upgrades[newTier - 1])}!</span></div>` : ''}
+        </div>` : ''}
         <div class="modal-btns"><button class="btn sun" data-act="again" data-game="${type}">Play again</button><button class="btn ghost" data-act="home">Home</button></div>
       </div>`;
     document.body.appendChild(back);
-    speak(`Mission complete! ${praiseLine()}`);
-    if (now > before) setTimeout(() => speak(`We landed on ${planetAt(now).ko}!`, { cancel: false }), 200);
+    if (up) setTimeout(() => burst(back.querySelector('.levelup .planet')), 300);
+    speak(`${t.mission} ${praiseLine()}`);
+    if (up) setTimeout(() => speak(t.landed(planetAt(now).ko), { cancel: false }), 200);
+    if (newTier) setTimeout(() => speak(`${t.guide} got ${t.upgrades[newTier - 1]}!`, { cancel: false }), 300);
   }
   function visitPlanet(i) {
-    const p = planetAt(i), stars = state.progress.stars;
+    const t = T(), p = planetAt(i), stars = state.progress.stars;
     closeModal();
     if (stars < p.at) {
       const n = p.at - stars;
-      toast(`${n} more ${n === 1 ? 'star' : 'stars'} to fly to ${p.ko}!`);
-      speak(`${n} more stars to fly to ${p.ko}!`);
+      toast(`${n} more ${rw(n)} to ${t.go} ${p.ko}!`);
+      speak(`${n} more ${rw(n)} to ${t.go} ${p.ko}!`);
       return;
     }
     sfx.tap();
@@ -1913,11 +2349,12 @@ body { touch-action: manipulation; }
     back.className = 'modal-back';
     back.innerHTML = `
       <div class="modal visit" role="dialog" aria-modal="true" aria-labelledby="vTitle">
-        <div class="visit-planet">${planetDot(p, 132)}<span class="who" aria-hidden="true">${p.who}</span></div>
+        <div class="visit-planet">${placeIcon(p, 132)}<span class="who" aria-hidden="true">${p.who}</span></div>
         <h2 id="vTitle">${esc(p.ko)}</h2>
         <p>${esc(p.whoName)} live here. They ${esc(p.like)}!</p>
-        <p class="visit-n">Planet ${i + 1} · ${starSVG(16)} ${p.at}</p>
-        <div class="modal-btns">${i > 0 ? `<button class="btn ghost sm" data-act="visit" data-i="${i - 1}">‹</button>` : ''}<button class="btn sun" data-act="home">Back to map</button>${planetAt(i + 1).at <= stars ? `<button class="btn ghost sm" data-act="visit" data-i="${i + 1}">›</button>` : ''}</div>
+        <span class="badge">${badgeSVG()}<span>${esc(p.ko)} ${esc(t.badge)}</span></span>
+        <p class="visit-n">${esc(t.place.charAt(0).toUpperCase() + t.place.slice(1))} ${i + 1} · ${rIcon(16)} ${p.at}</p>
+        <div class="modal-btns">${i > 0 ? `<button class="btn ghost sm" data-act="visit" data-i="${i - 1}" aria-label="Previous ${esc(t.place)}">‹</button>` : ''}<button class="btn sun" data-act="home">Back to map</button>${planetAt(i + 1).at <= stars ? `<button class="btn ghost sm" data-act="visit" data-i="${i + 1}" aria-label="Next ${esc(t.place)}">›</button>` : ''}</div>
       </div>`;
     back.addEventListener('click', (e) => { if (e.target === back) closeModal(); });
     document.body.appendChild(back);
@@ -1925,17 +2362,79 @@ body { touch-action: manipulation; }
   }
   function closeModal() { document.querySelectorAll('.modal-back').forEach(m => m.remove()); }
 
+
+  /* ---------- theme picker (first visit per child, and any time from the palette button or the grown-ups menu) ---------- */
+  // Choosing a theme only changes kid.theme: stars, words, levels and rewards stay exactly as they are.
+  let themePick = null;
+  function renderThemePick(first) {
+    closeModal(); seq++; if (tts) tts.cancel();
+    screen = 'themes'; g = null;
+    const k = activeKid();
+    themePick = { first: !!first, sel: first ? null : themeOf(k), from: themeOf(k) };
+    if (themePick.sel) applyTheme(themePick.sel);
+    drawThemePick();
+    window.scrollTo(0, 0);
+  }
+  function themePreviewHTML(id) {
+    const t = THEMES[id];
+    return `<section class="tp-preview" id="tpPreview" aria-label="${esc(t.name)} preview">
+      <div class="hero"><div class="coco-wrap">${mascot('', id)}</div><div class="bubble">Hi! I'm ${esc(t.guide)}.<small>${esc(t.pitch)}</small></div></div>
+      <div class="tp-pv-side">
+        <div class="tp-pv-map">${[0, 1, 2].map(i => { const p = planetAt(i, t); return `<span>${placeIcon(p, 40, i > 1)}<span class="nm">${esc(p.ko)}</span></span>`; }).join('<i aria-hidden="true"></i>')}</div>
+        <div class="tp-pv-play"><span class="tile">c</span><span class="tile">a</span><span class="tile">t</span><span class="pill">${rIcon(22, true, id)}<span>${state.progress.stars}</span></span></div>
+      </div>
+    </section>`;
+  }
+  function drawThemePick() {
+    const sel = themePick.sel;
+    app.innerHTML = `
+      ${themePick.first ? '' : '<header class="game-top"><button class="back" data-act="theme-cancel">‹ Back</button></header>'}
+      <section class="tp" aria-labelledby="tpTitle">
+        <div class="tp-head"><div><h1 id="tpTitle">${esc(kid())}, pick your world!</h1>
+          <p lang="ko">어떤 세상을 탐험할까요? 그림을 눌러 보세요. 나중에 언제든 바꿀 수 있고, 모은 별과 진도는 그대로예요.</p></div></div>
+        <div class="tp-cards" role="radiogroup" aria-label="Themes">
+          ${THEME_IDS.map(id => { const t = THEMES[id], on = id === sel; return `<button class="tp-card ${on ? 'on' : ''}" data-theme="${id}" data-act="theme-sel" data-id="${id}" role="radio" aria-checked="${on}">
+            <span class="tp-img">${t.art.scene(false)}</span>
+            <span class="tp-name">${esc(t.name)}</span><span class="tp-ko" lang="ko">${esc(t.ko)}</span>
+            <span class="tp-desc" lang="ko">${esc(t.desc)}</span>
+            <span class="tp-pick">${on ? 'Picked' : 'Tap to see'}</span></button>`; }).join('')}
+        </div>
+        ${sel ? themePreviewHTML(sel) : '<p class="tp-hint">Tap a picture to see your world!<small lang="ko">그림을 누르면 미리 볼 수 있어요</small></p>'}
+        <div class="tp-foot"><button class="btn sun" data-act="theme-go" ${sel ? '' : 'disabled'} lang="ko">이 테마로 시작하기 ›</button></div>
+      </section>`;
+  }
+  function selectTheme(id) {
+    if (!THEMES[id] || !themePick) return;
+    themePick.sel = id; sfx.pop();
+    applyTheme(id);                   // the whole page previews the theme until it is confirmed
+    drawThemePick();
+    mood('happy', 1200);
+    speak(`${THEMES[id].name}!`);
+    const pv = document.getElementById('tpPreview'); if (pv && pv.scrollIntoView) pv.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' });
+  }
+  function confirmTheme() {
+    const k = activeKid(); if (!k || !themePick || !THEMES[themePick.sel]) return;
+    const id = themePick.sel;
+    if (k.theme !== id) { k.theme = id; saveProgress(); }   // syncs like a name change; stars and mastery untouched
+    themePick = null;
+    applyTheme(id); sfx.good(); renderHome(); window.scrollTo(0, 0);
+    mood('happy');
+    speak(`Welcome to ${THEMES[id].name}!`);
+  }
+  function cancelTheme() { themePick = null; applyTheme(); sfx.tap(); renderHome(); window.scrollTo(0, 0); }
+
   /* ---------- parent onboarding (Korean) ---------- */
   let onbStep = 0;
   const ONB_STEPS = [
     () => `
-      <div class="onb-hero"><div class="coco-wrap">${coco('happy')}</div></div>
+      <div class="onb-hero"><div class="coco-wrap">${mascot('happy')}</div></div>
       <h2>Space Words에 오신 걸 환영해요!</h2>
-      <p class="onb-lead">5살 아이가 매주 영어 단어 철자와 짧은 문장을 놀이처럼 익히는 앱이에요. 외계인 친구 <b>코코</b>가 게임마다 아이를 안내해요.</p>
+      <p class="onb-lead">5살 아이가 매주 영어 단어 철자와 짧은 문장을 놀이처럼 익히는 앱이에요. 안내 친구 <b>${esc(T().guideKo)}</b>가 게임마다 아이를 안내해요.</p>
       <ul class="onb-points">
         <li><span>📝</span><div><b>매주 단어 10개 + 문장 2개</b>보호자가 이번 주 단어를 넣어주면 모든 게임이 그 단어로 바뀌어요.</div></li>
         <li><span>🎮</span><div><b>게임 16가지</b>철자 외우기, 단어 놀이, 문장 쓰기 연습까지 골고루 있어요.</div></li>
         <li><span>⭐</span><div><b>별을 모아 행성 여행</b>맞힐 때마다 별을 받고, 별이 모이면 새 행성에 도착해요.</div></li>
+        <li><span>🎨</span><div><b>테마 4가지</b>우주 탐험 · 공주 왕국 · 로봇 시티 · 유니콘 원더랜드 중 아이가 처음에 직접 골라요. 홈 화면 팔레트 버튼이나 보호자 메뉴에서 언제든 바꿀 수 있어요.</div></li>
       </ul>`,
     () => `
       <h2>1. 이번 주 단어 넣기</h2>
@@ -1951,9 +2450,9 @@ body { touch-action: manipulation; }
       <h2>2. 게임 소개</h2>
       <p class="onb-lead">처음엔 <b>Word Cards</b>로 단어를 보고 들은 뒤, 철자 게임 → 문장 게임 순서로 하면 좋아요.</p>
       <div class="onb-games">
-        <section><h3>🔤 철자 외우기</h3><p><b>Word Cards</b> 보고 듣고 따라 말하기 · <b>Letter Rocket</b> 흐린 글자 따라 철자 맞추기 · <b>Missing Star</b> 빠진 글자 찾기 · <b>Vowel Hunt</b> 모음 채우기 · <b>Chunk Builder</b> 단어 조각 잇기 · <b>Peek &amp; Spell</b> 보고 숨긴 뒤 기억해서 쓰기 · <b>Spelling Bee</b> 듣고 키보드로 쓰기 · <b>Meteor Spell</b> 맞는 철자 고르기 · <b>Trace &amp; Write</b> 펜으로 따라 쓰기</p></section>
-        <section><h3>🎲 단어 놀이</h3><p><b>Sound Hunt</b> 듣고 그림 고르기 · <b>Memory Match</b> 짝 맞추기 · <b>Star Catch</b> 떨어지는 별 잡기</p></section>
-        <section><h3>✏️ 문장 쓰기</h3><p><b>Sentence Maker</b> 문장 빈칸에 단어 쓰기 · <b>Sentence Writer</b> 문장을 단어별로 쓰기 · <b>Sentence Trace</b> 문장 따라 쓰기 · <b>Sentence Ship</b> 단어 블록으로 문장 만들기</p></section>
+        <section><h3>🔤 철자 외우기</h3><p><b>Word Cards</b> 보고 듣고 따라 말하기 · <b>${esc(gameName('spell'))}</b> 흐린 글자 따라 철자 맞추기 · <b>${esc(gameName('missing'))}</b> 빠진 글자 찾기 · <b>Vowel Hunt</b> 모음 채우기 · <b>Chunk Builder</b> 단어 조각 잇기 · <b>Peek &amp; Spell</b> 보고 숨긴 뒤 기억해서 쓰기 · <b>Spelling Bee</b> 듣고 키보드로 쓰기 · <b>${esc(gameName('meteor'))}</b> 맞는 철자 고르기 · <b>Trace &amp; Write</b> 펜으로 따라 쓰기</p></section>
+        <section><h3>🎲 단어 놀이</h3><p><b>Sound Hunt</b> 듣고 그림 고르기 · <b>Memory Match</b> 짝 맞추기 · <b>${esc(gameName('catch'))}</b> 떨어지는 단어 잡기</p></section>
+        <section><h3>✏️ 문장 쓰기</h3><p><b>Sentence Maker</b> 문장 빈칸에 단어 쓰기 · <b>Sentence Writer</b> 문장을 단어별로 쓰기 · <b>Sentence Trace</b> 문장 따라 쓰기 · <b>${esc(gameName('sentence'))}</b> 단어 블록으로 문장 만들기</p></section>
       </div>`,
     () => `
       <h2>3. 별과 행성 여행</h2>
@@ -1963,7 +2462,7 @@ body { touch-action: manipulation; }
         <li><span>🚀</span><div><b>행성 방문</b>홈 화면 지도에서 도착한 행성을 누르면 그 행성에 사는 친구들을 만날 수 있어요.</div></li>
         <li><span>🌟</span><div><b>단어별 별 3개</b>홈 화면 단어 목록의 작은 별 3개가 모두 차면 그 단어는 잘 익힌 거예요.</div></li>
       </ul>
-      <div class="onb-tip">💡 단어를 바꿔도 모은 별은 그대로 남아요.</div>`,
+      <div class="onb-tip">💡 단어를 바꿔도 모은 별은 그대로 남아요. 테마를 바꾸면 별·행성이 보석·왕국, 에너지·도시 구역, 크리스털·마법의 땅으로 보일 뿐, 개수와 진도는 똑같이 이어져요.</div>`,
     () => `
       <h2>4. 아이패드에서 잘 쓰는 법</h2>
       <ul class="onb-points">
@@ -1974,9 +2473,9 @@ body { touch-action: manipulation; }
       </ul>
       <div class="onb-tip">💡 ${state.user ? '로그인되어 있어서 단어와 별이 계정에 자동 저장돼요. 다른 기기에서 같은 계정으로 로그인하면 그대로 이어져요.' : '단어와 별은 이 기기에 저장돼요.'} 새 버전이 안 보이면 앱을 완전히 닫았다가 다시 열어 주세요.</div>`,
     () => `
-      <div class="onb-hero"><div class="coco-wrap">${coco('happy')}</div></div>
+      <div class="onb-hero"><div class="coco-wrap">${mascot('happy')}</div></div>
       <h2>이제 시작해 볼까요?</h2>
-      <p class="onb-lead">아이 이름을 적어 주세요. 코코가 이 이름으로 아이를 불러요. 형제자매가 있으면 여러 명 추가할 수 있고, 아이마다 별이 따로 모여요.</p>
+      <p class="onb-lead">아이 이름을 적어 주세요. 안내 친구가 이 이름으로 아이를 불러요. 다음 화면에서 아이가 좋아하는 테마를 골라요. 형제자매가 있으면 여러 명 추가할 수 있고, 아이마다 별이 따로 모여요.</p>
       ${kidsHTML()}
       <div class="onb-start">
         <button class="btn" data-act="onb-words">이번 주 단어 넣기</button>
@@ -2013,7 +2512,7 @@ body { touch-action: manipulation; }
     return `<div class="kids" id="kids" lang="ko">
       ${state.kids.map(k => `<div class="kid-row ${k.id === (activeKid() || {}).id ? 'on' : ''}">
         <input class="field" data-kid="${k.id}" value="${esc(k.name)}" maxlength="20" autocomplete="off" aria-label="아이 이름">
-        <span class="kid-stars">${starSVG(16)} ${k.stars}</span>
+        <span class="kid-stars">${rIcon(16, true, themeOf(k))} ${k.stars}</span>
         <button type="button" class="x-btn" data-act="kid-del" data-id="${k.id}" aria-label="${esc(k.name)} 삭제">×</button></div>`).join('')}
       ${state.kids.length < MAX_KIDS ? `<div class="kid-add"><input class="field" id="kidNew" maxlength="20" autocomplete="off" placeholder="아이 이름 (예: 유신, Eushin)" aria-label="새 아이 이름">
         <button type="button" class="btn sm" data-act="kid-add">+ 아이 추가</button></div>` : ''}
@@ -2055,8 +2554,8 @@ body { touch-action: manipulation; }
     app.innerHTML = `
       <section class="onb" lang="ko" aria-label="아이 등록">
         <div class="onb-body">
-          <div class="onb-hero"><div class="coco-wrap">${coco('happy')}</div></div>
-          <h2>누가 우주 여행을 떠나나요?</h2>
+          <div class="onb-hero"><div class="coco-wrap">${mascot('happy')}</div></div>
+          <h2>누가 모험을 떠나나요?</h2>
           <p class="onb-lead">아이 이름을 적어 주세요. 형제자매가 있으면 여러 명 추가할 수 있어요.</p>
           ${kidsHTML()}
           <div class="onb-start"><button class="btn sun" data-act="kids-done">시작하기 ›</button></div>
@@ -2099,9 +2598,9 @@ body { touch-action: manipulation; }
     app.innerHTML = `
       <section class="onb auth" lang="ko" aria-label="로그인">
         <div class="onb-body">
-          <div class="onb-hero"><div class="coco-wrap">${coco()}</div></div>
+          <div class="onb-hero"><div class="coco-wrap">${mascot()}</div></div>
           <h2>${reset ? '비밀번호 재설정' : 'Space Words'}</h2>
-          <p class="onb-lead">${reset ? '가입한 이메일을 적으면 비밀번호를 다시 정하는 링크를 보내드려요.' : '아이와 함께하는 영어 철자 우주 여행이에요. 보호자 계정으로 로그인하면 여러 기기에서 별과 단어가 이어져요.'}</p>
+          <p class="onb-lead">${reset ? '가입한 이메일을 적으면 비밀번호를 다시 정하는 링크를 보내드려요.' : '아이와 함께하는 영어 철자 모험이에요. 보호자 계정으로 로그인하면 여러 기기에서 별과 단어가 이어져요.'}</p>
           ${reset ? '' : `<div class="seg auth-tabs" role="tablist"><button type="button" class="seg-btn ${signup ? '' : 'on'}" data-act="auth-mode" data-mode="login" role="tab" aria-selected="${!signup}">로그인</button><button type="button" class="seg-btn ${signup ? 'on' : ''}" data-act="auth-mode" data-mode="signup" role="tab" aria-selected="${signup}">회원가입</button></div>`}
           <form class="auth-form" id="authForm" novalidate>
             <label>이메일<input class="field" id="authEmail" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" required></label>
@@ -2158,7 +2657,7 @@ body { touch-action: manipulation; }
     finally { if (document.body.contains(go)) go.disabled = false; }
   }
   async function afterAuth() {
-    app.innerHTML = `<section class="onb" lang="ko"><div class="onb-body"><div class="onb-hero"><div class="coco-wrap">${coco()}</div></div><p class="onb-lead" style="text-align:center">불러오는 중…</p></div></section>`;
+    app.innerHTML = loadingHTML('불러오는 중…');
     await Promise.race([pullCloud(), new Promise(r => setTimeout(r, 6000))]);
     routeStart();
   }
@@ -2276,6 +2775,9 @@ body { touch-action: manipulation; }
         <h3 lang="ko">아이</h3>
         <p class="help" lang="ko">이름을 누르면 고칠 수 있어요. 아이마다 별과 단어 진도가 따로 저장돼요.</p>
         ${kidsHTML()}
+        <h3 lang="ko">테마</h3>
+        <p class="help" lang="ko">${esc(kid())}의 테마: <b>${esc(T().ko)} (${esc(T().name)})</b>. 바꿔도 별, 단어 진도, 도착한 장소는 그대로예요.</p>
+        <div class="p-actions"><button type="button" class="btn ghost sm" data-act="theme-open" lang="ko">${paletteSVG} 테마 바꾸기</button></div>
         <h3>2 sentences to learn</h3>
         <p class="help">Short sentences work best, like "I like apples."</p>
         ${s.map((x, i) => `<div class="srow">
@@ -2288,7 +2790,7 @@ body { touch-action: manipulation; }
         </div>
         <div class="danger-zone">
           <h3>Stars collected</h3>
-          <p class="help">${esc(kid())} has ${state.progress.stars} stars. Changing the words keeps the stars.</p>
+          <p class="help">${esc(kid())} has ${state.progress.stars} stars (shown as ${esc(rw(2))} in ${esc(T().name)}). Changing the words or the theme keeps the stars.</p>
           <div id="resetBox"><button type="button" class="btn ghost sm" data-act="reset-ask">Start stars over</button></div>
         </div>
         ${accountHTML()}
@@ -2493,6 +2995,10 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
     const act = b.dataset.act;
     switch (act) {
       case 'visit': visitPlanet(Number(b.dataset.i)); break;
+      case 'theme-open': sfx.tap(); renderThemePick(false); break;
+      case 'theme-sel': selectTheme(b.dataset.id); break;
+      case 'theme-go': confirmTheme(); break;
+      case 'theme-cancel': cancelTheme(); break;
       case 'home': closeModal(); sfx.tap(); renderHome(); window.scrollTo(0, 0); break;
       case 'play': sfx.tap(); startGame(b.dataset.game); window.scrollTo(0, 0); break;
       case 'again': closeModal(); startGame(b.dataset.game); window.scrollTo(0, 0); break;
@@ -2618,9 +3124,10 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
     }
   });
 
+  applyTheme();
   (async () => {
     if (CLOUD) {
-      app.innerHTML = '';
+      app.innerHTML = loadingHTML();
       await initCloud();
       if (sb && !state.user && !state.recovery && !lsGet(LS_GUEST)) { renderAuth('login'); return; }
       if (state.user) { await Promise.race([pullCloud(), new Promise(r => setTimeout(r, 4000))]); }
