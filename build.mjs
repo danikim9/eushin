@@ -1,4 +1,5 @@
-// Builds index.html (the installable web app) from src/app.html.
+// Builds app/index.html (the installable web app, served at /app/) from src/app.html.
+// The landing page at / is the hand-written index.html; config.js, vendor/ and icons/ are shared at the top level.
 // src/app.html is the page body used for the Claude artifact; this wraps it
 // in a full document with the home-screen app metadata and service worker.
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -21,8 +22,8 @@ const html = `<!doctype html>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Space Words">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="../icons/icon-180.png">
+<link rel="icon" type="image/png" href="../icons/icon-192.png">
 <style>
 html { background: #4B4E6D; }
 :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -30,7 +31,7 @@ body { margin: 0; font: 14px/1.4 system-ui, -apple-system, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script src="config.js"></script>
+<script src="../config.js"></script>
 ${head}
 </head>
 <body>
@@ -43,9 +44,9 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
 </body>
 </html>
 `;
-writeFileSync(new URL('./index.html', import.meta.url), html);
+writeFileSync(new URL('./app/index.html', import.meta.url), html);
 
-const sw = readFileSync(new URL('./sw.js', import.meta.url), 'utf8')
+const sw = readFileSync(new URL('./app/sw.js', import.meta.url), 'utf8')
   .replace(/const VERSION = '[^']*';/, `const VERSION = '${version}';`);
-writeFileSync(new URL('./sw.js', import.meta.url), sw);
-console.log(`index.html built, service worker version ${version}`);
+writeFileSync(new URL('./app/sw.js', import.meta.url), sw);
+console.log(`app/index.html built, service worker version ${version}`);

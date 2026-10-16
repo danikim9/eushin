@@ -44,7 +44,7 @@ Set up once:
 
 1. Create a Supabase project (Seoul region: `ap-northeast-2`).
 2. Run `supabase/migrations/20261016000000_space_words.sql` and then `20261016100000_child_theme.sql` in the SQL Editor. It creates the `families` and `children` tables with row level security, so each account sees only its own data, plus a `delete_my_account()` function for the in-app account deletion.
-3. Authentication → URL Configuration: set **Site URL** to the app's address (for example the Vercel URL) and add the same address under **Redirect URLs**. Sign-up confirmation and password reset emails link back there.
+3. Authentication → URL Configuration: set **Site URL** to the app's address (`https://www.spelly.kr/app/`) and add it under **Redirect URLs** too. Sign-up confirmation and password reset emails link back there.
 4. Authentication → Emails: Supabase's built-in email sender only allows a few emails per hour. Before inviting other families, connect your own SMTP service (for example Resend) under **SMTP Settings**. You can also translate the email templates into Korean there.
 5. Put the project URL and its publishable (anon) key into `config.js`, then commit. The publishable key is safe to publish; row level security protects the data.
 
@@ -52,18 +52,24 @@ How sync works: everything is saved on the device first, so the app works offlin
 
 ## Install on iPad
 
-1. Open the app's GitHub Pages address in **Safari**.
+1. Open **https://www.spelly.kr/app/** in **Safari**.
 2. Tap the **Share** button, then **Add to Home Screen**.
 3. Open **Space Words** from the home screen. It runs full screen and works offline after the first visit.
 
 Words, stars and the name are saved on that iPad. Reading words from a worksheet photo works only in the Claude artifact version of the app.
 
+## Website
+
+`www.spelly.kr` (Vercel; `spelly.kr` redirects there) serves the landing page at `/` and the app at `/app/`. Home-screen installs and sign-in links that still open `/` are sent on to `/app/`, and the old top-level `sw.js` now only removes itself, so devices from before the move switch over cleanly (same domain, so stars and words stay).
+
 ## Files
 
+- `index.html`, `assets/`: the landing page (hand-written) and its pictures (theme scenes and guides taken from the app, app screenshots).
 - `src/app.html`: the app itself (styles, markup and script in one file). Edit this one.
-- `build.mjs`: wraps `src/app.html` into `index.html` with the home-screen app settings, and bumps the offline cache version.
-- `index.html`: the built page that GitHub Pages serves. Don't edit it by hand.
-- `manifest.webmanifest`, `sw.js`, `icons/`: home-screen app name, offline support and icons.
+- `build.mjs`: wraps `src/app.html` into `app/index.html` with the home-screen app settings, and bumps the offline cache version in `app/sw.js`.
+- `app/index.html`: the built app page. Don't edit it by hand.
+- `app/manifest.webmanifest`, `app/sw.js`, `icons/`: home-screen app name, offline support and icons.
+- `vercel.json`: `/app` → `/app/` redirect and no-cache headers for the service workers.
 - `config.js`: Supabase URL and publishable key (empty means device-only).
 - `vendor/supabase-2.49.4.js`: the Supabase client, kept in the repo so the app opens offline.
 - `supabase/migrations/`: database tables and security rules.
