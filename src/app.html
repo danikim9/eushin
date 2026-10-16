@@ -1094,7 +1094,7 @@ body { touch-action: manipulation; }
   async function initCloud() {
     if (!CLOUD) return;
     try {
-      if (!window.supabase) await loadScript(CFG.supabaseLib || 'vendor/supabase-2.49.4.js');
+      if (!window.supabase) await loadScript(CFG.supabaseLib || '../vendor/supabase-2.49.4.js');
       sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
     } catch { sb = null; return; }
     sb.auth.onAuthStateChange((ev, session) => {

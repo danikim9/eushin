@@ -49,7 +49,7 @@ const next = () => tap(page.locator('[data-act="next"]'), 700);
 const byKo = async () => { const ko = await page.locator('.prompt .ko').innerText(); return (await week()).find(w => w.ko === ko).en; };
 async function spellTiles(word, pause = 330) { for (const ch of [...word].filter(c => /[a-z]/i.test(c))) await tap(page.locator(`#tiles .tile:not(.used)[data-ch="${ch}"]`).first(), pause); }
 
-await page.goto('http://localhost:8765/index.html');
+await page.goto('http://localhost:8765/app/');
 // Start a few stars short of a planet so a new one opens during the demo.
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('yushin-space-onboarded', 'true'); localStorage.setItem('yushin-space-progress', JSON.stringify({ stars: 205, mastery: {} })); });
 await page.reload();
