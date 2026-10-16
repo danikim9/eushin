@@ -30,6 +30,7 @@ body { margin: 0; font: 14px/1.4 system-ui, -apple-system, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
+<script src="config.js"></script>
 ${head}
 </head>
 <body>
