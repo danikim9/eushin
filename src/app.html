@@ -263,6 +263,8 @@ button.stop:active .planet { transform: scale(.92); }
 .seg { display: inline-flex; background: var(--paper-2); border-radius: 999px; padding: 4px; gap: 4px; align-self: flex-start; }
 .seg-btn { min-height: 44px; padding: 0 22px; border-radius: 999px; font-family: var(--f-display); font-size: 18px; color: var(--ink-soft); }
 .seg-btn.on { background: var(--primary); color: var(--ink); }
+.pilot { margin: 0; background: var(--accent-soft); border: 2px dashed var(--accent-line); border-radius: 14px; padding: 8px 14px; font-size: 16px; line-height: 1.5; color: var(--ink); word-break: keep-all; }
+.pilot b { font-weight: 700; }
 /* home-screen install guide (parents) */
 .ig { display: flex; flex-direction: column; gap: 12px; background: var(--paper-2); border-radius: 20px; padding: 16px 18px; word-break: keep-all; }
 .ig h3 { margin: 0; }
@@ -2433,6 +2435,9 @@ body { touch-action: manipulation; }
   }
   function cancelTheme() { themePick = null; applyTheme(); sfx.tap(); renderHome(); window.scrollTo(0, 0); }
 
+  // Shown to grown-ups (sign-in, parent guide, grown-ups menu) while the app is free during the pilot.
+  const pilotHTML = () => '<p class="pilot" lang="ko">🎁 지금은 <b>파일럿 기간</b>이라 모든 기능을 무료로 사용해 볼 수 있어요.</p>';
+
   /* ---------- add to home screen (parents) ---------- */
   // iPad Safari reports itself as a Mac, so touch support marks it as Apple too.
   const PLATFORM = /Android/i.test(navigator.userAgent) ? 'android'
@@ -2475,7 +2480,8 @@ body { touch-action: manipulation; }
   const ONB_STEPS = [
     () => `
       <div class="onb-hero"><div class="coco-wrap">${mascot('happy')}</div></div>
-      <h2>Space Words에 오신 걸 환영해요!</h2>
+      <h2>Spelly에 오신 걸 환영해요!</h2>
+      ${pilotHTML()}
       <p class="onb-lead">5살 아이가 매주 영어 단어 철자와 짧은 문장을 놀이처럼 익히는 앱이에요. 안내 친구 <b>${esc(T().guideKo)}</b>가 게임마다 아이를 안내해요.</p>
       <ul class="onb-points">
         <li><span>📝</span><div><b>매주 단어 10개 + 문장 2개</b>보호자가 이번 주 단어를 넣어주면 모든 게임이 그 단어로 바뀌어요.</div></li>
@@ -2646,8 +2652,9 @@ body { touch-action: manipulation; }
       <section class="onb auth" lang="ko" aria-label="로그인">
         <div class="onb-body">
           <div class="onb-hero"><div class="coco-wrap">${mascot()}</div></div>
-          <h2>${reset ? '비밀번호 재설정' : 'Space Words'}</h2>
+          <h2>${reset ? '비밀번호 재설정' : 'Spelly'}</h2>
           <p class="onb-lead">${reset ? '가입한 이메일을 적으면 비밀번호를 다시 정하는 링크를 보내드려요.' : '아이와 함께하는 영어 철자 모험이에요. 보호자 계정으로 로그인하면 여러 기기에서 별과 단어가 이어져요.'}</p>
+          ${reset ? '' : pilotHTML()}
           ${reset ? '' : `<div class="seg auth-tabs" role="tablist"><button type="button" class="seg-btn ${signup ? '' : 'on'}" data-act="auth-mode" data-mode="login" role="tab" aria-selected="${!signup}">로그인</button><button type="button" class="seg-btn ${signup ? 'on' : ''}" data-act="auth-mode" data-mode="signup" role="tab" aria-selected="${signup}">회원가입</button></div>`}
           <form class="auth-form" id="authForm" novalidate>
             <label>이메일<input class="field" id="authEmail" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" required></label>
@@ -2770,6 +2777,7 @@ body { touch-action: manipulation; }
       <header class="game-top"><button class="back" data-act="home">‹ Home</button></header>
       <section class="parent">
         <h2>Grown-ups menu</h2>
+        ${pilotHTML()}
         <p class="help">This is where you add this week's words and sentences. Please answer the question to continue.</p>
         <button type="button" class="btn ghost sm onb-link" data-act="onb-open" lang="ko">📖 보호자 안내 보기 (한국어)</button>
         <form class="gate" id="gateForm">
