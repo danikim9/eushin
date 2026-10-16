@@ -1,0 +1,18 @@
+{
+ "home0": 0.275,
+ "pick": 1.85,
+ "home_space": 6.05,
+ "game_space": 8.797,
+ "win_space": 10.234,
+ "home_princess": 14.322,
+ "game_princess": 17.045,
+ "win_princess": 17.486,
+ "home_robot": 21.452,
+ "game_robot": 24.187,
+ "win_robot": 24.914,
+ "home_unicorn": 28.877,
+ "game_unicorn": 31.611,
+ "win_unicorn": 32.737,
+ "switch": 35.914,
+ "end": 40.505
+}
