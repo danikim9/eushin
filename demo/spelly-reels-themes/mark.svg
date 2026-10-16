@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" fill="#FFF1C4"/>
+  <!-- sparkles -->
+  <path d="M790 190 l18 44 44 18 -44 18 -18 44 -18 -44 -44 -18 44 -18z" fill="#FF8C94"/>
+  <circle cx="232" cy="268" r="16" fill="#4AC7A8"/>
+  <circle cx="820" cy="760" r="12" fill="#B8B9E0"/>
+  <path d="M210 740 l10 24 24 10 -24 10 -10 24 -10 -24 -24 -10 24 -10z" fill="#FFE08A" stroke="#34374F" stroke-width="5" stroke-linejoin="round"/>
+  <g transform="rotate(-7 512 540)">
+    <!-- tile depth -->
+    <rect x="252" y="316" width="520" height="500" rx="128" fill="#4AC7A8" stroke="#34374F" stroke-width="22"/>
+    <!-- tile face -->
+    <rect x="252" y="272" width="520" height="480" rx="128" fill="#B8F2E6" stroke="#34374F" stroke-width="22"/>
+    <!-- highlight -->
+    <path d="M330 340 Q340 310 380 306" fill="none" stroke="#FFFDF6" stroke-width="22" stroke-linecap="round" opacity=".9"/>
+    <!-- eyes -->
+    <g fill="none" stroke="#34374F" stroke-width="22" stroke-linecap="round">
+      <path d="M398 520 Q428 476 458 520"/>
+      <path d="M566 520 Q596 476 626 520"/>
+    </g>
+    <!-- blush -->
+    <ellipse cx="370" cy="574" rx="40" ry="24" fill="#FF8C94" opacity=".7"/>
+    <ellipse cx="654" cy="574" rx="40" ry="24" fill="#FF8C94" opacity=".7"/>
+    <!-- mouth -->
+    <path d="M472 570 Q512 572 552 570 Q546 628 512 628 Q478 628 472 570Z" fill="#FF8C94" stroke="#34374F" stroke-width="14" stroke-linejoin="round"/>
+    <!-- star hair clip -->
+    <path d="M686 236 l26 53 58 8 -42 41 10 58 -52 -27 -52 27 10 -58 -42 -41 58 -8z" fill="#FFE08A" stroke="#34374F" stroke-width="16" stroke-linejoin="round" transform="rotate(12 686 300)"/>
+  </g>
+</svg>
