@@ -50,11 +50,12 @@ Set up once:
 
 How sync works: everything is saved on the device first, so the app works offline. When signed in, changes upload in the background, and the app downloads the family's data on start and whenever it comes back to the foreground. For each child and for the week's words, the most recent change wins. Signing up on a device that already has stars moves them into the new account.
 
-## Install on iPad
+## Add to the home screen
 
-1. Open **https://www.spelly.kr/app/** in **Safari**.
-2. Tap the **Share** button, then **Add to Home Screen**.
-3. Open **Space Words** from the home screen. It runs full screen and works offline after the first visit.
+- **iPhone / iPad (Safari):** open **https://www.spelly.kr/app/**, tap **Share**, then **Add to Home Screen** → **Add**.
+- **Android (Chrome):** open the same address, tap the **⋮** menu, then **Add to Home screen** or **Install app**. On Samsung Internet: **≡ menu → Add page to → Home screen**. When Chrome offers it, the grown-ups menu also shows an **지금 설치하기** button.
+
+It opens full screen as **Spelly** and works offline after the first visit. The landing page and the app's grown-ups menu and parent guide show these steps, opening the tab for the visitor's device.
 
 Words, stars and the name are saved on that iPad. Reading words from a worksheet photo works only in the Claude artifact version of the app.
 
