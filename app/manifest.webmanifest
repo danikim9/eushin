@@ -1,6 +1,6 @@
 {
-  "name": "Eushin's Space Words",
-  "short_name": "Space Words",
+  "name": "Spelly",
+  "short_name": "Spelly",
   "description": "A calm, space-themed English spelling and sentence game.",
   "start_url": "./",
   "scope": "./",

@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Space Words">
+<meta name="apple-mobile-web-app-title" content="Spelly">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="../icons/icon-180.png">
 <link rel="icon" type="image/png" href="../icons/icon-192.png">
@@ -284,6 +284,16 @@ button.stop:active .planet { transform: scale(.92); }
 .seg { display: inline-flex; background: var(--paper-2); border-radius: 999px; padding: 4px; gap: 4px; align-self: flex-start; }
 .seg-btn { min-height: 44px; padding: 0 22px; border-radius: 999px; font-family: var(--f-display); font-size: 18px; color: var(--ink-soft); }
 .seg-btn.on { background: var(--primary); color: var(--ink); }
+/* home-screen install guide (parents) */
+.ig { display: flex; flex-direction: column; gap: 12px; background: var(--paper-2); border-radius: 20px; padding: 16px 18px; word-break: keep-all; }
+.ig h3 { margin: 0; }
+.ig .seg { display: inline-grid; grid-template-columns: 1fr 1fr; max-width: 100%; background: var(--paper); border-radius: 22px; }
+.ig .seg-btn { white-space: nowrap; border-radius: 18px; min-height: 48px; }
+@media (max-width: 600px) { .ig .seg { display: grid; width: 100%; } .ig .seg-btn { font-size: 15px; padding: 0 8px; } }
+.ig .seg-btn.on::before { content: "✓ "; }
+.ig ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; font-size: 16px; line-height: 1.6; }
+.ig .ic { display: inline-block; width: 22px; height: 22px; vertical-align: -5px; margin: 0 2px; padding: 2px; border-radius: 6px; background: var(--paper); color: var(--ink); }
+.ig .help small { display: block; margin-top: 4px; }
 .danger-zone { border-top: 2px dashed var(--paper-2); padding-top: 14px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
 .err { color: #B4434C; font-size: 15px; margin: 0; }
 
@@ -2445,6 +2455,43 @@ body { touch-action: manipulation; }
   }
   function cancelTheme() { themePick = null; applyTheme(); sfx.tap(); renderHome(); window.scrollTo(0, 0); }
 
+  /* ---------- add to home screen (parents) ---------- */
+  // iPad Safari reports itself as a Mac, so touch support marks it as Apple too.
+  const PLATFORM = /Android/i.test(navigator.userAgent) ? 'android'
+    : (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) ? 'apple' : 'apple';
+  const isStandalone = () => !!(navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches));
+  let igTab = PLATFORM, installEvt = null;
+  // Android Chrome: keep the install prompt for the button in the guide.
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; refreshInstallGuide(); });
+  window.addEventListener('appinstalled', () => { installEvt = null; refreshInstallGuide(); toast('홈 화면에 Spelly를 추가했어요'); });
+  const IG_SHARE = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
+  const IG_PLUS = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>';
+  const IG_MENU = '<svg class="ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>';
+  function installGuideHTML() {
+    const tab = (id, label) => `<button type="button" class="seg-btn ${igTab === id ? 'on' : ''}" data-act="ig-tab" data-os="${id}" role="tab" aria-selected="${igTab === id}">${label}</button>`;
+    const body = isStandalone()
+      ? '<p class="ok">지금 홈 화면 앱으로 실행 중이에요. 따로 할 일은 없어요.</p>'
+      : `<p class="help">홈 화면에 추가하면 앱처럼 전체 화면으로 열리고, 한 번 연 뒤에는 인터넷 없이도 쓸 수 있어요.</p>
+        <div class="seg" role="tablist" aria-label="기기 종류">${tab('apple', '📱 아이폰 · 아이패드')}${tab('android', '🤖 안드로이드')}</div>
+        ${igTab === 'apple' ? `<ol>
+          <li><b>Safari</b>에서 이 주소(<b>www.spelly.kr/app</b>)를 열어요.</li>
+          <li><b>공유 버튼</b>${IG_SHARE}을 눌러요. 아이패드는 주소창 오른쪽, 아이폰은 화면 아래에 있어요. 안 보이면 <b>···</b> 메뉴 안에 있어요.</li>
+          <li>목록을 내려 <b>홈 화면에 추가</b>${IG_PLUS}를 누르고, 오른쪽 위 <b>추가</b>를 눌러요.</li></ol>`
+        : `${installEvt ? '<div class="p-actions"><button type="button" class="btn sm" data-act="ig-install">지금 설치하기</button></div>' : ''}<ol>
+          <li><b>Chrome</b>에서 이 주소(<b>www.spelly.kr/app</b>)를 열어요.</li>
+          <li>오른쪽 위 <b>메뉴</b>${IG_MENU}를 눌러요.</li>
+          <li><b>홈 화면에 추가</b> 또는 <b>앱 설치</b>를 누르고 <b>설치</b>를 눌러요.</li></ol>
+          <p class="help">삼성 인터넷은 아래쪽 <b>≡ 메뉴 → 현재 페이지 추가 → 홈 화면</b>을 눌러요.</p>`}`;
+    return `<section class="ig" id="installGuide" lang="ko" aria-label="홈 화면에 추가하는 법"><h3>📲 홈 화면에 추가하기</h3>${body}</section>`;
+  }
+  function refreshInstallGuide() { const el = document.getElementById('installGuide'); if (el) el.outerHTML = installGuideHTML(); }
+  async function promptInstall() {
+    if (!installEvt) return;
+    const e = installEvt; installEvt = null;
+    try { e.prompt(); await e.userChoice; } catch {}
+    refreshInstallGuide();
+  }
+
   /* ---------- parent onboarding (Korean) ---------- */
   let onbStep = 0;
   const ONB_STEPS = [
@@ -2486,9 +2533,9 @@ body { touch-action: manipulation; }
       </ul>
       <div class="onb-tip">💡 단어를 바꿔도 모은 별은 그대로 남아요. 테마를 바꾸면 별·행성이 보석·왕국, 에너지·도시 구역, 크리스털·마법의 땅으로 보일 뿐, 개수와 진도는 똑같이 이어져요.</div>`,
     () => `
-      <h2>4. 아이패드에서 잘 쓰는 법</h2>
+      <h2>4. 태블릿 · 휴대폰에서 잘 쓰는 법</h2>
+      ${installGuideHTML()}
       <ul class="onb-points">
-        <li><span>📲</span><div><b>홈 화면에 추가</b>Safari에서 공유 버튼 → <b>홈 화면에 추가</b>를 누르면 앱처럼 전체 화면으로 열리고, 인터넷 없이도 돼요.</div></li>
         <li><span>🔊</span><div><b>소리 켜기</b>단어와 철자를 소리로 읽어줘요. 무음 모드를 끄고 음량을 올려 주세요.</div></li>
         <li><span>✏️</span><div><b>Apple Pencil</b>따라 쓰기 게임은 애플 펜슬이 가장 좋아요. 손가락으로도 할 수 있어요.</div></li>
         <li><span>⏰</span><div><b>하루 10~15분</b>게임 2~3개씩 짧게, 매일 하는 게 가장 효과적이에요.</div></li>
@@ -2810,6 +2857,7 @@ body { touch-action: manipulation; }
           <button class="btn" type="submit">Save words</button>
           <button type="button" class="btn ghost" data-act="fill-example">Use example words</button>
         </div>
+        ${installGuideHTML()}
         <div class="danger-zone">
           <h3>Stars collected</h3>
           <p class="help">${esc(kid())} has ${state.progress.stars} stars (shown as ${esc(rw(2))} in ${esc(T().name)}). Changing the words or the theme keeps the stars.</p>
@@ -3018,6 +3066,8 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
     switch (act) {
       case 'visit': visitPlanet(Number(b.dataset.i)); break;
       case 'theme-open': sfx.tap(); renderThemePick(false); break;
+      case 'ig-tab': igTab = b.dataset.os; refreshInstallGuide(); break;
+      case 'ig-install': promptInstall(); break;
       case 'theme-sel': selectTheme(b.dataset.id); break;
       case 'theme-go': confirmTheme(); break;
       case 'theme-cancel': cancelTheme(); break;

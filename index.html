@@ -136,6 +136,19 @@ section.block { padding: 84px 0; }
 .install li::before { content: counter(i); flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--sun); color: var(--ink); display: grid; place-items: center; font-family: var(--f-en); font-weight: 600; }
 .install li b { color: #FFFFFF; }
 .install .btn.line { background: transparent; color: #F4F3FF; border-color: rgba(255, 255, 255, .3); }
+.os-tabs { display: inline-grid; grid-template-columns: 1fr 1fr; gap: 4px; max-width: 100%; background: rgba(255, 255, 255, .08); border-radius: 22px; padding: 5px; margin-bottom: 22px; }
+.os-tabs button { font: inherit; font-family: var(--f-display); font-size: 17px; white-space: nowrap; color: #C5C9F2; background: none; border: 0; border-radius: 18px; min-height: 48px; padding: 0 16px; cursor: pointer; }
+@media (max-width: 600px) { .os-tabs { display: grid; width: 100%; } .os-tabs button { font-size: 15px; padding: 0 8px; } }
+.os-tabs button[aria-selected="true"] { background: var(--sun); color: var(--ink); }
+.os-tabs button[aria-selected="true"]::before { content: "✓ "; }
+.os-tabs button:focus-visible { outline: 3px solid var(--aqua); outline-offset: 2px; }
+.os-panel + .os-panel { margin-top: 26px; }
+.js .os-panel[hidden] { display: none; }
+.os-title { font-size: 20px; margin-bottom: 12px; color: #FFFFFF; }
+.os-title small { font-family: var(--f-en); font-size: 14px; color: #C5C9F2; margin-left: 6px; }
+.install .ic { display: inline-block; width: 22px; height: 22px; vertical-align: -5px; margin: 0 3px; padding: 2px; border-radius: 6px; background: rgba(255, 255, 255, .14); color: #FFFFFF; }
+.os-note { margin: 14px 0 0 !important; font-size: 14.5px; color: #C5C9F2; }
+.os-note b { color: #FFFFFF; }
 
 /* final */
 .final { text-align: center; padding: 90px 0 100px; }
@@ -181,7 +194,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
   <div class="wrap">
     <a class="logo" href="./" aria-label="Spelly 홈"><img src="icons/icon-192.png" alt="">Spelly</a>
     <nav class="nav-links" aria-label="메뉴">
-      <a href="#how">사용법</a><a href="#themes">테마</a><a href="#games">게임</a><a href="#install">설치</a>
+      <a href="#how">사용법</a><a href="#themes">테마</a><a href="#games">게임</a><a href="#install">홈 화면 추가</a>
       <a class="btn main" href="app/">앱 열기</a>
     </nav>
   </div>
@@ -311,15 +324,33 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
     <div class="wrap">
       <div class="install">
         <div>
-          <h2>아이패드 홈 화면에 추가하기</h2>
-          <p>앱 스토어 없이, Safari에서 한 번만 추가하면 앱처럼 쓸 수 있어요.</p>
+          <h2>홈 화면에 추가하기</h2>
+          <p>앱 스토어 없이, 브라우저에서 한 번만 추가하면 앱처럼 전체 화면으로 열려요. 한 번 연 뒤에는 인터넷 없이도 쓸 수 있어요.</p>
+          <div class="os-tabs" role="tablist" aria-label="기기 종류">
+            <button type="button" role="tab" id="tab-apple" aria-controls="os-apple" aria-selected="true" data-os="apple">📱 아이폰 · 아이패드</button>
+            <button type="button" role="tab" id="tab-android" aria-controls="os-android" aria-selected="false" data-os="android">🤖 안드로이드</button>
+          </div>
           <div class="cta"><a class="btn main" href="app/">앱 열기 ›</a></div>
         </div>
-        <ol>
-          <li><span>Safari에서 <b>www.spelly.kr/app</b>을 열어요.</span></li>
-          <li><span>위쪽의 <b>공유 버튼</b>(네모에 화살표)을 눌러요.</span></li>
-          <li><span><b>홈 화면에 추가</b>를 누르면 Spelly 아이콘이 생겨요.</span></li>
-        </ol>
+        <div>
+          <div class="os-panel" id="os-apple" role="tabpanel" aria-labelledby="tab-apple">
+            <h3 class="os-title">아이폰 · 아이패드 <small>Safari</small></h3>
+            <ol>
+              <li><span><b>Safari</b>에서 <b>www.spelly.kr/app</b>을 열어요.</span></li>
+              <li><span><b>공유 버튼</b><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>을 눌러요. 아이패드는 주소창 오른쪽, 아이폰은 화면 아래에 있어요. 안 보이면 <b>···</b> 메뉴 안에 있어요.</span></li>
+              <li><span>목록을 내려 <b>홈 화면에 추가</b><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>를 누르고, 오른쪽 위 <b>추가</b>를 누르면 Spelly 아이콘이 생겨요.</span></li>
+            </ol>
+          </div>
+          <div class="os-panel" id="os-android" role="tabpanel" aria-labelledby="tab-android">
+            <h3 class="os-title">안드로이드 <small>Chrome</small></h3>
+            <ol>
+              <li><span><b>Chrome</b>에서 <b>www.spelly.kr/app</b>을 열어요.</span></li>
+              <li><span>오른쪽 위 <b>메뉴</b><svg class="ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>를 눌러요.</span></li>
+              <li><span><b>홈 화면에 추가</b> 또는 <b>앱 설치</b>를 누르고, <b>설치</b>를 누르면 Spelly 아이콘이 생겨요.</span></li>
+            </ol>
+            <p class="os-note">삼성 인터넷은 아래쪽 <b>≡ 메뉴 → 현재 페이지 추가 → 홈 화면</b>을 눌러요. Spelly 앱의 보호자 메뉴에서 <b>지금 설치하기</b> 버튼이 보이면 그걸 눌러도 돼요.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -340,5 +371,18 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
     <a href="app/">앱 열기</a>
   </div>
 </footer>
+<script>
+  // Install guide: open the tab for this device (iPad Safari reports itself as a Mac, so check for touch too).
+  (function () {
+    document.documentElement.classList.add('js');
+    var ua = navigator.userAgent, tabs = document.querySelectorAll('.os-tabs [data-os]');
+    var os = /Android/i.test(ua) ? 'android' : 'apple';
+    function show(id) {
+      tabs.forEach(function (t) { var on = t.dataset.os === id; t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; document.getElementById('os-' + t.dataset.os).hidden = !on; });
+    }
+    tabs.forEach(function (t) { t.addEventListener('click', function () { show(t.dataset.os); }); });
+    show(os);
+  })();
+</script>
 </body>
 </html>
