@@ -1,22 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" fill="#4B4E6D"/>
-  <circle cx="92" cy="104" r="6" fill="#F4F3FF" opacity=".6"/>
-  <circle cx="420" cy="86" r="8" fill="#FFE08A" opacity=".85"/>
-  <circle cx="440" cy="300" r="5" fill="#F4F3FF" opacity=".5"/>
-  <circle cx="70" cy="330" r="5" fill="#F4F3FF" opacity=".5"/>
-  <circle cx="380" cy="440" r="6" fill="#F4F3FF" opacity=".55"/>
-  <g transform="translate(76 70) scale(3)">
-    <path d="M60 34 Q58 22 62 12" fill="none" stroke="#34374F" stroke-width="3" stroke-linecap="round"/>
-    <path d="M62 3.5l2.4 4.9 5.4.7-3.900 3.7 1 5.3L62 15.6l-4.9 2.5 1-5.3-3.9-3.7 5.4-.7z" fill="#FFE08A" stroke="#D9B653" stroke-width="1.2" stroke-linejoin="round"/>
-    <ellipse cx="22" cy="74" rx="8" ry="11" fill="#4AC7A8" transform="rotate(-20 22 74)"/>
-    <ellipse cx="98" cy="74" rx="8" ry="11" fill="#4AC7A8" transform="rotate(20 98 74)"/>
-    <ellipse cx="44" cy="105" rx="11" ry="6" fill="#4AC7A8"/>
-    <ellipse cx="76" cy="105" rx="11" ry="6" fill="#4AC7A8"/>
-    <path d="M60 32 C86 32 100 50 100 70 C100 92 84 104 60 104 C36 104 20 92 20 70 C20 50 34 32 60 32Z" fill="#B8F2E6" stroke="#4AC7A8" stroke-width="3"/>
-    <ellipse cx="60" cy="86" rx="20" ry="12" fill="#FFFDF6" opacity=".55"/>
-    <g fill="none" stroke="#34374F" stroke-width="3.2" stroke-linecap="round"><path d="M40 66 Q46 57 52 66"/><path d="M68 66 Q74 57 80 66"/></g>
-    <ellipse cx="36" cy="76" rx="6" ry="3.6" fill="#FF8C94" opacity=".55"/>
-    <ellipse cx="84" cy="76" rx="6" ry="3.6" fill="#FF8C94" opacity=".55"/>
-    <path d="M52 75 Q60 75 68 75 Q66 86 60 86 Q54 86 52 75Z" fill="#FF8C94" stroke="#34374F" stroke-width="2.2" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="512" height="512">
+  <rect width="1024" height="1024" fill="#FFF1C4"/>
+  <g transform="translate(512 512) scale(0.9) translate(-512 -512)">
+  <!-- sparkles -->
+  <path d="M790 190 l18 44 44 18 -44 18 -18 44 -18 -44 -44 -18 44 -18z" fill="#FF8C94"/>
+  <circle cx="232" cy="268" r="16" fill="#4AC7A8"/>
+  <circle cx="820" cy="760" r="12" fill="#B8B9E0"/>
+  <path d="M210 740 l10 24 24 10 -24 10 -10 24 -10 -24 -24 -10 24 -10z" fill="#FFE08A" stroke="#34374F" stroke-width="5" stroke-linejoin="round"/>
+  <g transform="rotate(-7 512 540)">
+    <!-- tile depth -->
+    <rect x="252" y="316" width="520" height="500" rx="128" fill="#4AC7A8" stroke="#34374F" stroke-width="22"/>
+    <!-- tile face -->
+    <rect x="252" y="272" width="520" height="480" rx="128" fill="#B8F2E6" stroke="#34374F" stroke-width="22"/>
+    <!-- highlight -->
+    <path d="M330 340 Q340 310 380 306" fill="none" stroke="#FFFDF6" stroke-width="22" stroke-linecap="round" opacity=".9"/>
+    <!-- eyes -->
+    <g fill="none" stroke="#34374F" stroke-width="22" stroke-linecap="round">
+      <path d="M398 520 Q428 476 458 520"/>
+      <path d="M566 520 Q596 476 626 520"/>
+    </g>
+    <!-- blush -->
+    <ellipse cx="370" cy="574" rx="40" ry="24" fill="#FF8C94" opacity=".7"/>
+    <ellipse cx="654" cy="574" rx="40" ry="24" fill="#FF8C94" opacity=".7"/>
+    <!-- mouth -->
+    <path d="M472 570 Q512 572 552 570 Q546 628 512 628 Q478 628 472 570Z" fill="#FF8C94" stroke="#34374F" stroke-width="14" stroke-linejoin="round"/>
+    <!-- star hair clip -->
+    <path d="M686 236 l26 53 58 8 -42 41 10 58 -52 -27 -52 27 10 -58 -42 -41 58 -8z" fill="#FFE08A" stroke="#34374F" stroke-width="16" stroke-linejoin="round" transform="rotate(12 686 300)"/>
   </g>
+
+</g>
 </svg>
