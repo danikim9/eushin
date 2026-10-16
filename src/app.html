@@ -581,6 +581,86 @@ body { touch-action: manipulation; }
     mom:'👩',dad:'👨',baby:'👶',boy:'👦',girl:'👧',friend:'🧒',king:'🤴',queen:'👸',
     one:'1️⃣',two:'2️⃣',three:'3️⃣',four:'4️⃣',five:'5️⃣',six:'6️⃣',seven:'7️⃣',eight:'8️⃣',nine:'9️⃣',ten:'🔟',
   };
+  // Korean meanings for common words, filled in automatically when a grown-up types the English word.
+  const KO = Object.fromEntries(`
+    cat:고양이|dog:강아지|fish:물고기|bird:새|duck:오리|frog:개구리|pig:돼지|cow:소|horse:말|lion:사자|tiger:호랑이|bear:곰|rabbit:토끼|bunny:토끼
+    monkey:원숭이|elephant:코끼리|mouse:쥐|owl:부엉이|bee:벌|ant:개미|bug:벌레|snake:뱀|turtle:거북이|whale:고래|dolphin:돌고래|shark:상어|penguin:펭귄
+    fox:여우|panda:판다|chick:병아리|hen:암탉|chicken:닭|sheep:양|goat:염소|zebra:얼룩말|giraffe:기린|crab:게|octopus:문어|butterfly:나비|dinosaur:공룡
+    puppy:강아지|kitten:아기 고양이|wolf:늑대|deer:사슴|squirrel:다람쥐|hippo:하마|camel:낙타|kangaroo:캥거루|koala:코알라|spider:거미|snail:달팽이
+    worm:지렁이|bat:박쥐|seal:물개|jellyfish:해파리|starfish:불가사리|parrot:앵무새|eagle:독수리|swan:백조|goose:거위|ladybug:무당벌레|animal:동물
+    pet:반려동물|rat:쥐|hamster:햄스터|gorilla:고릴라|crocodile:악어|alligator:악어|peacock:공작|unicorn:유니콘|dragon:용|cub:아기 동물
+    apple:사과|banana:바나나|grape:포도|grapes:포도|orange:오렌지|lemon:레몬|melon:멜론|watermelon:수박|peach:복숭아|pear:배|cherry:체리|strawberry:딸기
+    egg:달걀|milk:우유|bread:빵|cake:케이크|cookie:쿠키|candy:사탕|pizza:피자|rice:밥|juice:주스|water:물|carrot:당근|corn:옥수수|tomato:토마토
+    potato:감자|onion:양파|cheese:치즈|butter:버터|jam:잼|honey:꿀|soup:수프|salad:샐러드|noodle:국수|noodles:국수|sandwich:샌드위치|hamburger:햄버거
+    chocolate:초콜릿|donut:도넛|pie:파이|meat:고기|ham:햄|nut:견과|bean:콩|pea:완두콩|pumpkin:호박|mango:망고|kiwi:키위|pineapple:파인애플|coconut:코코넛
+    food:음식|snack:간식|breakfast:아침밥|lunch:점심밥|dinner:저녁밥|tea:차|salt:소금|sugar:설탕|popcorn:팝콘|jelly:젤리|yogurt:요거트|cereal:시리얼
+    kimchi:김치|fruit:과일|vegetable:채소|hand:손|eye:눈|eyes:눈|ear:귀|nose:코|mouth:입|foot:발|feet:발|heart:하트|head:머리|hair:머리카락|face:얼굴
+    arm:팔|leg:다리|finger:손가락|toe:발가락|tooth:이|teeth:이|lip:입술|neck:목|back:등|tummy:배|belly:배|knee:무릎|body:몸|shoulder:어깨|cheek:볼
+    chin:턱|nail:손톱|mom:엄마|dad:아빠|mother:어머니|father:아버지|baby:아기|boy:남자아이|girl:여자아이|friend:친구|king:왕|queen:여왕
+    brother:남자 형제|sister:여자 형제|grandma:할머니|grandpa:할아버지|family:가족|man:남자|woman:여자|people:사람들|person:사람|child:아이|kid:아이
+    teacher:선생님|doctor:의사|nurse:간호사|cook:요리하다|farmer:농부|police:경찰|firefighter:소방관|prince:왕자|princess:공주|uncle:삼촌|aunt:이모
+    cousin:사촌|student:학생|pilot:조종사|astronaut:우주 비행사|alien:외계인|sun:해|moon:달|star:별|rocket:로켓|planet:행성|earth:지구|sky:하늘
+    cloud:구름|rain:비|snow:눈|rainbow:무지개|wind:바람|tree:나무|flower:꽃|leaf:잎|sea:바다|ocean:바다|river:강|lake:호수|mountain:산|hill:언덕
+    rock:바위|stone:돌|sand:모래|grass:풀|forest:숲|beach:해변|island:섬|fire:불|ice:얼음|space:우주|world:세상|night:밤|day:낮|morning:아침
+    afternoon:오후|evening:저녁|light:빛|dark:어두운|storm:폭풍|sunny:맑은|rainy:비 오는|cloudy:흐린|windy:바람 부는|snowy:눈 오는|weather:날씨
+    spring:봄|summer:여름|fall:가을|autumn:가을|winter:겨울|season:계절|seed:씨앗|plant:식물|garden:정원|pond:연못|comet:혜성
+    book:책|pen:펜|pencil:연필|bag:가방|ball:공|doll:인형|hat:모자|cap:모자|cup:컵|bed:침대|box:상자|key:열쇠|door:문|chair:의자|clock:시계
+    phone:전화기|lamp:램프|gift:선물|kite:연|drum:북|robot:로봇|table:탁자|desk:책상|window:창문|toy:장난감|car:자동차|bus:버스|train:기차
+    bike:자전거|ship:배|boat:보트|plane:비행기|truck:트럭|shoe:신발|shoes:신발|sock:양말|socks:양말|shirt:셔츠|dress:원피스|coat:외투|pants:바지
+    skirt:치마|jacket:재킷|glove:장갑|gloves:장갑|umbrella:우산|bowl:그릇|plate:접시|spoon:숟가락|fork:포크|knife:칼|bottle:병|crayon:크레용
+    paper:종이|picture:그림|map:지도|bell:종|block:블록|puzzle:퍼즐|game:게임|card:카드|letter:글자|word:낱말|song:노래|music:음악|piano:피아노
+    guitar:기타|balloon:풍선|bubble:비눗방울|sofa:소파|tv:텔레비전|computer:컴퓨터|camera:카메라|watch:보다|ring:반지|crown:왕관|brush:솔
+    comb:빗|soap:비누|towel:수건|toothbrush:칫솔|mirror:거울|pillow:베개|blanket:담요|basket:바구니|rope:밧줄|wheel:바퀴|flag:깃발|glasses:안경
+    scissors:가위|glue:풀(접착제)|eraser:지우개|ruler:자|notebook:공책|backpack:책가방|money:돈|coin:동전|candle:양초|button:단추|tent:텐트
+    swing:그네|slide:미끄럼틀|sled:썰매|bucket:양동이|net:그물|pot:냄비|pan:프라이팬|jar:병|can:할 수 있다|lid:뚜껑|mat:매트|rug:깔개|web:거미줄
+    nest:둥지|pin:핀|top:위|tub:욕조|van:승합차|jet:제트기|taxi:택시|helicopter:헬리콥터|ambulance:구급차|wagon:수레|sticker:스티커|present:선물
+    house:집|home:집|school:학교|park:공원|room:방|kitchen:부엌|bathroom:화장실|zoo:동물원|farm:농장|shop:가게|store:가게|city:도시|town:마을
+    street:거리|road:길|library:도서관|hospital:병원|playground:놀이터|classroom:교실|castle:성|church:교회|bank:은행|market:시장|bakery:빵집
+    yard:마당|pool:수영장|museum:박물관|airport:공항|station:역|bridge:다리|tower:탑|country:나라
+    red:빨간색|blue:파란색|green:초록색|yellow:노란색|pink:분홍색|purple:보라색|black:검은색|white:흰색|brown:갈색|gray:회색|grey:회색|gold:금색
+    silver:은색|color:색깔|colour:색깔|one:하나|two:둘|three:셋|four:넷|five:다섯|six:여섯|seven:일곱|eight:여덟|nine:아홉|ten:열|eleven:열하나
+    twelve:열둘|twenty:스물|hundred:백|zero:영|number:숫자|first:첫 번째|second:두 번째|third:세 번째|last:마지막|circle:동그라미|square:네모
+    triangle:세모|shape:모양|line:선|dot:점|rectangle:직사각형|oval:타원
+    happy:행복한|sad:슬픈|big:큰|small:작은|little:작은|hot:뜨거운|cold:차가운|good:좋은|bad:나쁜|new:새로운|old:오래된|young:어린|long:긴
+    short:짧은|tall:키가 큰|fast:빠른|slow:느린|hungry:배고픈|thirsty:목마른|tired:피곤한|sleepy:졸린|angry:화난|scared:무서워하는|afraid:무서워하는
+    funny:웃긴|kind:친절한|nice:좋은|pretty:예쁜|beautiful:아름다운|cute:귀여운|ugly:못생긴|clean:깨끗한|dirty:더러운|wet:젖은|dry:마른
+    soft:부드러운|hard:딱딱한|easy:쉬운|full:가득 찬|empty:빈|heavy:무거운|open:열다|close:닫다|high:높은|low:낮은|loud:시끄러운|quiet:조용한
+    warm:따뜻한|cool:시원한|sick:아픈|sweet:달콤한|sour:신|salty:짠|yummy:맛있는|delicious:맛있는|brave:용감한|shy:수줍은|busy:바쁜|rich:부자인
+    poor:가난한|strong:힘센|weak:약한|smart:똑똑한|silly:우스꽝스러운|great:멋진|best:가장 좋은|better:더 좋은|all:모두|many:많은|much:많은
+    some:조금|more:더|round:둥근|fat:뚱뚱한|thin:얇은|wide:넓은|deep:깊은|sharp:날카로운|bright:밝은|shiny:반짝이는|fun:재미있는|glad:기쁜
+    excited:신난|sorry:미안한|ready:준비된|right:맞는|wrong:틀린|left:왼쪽|same:같은|different:다른|other:다른|real:진짜의|safe:안전한
+    careful:조심하는|alone:혼자|together:함께|very:아주|too:너무|so:그래서|again:다시|here:여기|there:거기|now:지금|today:오늘|tomorrow:내일
+    yesterday:어제|soon:곧|always:항상|never:절대 안|often:자주|sometimes:가끔|yes:네|no:아니요|not:아니다|please:부탁해요|thank:고마워하다
+    thanks:고마워요|hello:안녕|hi:안녕|bye:잘 가|goodbye:안녕히 가세요|okay:좋아|ok:좋아|wow:와
+    run:달리다|jump:뛰다|swim:수영하다|sleep:자다|eat:먹다|drink:마시다|walk:걷다|sit:앉다|stand:서다|play:놀다|read:읽다|write:쓰다|draw:그리다
+    sing:노래하다|dance:춤추다|look:보다|see:보다|listen:듣다|hear:듣다|talk:말하다|say:말하다|speak:말하다|tell:말해 주다|ask:묻다|answer:대답하다
+    go:가다|come:오다|get:얻다|give:주다|take:가져가다|make:만들다|do:하다|have:가지다|like:좋아하다|love:사랑하다|want:원하다|need:필요하다
+    know:알다|think:생각하다|help:돕다|find:찾다|push:밀다|pull:당기다|throw:던지다|catch:잡다|kick:차다|hit:치다|fly:날다|climb:오르다|ride:타다
+    drive:운전하다|cry:울다|laugh:웃다|smile:미소 짓다|wash:씻다|cut:자르다|clap:손뼉 치다|hug:안아 주다|kiss:뽀뽀하다|wave:손을 흔들다
+    shake:흔들다|stop:멈추다|start:시작하다|begin:시작하다|finish:끝내다|stay:머무르다|wait:기다리다|live:살다|grow:자라다|buy:사다|sell:팔다
+    pay:돈을 내다|bring:가져오다|put:놓다|keep:간직하다|try:해 보다|use:쓰다|show:보여 주다|call:부르다|learn:배우다|study:공부하다|teach:가르치다
+    count:세다|paint:칠하다|build:짓다|fix:고치다|break:깨뜨리다|drop:떨어뜨리다|hold:잡다|carry:나르다|move:움직이다|turn:돌다|hide:숨다
+    seek:찾다|win:이기다|lose:지다|share:나누다|feel:느끼다|touch:만지다|smell:냄새 맡다|taste:맛보다|wake:깨다|dream:꿈꾸다|visit:방문하다
+    pick:고르다|spell:철자를 말하다|bake:굽다|dig:파다|hop:깡충 뛰다|skip:건너뛰다|roll:굴리다|blow:불다|pour:붓다|mix:섞다|tap:톡톡 치다
+    sip:홀짝 마시다|nap:낮잠|hum:흥얼거리다|rub:문지르다|work:일하다|found:찾았다|saw:보았다|went:갔다|came:왔다|ran:달렸다|ate:먹었다
+    said:말했다|made:만들었다|got:얻었다|had:가졌다|did:했다|was:~였다|were:~였다|is:~이다|are:~이다|am:~이다|be:~이다|has:가지다
+    will:~할 것이다|could:할 수 있었다|should:~해야 한다|must:~해야 한다|let:~하게 하다|let's:~하자
+    a:하나의|an:하나의|the:그|and:그리고|or:또는|but:하지만|because:왜냐하면|if:만약|then:그러고 나서|when:언제|where:어디|what:무엇
+    who:누구|why:왜|how:어떻게|which:어느 것|this:이것|that:저것|these:이것들|those:저것들|in:~ 안에|on:~ 위에|under:~ 아래에|over:~ 위로
+    up:위로|down:아래로|out:밖으로|into:~ 안으로|at:~에|to:~에게|from:~에서|with:~와 함께|without:~ 없이|for:~을 위해|of:~의|by:~ 옆에
+    about:~에 대해|after:~ 후에|before:~ 전에|behind:~ 뒤에|near:가까이|far:멀리|next:다음|around:주위에|between:~ 사이에|off:떨어져|away:멀리
+    inside:안에|outside:밖에|i:나|you:너|he:그|she:그녀|it:그것|we:우리|they:그들|me:나를|him:그를|her:그녀를|us:우리를|them:그들을|my:나의
+    your:너의|his:그의|its:그것의|our:우리의|their:그들의|mine:내 것|yours:네 것|everyone:모두|everything:모든 것|something:무언가
+    nothing:아무것도 없음|someone:누군가|every:모든|each:각각|any:어떤|only:오직|just:그냥|also:또한|well:잘
+    time:시간|hour:시간|minute:분|week:주|month:달|year:해|birthday:생일|party:파티|holiday:휴일|christmas:크리스마스|monday:월요일
+    tuesday:화요일|wednesday:수요일|thursday:목요일|friday:금요일|saturday:토요일|sunday:일요일|weekend:주말|january:1월|february:2월
+    march:3월|april:4월|may:5월|june:6월|july:7월|august:8월|september:9월|october:10월|november:11월|december:12월
+    name:이름|age:나이|idea:생각|story:이야기|question:질문|sound:소리|voice:목소리|noise:소음|class:반|lesson:수업|homework:숙제|job:일
+    art:미술|sport:운동|soccer:축구|baseball:야구|basketball:농구|team:팀|prize:상|thing:것|place:곳|way:길|side:옆|part:부분|end:끝|piece:조각
+    lot:많이|magic:마법|treasure:보물|monster:괴물|ghost:유령|pirate:해적|fairy:요정|witch:마녀|hero:영웅|bath:목욕|shower:샤워|toilet:변기
+`.split(/[|\n]/).map(x => x.trim()).filter(Boolean).map(x => [x.slice(0, x.indexOf(':')), x.slice(x.indexOf(':') + 1)]));
+  // Plurals and -es forms fall back to the base word (apples → apple, boxes → box).
+  const koFor = (en) => KO[en] || (en.length > 3 && (/(?:s|x|z|ch|sh)es$/.test(en) && KO[en.slice(0, -2)] || /s$/.test(en) && KO[en.slice(0, -1)])) || '';
 
   /* ---------- storage ---------- */
   const lsGet = (k) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; } };
@@ -590,7 +670,7 @@ body { touch-action: manipulation; }
     if (!d || typeof d !== 'object') return null;
     const words = (Array.isArray(d.words) ? d.words : []).map(w => ({
       en: String(w && w.en || '').trim().toLowerCase(),
-      ko: String(w && w.ko || '').trim(),
+      ko: String(w && w.ko || '').trim() || koFor(String(w && w.en || '').trim().toLowerCase()),
       emoji: String(w && w.emoji || '').trim(),
     })).filter(w => /[a-z]/.test(w.en));
     const sentences = (Array.isArray(d.sentences) ? d.sentences : []).map(s => ({
@@ -1942,7 +2022,7 @@ body { touch-action: manipulation; }
       <ol class="onb-steps">
         <li>홈 화면 오른쪽 위 <b>🔒 자물쇠 버튼</b>을 눌러요.</li>
         <li>아이가 들어오지 못하게 <b>곱셈 문제</b>가 나와요. 답을 넣으면 보호자 메뉴가 열려요.</li>
-        <li><b>영어 단어</b>와 <b>뜻</b>을 적어요. 자주 쓰는 단어는 그림(이모지)이 자동으로 붙고, 직접 이모지를 넣어도 돼요.</li>
+        <li><b>영어 단어</b>만 적으면 돼요. 자주 쓰는 단어(약 870개)는 <b>뜻</b>과 그림(이모지)이 자동으로 채워지고, 직접 고치거나 적어 넣어도 돼요.</li>
         <li>아래에 <b>짧은 문장 2개</b>를 적어요. 예: <i>I see a star.</i></li>
         <li><b>Save words</b>를 누르면 끝!</li>
       </ol>
@@ -2238,7 +2318,7 @@ body { touch-action: manipulation; }
       <span class="num">${i + 1}</span>
       <input class="field em" id="w-em-${i}" value="${esc(w.emoji || '')}" placeholder="${i ? '' : '🙂'}" aria-label="Picture (emoji) for word ${i + 1}" ${w.emoji && EMOJI[w.en] === w.emoji ? 'data-auto="1"' : ''}>
       <input class="field word" id="w-en-${i}" value="${esc(w.en || '')}" placeholder="${i ? '' : 'apple'}" autocapitalize="off" autocomplete="off" spellcheck="false" aria-label="English word ${i + 1}">
-      <input class="field" id="w-ko-${i}" value="${esc(w.ko || '')}" placeholder="${i ? '' : '사과'}" aria-label="Meaning of word ${i + 1}">
+      <input class="field" id="w-ko-${i}" value="${esc(w.ko || '')}" placeholder="${i ? '' : '사과'}" aria-label="Meaning of word ${i + 1}" ${w.ko && koFor(w.en) === w.ko ? 'data-auto="1"' : ''}>
       <button type="button" class="x-btn" data-act="row-del" aria-label="Clear word ${i + 1}">×</button>
     </div>`;
   }
@@ -2265,7 +2345,7 @@ body { touch-action: manipulation; }
         </div>
         <div class="p-part p-words">
         <h3>Type them in</h3>
-        <p class="help">Enter each English word and its meaning. Common words get a picture automatically, or type any emoji yourself. Empty rows are skipped.</p>
+        <p class="help">Type the English word. Common words get their meaning and a picture automatically; change them or type your own anytime. Empty rows are skipped.</p>
         <div class="rows" id="rows">
           <div class="row-head"><span class="num">#</span><span>Picture</span><span>English word</span><span>Meaning</span><span></span></div>
           ${rows.join('')}
@@ -2331,7 +2411,7 @@ body { touch-action: manipulation; }
       if (x.kind === 's') { if (sentences.length < 2) sentences.push({ en: x.en, ko: x.ko }); continue; }
       if (seen.has(x.en) || words.length >= 20) continue;
       seen.add(x.en);
-      words.push({ en: x.en, ko: x.ko, emoji: EMOJI[x.en] || '' });
+      words.push({ en: x.en, ko: x.ko || koFor(x.en), emoji: EMOJI[x.en] || '' });
     }
     return { words, sentences };
   }
@@ -2425,7 +2505,7 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
       const w = normWeek({ words: res && res.words, sentences: res && res.sentences }) || { words: [], sentences: [] };
       const seen = new Set();
       scan.words = w.words.filter(x => /^[a-z][a-z '\-]*$/.test(x.en) && !seen.has(x.en) && seen.add(x.en)).slice(0, 20)
-        .map(x => ({ ...x, emoji: x.emoji || EMOJI[x.en] || '' }));
+        .map(x => ({ ...x, ko: x.ko || koFor(x.en), emoji: x.emoji || EMOJI[x.en] || '' }));
       scan.sentences = w.sentences.slice(0, 2);
       scan.status = 'done';
     } catch (e) {
@@ -2479,7 +2559,7 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
       const [em, en, ko] = r.querySelectorAll('input');
       const e = en.value.trim().toLowerCase().replace(/\s+/g, ' ');
       if (!e) return;
-      words.push({ en: e, ko: ko.value.trim(), emoji: em.value.trim() || EMOJI[e] || '' });
+      words.push({ en: e, ko: ko.value.trim() || koFor(e), emoji: em.value.trim() || EMOJI[e] || '' });
     });
     const sentences = [0, 1].map(i => ({ en: document.getElementById('s-en-' + i).value.trim().replace(/\s+/g, ' '), ko: document.getElementById('s-ko-' + i).value.trim() })).filter(s => s.en);
     return { words, sentences };
@@ -2605,7 +2685,9 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
       const em = document.getElementById('w-em-' + m[1]);
       const hit = EMOJI[e.target.value.trim().toLowerCase()];
       if (em && (!em.value || em.dataset.auto === '1')) { em.value = hit || ''; if (hit) em.dataset.auto = '1'; else delete em.dataset.auto; }
-    } else if (e.target.id && e.target.id.startsWith('w-em-')) {
+      const ko = document.getElementById('w-ko-' + m[1]), mean = koFor(e.target.value.trim().toLowerCase().replace(/\s+/g, ' '));
+      if (ko && (!ko.value || ko.dataset.auto === '1')) { ko.value = mean; if (mean) ko.dataset.auto = '1'; else delete ko.dataset.auto; }
+    } else if (e.target.id && (e.target.id.startsWith('w-em-') || e.target.id.startsWith('w-ko-'))) {
       delete e.target.dataset.auto;
     }
   });

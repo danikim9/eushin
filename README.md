@@ -26,7 +26,7 @@ A calm, space-themed English spelling game for a 5-year-old, made for iPad in la
 
 On first launch a Korean guide for parents walks through adding words, the games, stars and planets, and iPad tips, then lets them pick the child's name. It can be opened again from the lock button (보호자 안내 보기). The guide's last step adds the children's names; names can be changed or more children added later in the grown-ups menu.
 
-Grown-ups add about 10 words and 2 sentences each week from the lock button (it asks a multiplication question first). Children are added and renamed there too, and with more than one child a switcher appears at the top of the home screen.
+Grown-ups add about 10 words and 2 sentences each week from the lock button (it asks a multiplication question first). Typing just the English word is enough: about 870 common words fill in their Korean meaning automatically (plurals like *apples* or *boxes* too), and common words also get a picture. Both can be changed or typed by hand. Children are added and renamed there too, and with more than one child a switcher appears at the top of the home screen.
 
 ## Accounts and cloud sync (Supabase)
 
