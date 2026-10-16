@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Theme Reel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+:root { --on-bg: #F4F3FF; --on-bg-soft: #C5C9F2; --accent: #FFD75E; --ink: #24274D; --paper: #FFFDF6; --em: #FFD75E; }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #1E2150; }
+body { font-family: "Jua", "Fredoka", sans-serif; color: var(--on-bg); transition: color .6s; }
+.bg { position: absolute; inset: 0; transition: opacity .7s ease; }
+.head { position: absolute; left: 70px; right: 70px; top: 230px; height: 380px; display: flex; flex-direction: column; justify-content: flex-end; }
+.tag { align-self: flex-start; font: 600 30px "Fredoka", "Jua", sans-serif; letter-spacing: .02em; padding: 10px 24px; border-radius: 999px; background: var(--paper); color: var(--ink); margin-bottom: 22px; }
+.title { font-size: 104px; line-height: 1.08; letter-spacing: -.01em; white-space: pre-line; }
+.title .em { color: var(--em); transition: color .6s; }
+.chips { display: flex; gap: 14px; margin-top: 26px; flex-wrap: wrap; }
+.chip { font: 30px "Jua", sans-serif; padding: 10px 22px; border-radius: 18px; background: color-mix(in srgb, var(--paper) 22%, transparent); border: 2px solid color-mix(in srgb, var(--on-bg) 30%, transparent); }
+.head > * { transition: opacity .35s ease, transform .45s cubic-bezier(.2,.8,.2,1); }
+.head.out > * { opacity: 0; transform: translateY(26px); }
+.head > :nth-child(2) { transition-delay: .06s; } .head > :nth-child(3) { transition-delay: .12s; }
+.device { position: absolute; left: 18px; top: 650px; width: 1044px; height: 788px; padding: 10px; border-radius: 40px; background: #15172B; box-shadow: 0 30px 80px rgba(0,0,0,.35), inset 0 0 0 3px rgba(255,255,255,.08); }
+.device iframe { width: 1024px; height: 768px; border: 0; border-radius: 30px; display: block; background: #272B5E; }
+.cap { position: absolute; left: 60px; right: 60px; top: 1488px; display: flex; justify-content: center; }
+.cap span { display: inline-block; max-width: 960px; text-align: center; font: 50px/1.32 "Jua", sans-serif; color: #fff; background: rgba(20,22,40,.78); padding: 18px 34px; border-radius: 28px; transition: opacity .25s, transform .3s; text-wrap: balance; word-break: keep-all; }
+.cap.out span { opacity: 0; transform: translateY(10px); }
+.tap { position: absolute; z-index: 50; width: 76px; height: 76px; margin: -38px 0 0 -38px; border-radius: 50%; background: rgba(255,255,255,.35); border: 5px solid #fff; pointer-events: none; animation: t .65s ease-out forwards; }
+@keyframes t { from { transform: scale(.35); opacity: 1 } to { transform: scale(1.45); opacity: 0 } }
+.end { position: absolute; inset: 0; z-index: 40; display: grid; place-content: center; text-align: center; gap: 30px; background: rgba(18,20,44,.82); opacity: 0; transition: opacity .7s; pointer-events: none; color: #fff; }
+.end.on { opacity: 1; }
+.end .emo { font-size: 120px; letter-spacing: 18px; font-family: "Noto Color Emoji", sans-serif; }
+.end h1 { margin: 0; font: 700 96px/1.05 "Fredoka", sans-serif; }
+.end p { margin: 0; font: 54px/1.3 "Jua", sans-serif; color: #FFE08A; }
+.end small { font: 38px "Gowun Dodum", sans-serif; color: #D9DBF5; }
+</style>
+</head>
+<body>
+<div class="bg" id="bgA"></div><div class="bg" id="bgB" style="opacity:0"></div>
+<div class="head out" id="head"><span class="tag" id="tag"></span><div class="title" id="title"></div><div class="chips" id="chips"></div></div>
+<div class="device"><iframe id="app" src="/index.html"></iframe></div>
+<div class="cap out" id="cap"><span id="capT"></span></div>
+<div class="end" id="end"><div class="emo">🚀👑🤖🦄</div><h1>Eushin's<br>Space Words</h1><p>4가지 세계 · 16가지 게임</p><small>아이패드에서 바로 시작해요</small></div>
+<script>
+// The reel follows the app's own theme colors: whenever the app switches theme, crossfade to its background.
+let shown = null, front = 'A';
+setInterval(() => {
+  const d = document.getElementById('app').contentDocument; if (!d || !d.documentElement) return;
+  const id = d.documentElement.dataset.theme || 'space'; if (id === shown) return; shown = id;
+  const cs = getComputedStyle(d.documentElement), v = (k) => cs.getPropertyValue('--' + k).trim();
+  const grad = v('bg-grad'); if (!grad) { shown = null; return; }
+  const next = front === 'A' ? 'B' : 'A';
+  document.getElementById('bg' + next).style.background = grad;
+  document.getElementById('bg' + next).style.opacity = 1;
+  document.getElementById('bg' + front).style.opacity = 0;
+  front = next;
+  const light = parseInt(v('on-bg').slice(1, 3), 16) < 128;   // dark text means a light background: the yellow accent would wash out
+  document.documentElement.style.setProperty('--em', light ? v('primary-deep') : v('accent'));
+  for (const k of ['on-bg', 'on-bg-soft', 'accent', 'ink', 'paper']) document.documentElement.style.setProperty('--' + k, v(k));
+}, 80);
+window.reel = {
+  head(tag, title, chips) {
+    const h = document.getElementById('head'); h.classList.add('out');
+    setTimeout(() => {
+      document.getElementById('tag').textContent = tag;
+      document.getElementById('title').innerHTML = title;
+      document.getElementById('chips').innerHTML = (chips || []).map(c => `<span class="chip">${c}</span>`).join('');
+      h.classList.remove('out');
+    }, 380);
+  },
+  cap(t) {
+    const c = document.getElementById('cap'); c.classList.add('out');
+    if (t) setTimeout(() => { document.getElementById('capT').textContent = t; c.classList.remove('out'); }, 260);
+  },
+  tap(x, y) { const d = document.createElement('div'); d.className = 'tap'; d.style.left = x + 'px'; d.style.top = y + 'px'; document.body.appendChild(d); setTimeout(() => d.remove(), 700); },
+  end() { document.getElementById('end').classList.add('on'); document.getElementById('head').classList.add('out'); this.cap(''); },
+};
+</script>
+</body>
+</html>
