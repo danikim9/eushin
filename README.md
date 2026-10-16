@@ -24,6 +24,8 @@ A calm, space-themed English spelling game for a 5-year-old, made for iPad in la
 - **Sentence Trace**: trace the sentence with Apple Pencil, then write it alone.
 - **Sentence Ship**: listen, build the sentence from word blocks, then fill in a blank.
 
+On first launch a Korean guide for parents walks through adding words, the games, stars and planets, and iPad tips, then lets them pick the child's name. It can be opened again from the lock button (보호자 안내 보기).
+
 Grown-ups add about 10 words and 2 sentences each week from the lock button (it asks a multiplication question first). The child's name (Eushin or Harry) is set there too.
 
 ## Install on iPad

@@ -51,7 +51,7 @@ async function spellTiles(word, pause = 330) { for (const ch of [...word].filter
 
 await page.goto('http://localhost:8765/index.html');
 // Start a few stars short of a planet so a new one opens during the demo.
-await page.evaluate(() => { localStorage.clear(); localStorage.setItem('yushin-space-progress', JSON.stringify({ stars: 205, mastery: {} })); });
+await page.evaluate(() => { localStorage.clear(); localStorage.setItem('yushin-space-onboarded', 'true'); localStorage.setItem('yushin-space-progress', JSON.stringify({ stars: 205, mastery: {} })); });
 await page.reload();
 await wait(800);
 await cap('유신이의 Space Words — 우주 테마 영어 단어 학습 앱'); await wait(2200);
