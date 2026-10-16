@@ -636,6 +636,7 @@ body { touch-action: manipulation; }
     recovery: false,
   };
   function activeKid() { return state.kids.find(k => k.id === state.kidId) || state.kids[0] || null; }
+  if (state.kids.length && !Array.isArray(lsGet(LS_KIDS))) lsSet(LS_KIDS, state.kids);   // keep the migrated child's id stable
   Object.defineProperty(state, 'progress', { get: () => activeKid() || EMPTY_PROG });
   let screen = 'home';
   let g = null;           // current game
