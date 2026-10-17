@@ -19,8 +19,17 @@ img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
 <script src="../config.js"></script>
-<!-- Vercel Web Analytics: page views and visitors, no cookies. -->
-<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<!-- Vercel Web Analytics: page views and visitors, no cookies.
+     Open any page with ?notrack=1 to stop counting this browser (the owner's own visits), ?notrack=0 to count it again. -->
+<script>
+window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+try {
+  const notrack = new URLSearchParams(location.search).get('notrack');
+  if (notrack === '1') localStorage.setItem('va-notrack', '1');
+  if (notrack === '0') localStorage.removeItem('va-notrack');
+  if (localStorage.getItem('va-notrack')) window.va('beforeSend', () => null);
+} catch (e) {}
+</script>
 <script defer src="/_vercel/insights/script.js"></script>
 <title>Eushin's Space Words</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">

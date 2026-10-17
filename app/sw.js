@@ -1,5 +1,5 @@
 // Offline support for the home-screen app at /app/ (this worker's scope). build.mjs bumps VERSION on every build.
-const VERSION = '20261017035439';
+const VERSION = '20261017052053';
 const CACHE = `space-words-${VERSION}`;
 const FONT_CACHE = 'space-words-fonts';
 const CORE = ['./', 'index.html', '../config.js', '../vendor/supabase-2.49.4.js', 'manifest.webmanifest', '../icons/icon-180.png', '../icons/icon-192.png', '../icons/icon-512.png'];
