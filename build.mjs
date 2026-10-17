@@ -32,6 +32,9 @@ img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
 <script src="../config.js"></script>
+<!-- Vercel Web Analytics: page views and visitors, no cookies. -->
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 ${head}
 </head>
 <body>
