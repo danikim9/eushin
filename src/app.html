@@ -240,6 +240,22 @@ button.stop:active .planet { transform: scale(.92); }
 .new-planet { display: flex; align-items: center; gap: 12px; background: var(--accent-soft); border-radius: 18px; padding: 10px 16px; font-family: var(--f-display); font-size: 18px; }
 .modal-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 @keyframes rise { from { transform: translateY(20px); opacity: .4 } }
+.modal.rank { max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); }
+.modal.rank h2 { display: flex; align-items: center; gap: 8px; }
+.modal.rank h2 svg { width: 28px; height: 28px; }
+.rank-body { width: 100%; min-height: 80px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.rank-body .help { font-size: 14px; }
+.rank-body .load-spin { display: block; width: 40px; height: 40px; animation: spin 1.6s linear infinite; }
+.rank-list { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.rank-list li { display: flex; align-items: center; gap: 10px; background: var(--paper-2); border-radius: 14px; padding: 8px 14px; border: 2px solid transparent; text-align: left; }
+.rank-list li.me { border-color: var(--primary); background: var(--accent-soft); font-weight: 700; }
+.rank-list .rk { width: 30px; text-align: center; font-family: var(--f-display); font-size: 18px; font-variant-numeric: tabular-nums; }
+.rank-list .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 17px; }
+.rank-list .st { font-family: var(--f-display); font-size: 18px; font-variant-numeric: tabular-nums; }
+.rank-list li.rank-gap { background: none; justify-content: center; padding: 0; color: var(--ink-soft); }
+.rank-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.rank-opt { display: inline-flex; align-items: center; gap: 8px; background: var(--paper-2); border-radius: 999px; padding: 8px 14px; font-size: 16px; }
+.rank-opt input { width: 20px; height: 20px; }
 
 /* parent */
 .parent { background: var(--paper); border-radius: var(--r-lg); padding: 20px 16px; display: flex; flex-direction: column; gap: 18px; }
@@ -1049,7 +1065,7 @@ body { touch-action: manipulation; }
   function normKid(d) {
     const p = normProg(d);
     return { id: String(d && d.id || newId()), name: cleanName(d && d.name) || 'Star', stars: p.stars, mastery: p.mastery,
-      theme: d && THEMES[d.theme] ? d.theme : null,
+      theme: d && THEMES[d.theme] ? d.theme : null, ranked: !!(d && d.ranked),
       at: Number(d && d.at) || Date.now(), synced: !!(d && d.synced) };
   }
   function loadKids() {
@@ -1140,7 +1156,7 @@ body { touch-action: manipulation; }
       if (deleted.includes(row.id)) continue;
       const mine = local.get(row.id), at = Date.parse(row.updated_at) || 0;
       if (mine && mine.at > at) { merged.push(mine); markDirty('kids'); }
-      else merged.push(normKid({ ...row, theme: row.theme || (mine && mine.theme), at, synced: true }));   // keep this device's theme if the database has none
+      else merged.push(normKid({ ...row, theme: row.theme || (mine && mine.theme), ranked: 'ranked' in row ? row.ranked : !!(mine && mine.ranked), at, synced: true }));   // keep this device's theme (and ranking choice) if the database has none
       local.delete(row.id);
     }
     for (const k of local.values()) if (!k.synced) { merged.push(k); markDirty('kids'); }   // added on this device, not uploaded yet
@@ -1154,7 +1170,8 @@ body { touch-action: manipulation; }
     if (Object.keys(dirty()).length) await pushCloud();
     return true;
   }
-  let pushing = null, themeColumn = true;
+  let pushing = null;
+  const optCols = { theme: true, ranked: true };   // columns added by later migrations; dropped from uploads if the database lacks them
   async function pushCloud() {
     if (!sb || !state.user) return false;
     if (pushing) { await pushing; }
@@ -1166,10 +1183,15 @@ body { touch-action: manipulation; }
           if (r.error) throw r.error;
         }
         if (d.kids && state.kids.length) {
-          const rows = (withTheme) => state.kids.map(k => ({ id: k.id, user_id: uid, name: k.name, stars: k.stars, mastery: k.mastery, ...(withTheme && k.theme ? { theme: k.theme } : {}), updated_at: ts(k.at) }));
-          let r = await sb.from('children').upsert(rows(themeColumn));
-          // Databases set up before themes have no theme column: save everything else, keep the theme on this device.
-          if (r.error && themeColumn && /theme/i.test(r.error.message || '')) { themeColumn = false; r = await sb.from('children').upsert(rows(false)); }
+          const rows = () => state.kids.map(k => ({ id: k.id, user_id: uid, name: k.name, stars: k.stars, mastery: k.mastery,
+            ...(optCols.theme && k.theme ? { theme: k.theme } : {}), ...(optCols.ranked ? { ranked: k.ranked } : {}), updated_at: ts(k.at) }));
+          let r = await sb.from('children').upsert(rows());
+          // Databases set up before themes or the ranking lack those columns: save everything else, keep them on this device.
+          for (let n = 0; r.error && n < 2; n++) {
+            const col = Object.keys(optCols).find(c => optCols[c] && new RegExp(c, 'i').test(r.error.message || ''));
+            if (!col) break;
+            optCols[col] = false; r = await sb.from('children').upsert(rows());
+          }
           if (r.error) throw r.error;
           state.kids.forEach(k => { k.synced = true; }); saveKids();
         }
@@ -1295,6 +1317,7 @@ body { touch-action: manipulation; }
   const gameName = (id) => T().games[id] || GAMES.find(x => x.id === id).ko;
   const speakerSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>`;
   const lockSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="3"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>`;
+  const trophySVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4M9 20h6M10 17h4"/></svg>`;
   const noteSVG = (on) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18V5l10-2v13"/><circle cx="6.5" cy="18" r="2.5" fill="currentColor"/><circle cx="16.5" cy="16" r="2.5" fill="currentColor"/>${on ? '' : '<path d="M3 3l18 18"/>'}</svg>`;
   const pencilSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/></svg>`;
 
@@ -1433,6 +1456,7 @@ body { touch-action: manipulation; }
       <header class="top">
         <div class="brand"><span class="brand-ko">${esc(kid())}'s ${esc(t.world)}</span><span class="brand-en">Spelling adventures with ${esc(t.guide)}</span></div>
         <div class="top-r">${kidSwitchHTML()}${starPill()}
+          ${sb ? `<button class="icon-btn" data-act="rank-open" aria-label="Ranking">${trophySVG}</button>` : ''}
           <button class="icon-btn" data-act="theme-open" aria-label="Change theme">${paletteSVG}</button>
           <button class="icon-btn ${state.sound ? '' : 'off'}" data-act="sound" aria-label="${state.sound ? 'Turn sound effects off' : 'Turn sound effects on'}">${noteSVG(state.sound)}</button>
           <button class="icon-btn" data-act="parent" aria-label="Grown-ups menu">${lockSVG}</button></div>
@@ -2374,6 +2398,52 @@ body { touch-action: manipulation; }
   }
   function closeModal() { document.querySelectorAll('.modal-back').forEach(m => m.remove()); }
 
+  /* ---------- star ranking: opted-in children of every family, by stars (star_ranking() in Supabase) ---------- */
+  // Other families appear as a first letter (유**), their stars and their theme; our own children by full name.
+  async function openRanking() {
+    closeModal(); sfx.tap();
+    const back = document.createElement('div');
+    back.className = 'modal-back';
+    back.innerHTML = `
+      <div class="modal rank" role="dialog" aria-modal="true" aria-labelledby="rTitle">
+        <h2 id="rTitle">${trophySVG} Ranking</h2>
+        <div class="rank-body" id="rankBody"><span class="load-spin">${rIcon(40)}</span></div>
+        <div class="modal-btns"><button class="btn sun" data-act="modal-close">Close</button></div>
+      </div>`;
+    back.addEventListener('click', (e) => { if (e.target === back) closeModal(); });
+    document.body.appendChild(back);
+    const body = document.getElementById('rankBody'), me = activeKid();
+    const show = (html) => { if (body.isConnected) body.innerHTML = html; };
+    if (!state.user) {
+      show(`<p>Ask a grown-up to sign in to see the ranking!</p><p class="help" lang="ko">보호자 메뉴에서 로그인하면 Spelly를 하는 다른 친구들과 별 랭킹을 볼 수 있어요.</p>`);
+      return;
+    }
+    if (Object.keys(dirty()).length) await pushCloud();   // rank on this device's latest stars
+    let r;
+    try { r = await sb.rpc('star_ranking'); } catch (e) { r = { error: e }; }
+    if (r.error) { show(`<p>Couldn't load the ranking.</p><p class="help" lang="ko">인터넷 연결을 확인하고 다시 열어 주세요.</p>`); return; }
+    const rows = r.data || [];
+    const medal = (n) => ['🥇', '🥈', '🥉'][n - 1] || n;
+    const mine = me && rows.find(x => x.kid_id === me.id);
+    show(`${rows.length ? `<ol class="rank-list">${rows.map((x, i) => `${i === 50 ? '<li class="rank-gap" aria-hidden="true">⋯</li>' : ''}
+        <li class="${x.mine ? 'me' : ''}"><span class="rk">${medal(x.rank)}</span>${rIcon(22, true, THEMES[x.theme] ? x.theme : 'space')}<span class="nm">${esc(x.name)}</span><span class="st">${x.stars}</span></li>`).join('')}</ol>`
+        : `<p>No one has joined yet.</p>`}
+      ${me && !me.ranked ? `<p class="help" lang="ko">${esc(me.name)}은(는) 아직 랭킹에 참여하지 않았어요. 보호자 메뉴 → 전체 별 랭킹에서 참여할 수 있어요.</p>` : ''}`);
+    if (mine) speak(`${me.name}, you are number ${mine.rank}!`);
+  }
+  function rankingHTML() {
+    if (!sb) return '';
+    if (!state.user) return `<h3 lang="ko">전체 별 랭킹</h3><p class="help" lang="ko">로그인하면 Spelly를 쓰는 다른 가족의 아이들과 별 개수로 순위를 볼 수 있어요.</p>`;
+    return `<h3 lang="ko">전체 별 랭킹</h3>
+      <p class="help" lang="ko">참여한 아이는 Spelly를 쓰는 모든 가족의 아이들과 별 개수로 순위를 겨뤄요. 다른 가족에게는 이름 첫 글자(예: 유**), 별 개수, 테마만 보여요. 홈 화면의 트로피 버튼으로 볼 수 있어요.</p>
+      <div class="rank-opts" lang="ko">${state.kids.map(k => `<label class="rank-opt"><input type="checkbox" data-act="rank-toggle" data-id="${k.id}" ${k.ranked ? 'checked' : ''}> ${esc(k.name)} 참여</label>`).join('')}</div>`;
+  }
+  function toggleRanked(id, on) {
+    const k = state.kids.find(x => x.id === id); if (!k) return;
+    k.ranked = on; k.at = Date.now(); saveKids(); markDirty('kids'); pushCloud();
+    toast(on ? `${k.name}이(가) 랭킹에 참여해요` : `${k.name}을(를) 랭킹에서 뺐어요`);
+  }
+
 
   /* ---------- theme picker (first visit per child, and any time from the palette button or the grown-ups menu) ---------- */
   // Choosing a theme only changes kid.theme: stars, words, levels and rewards stay exactly as they are.
@@ -2833,6 +2903,7 @@ body { touch-action: manipulation; }
         <h3 lang="ko">테마</h3>
         <p class="help" lang="ko">${esc(kid())}의 테마: <b>${esc(T().ko)} (${esc(T().name)})</b>. 바꿔도 별, 단어 진도, 도착한 장소는 그대로예요.</p>
         <div class="p-actions"><button type="button" class="btn ghost sm" data-act="theme-open" lang="ko">${paletteSVG} 테마 바꾸기</button></div>
+        ${rankingHTML()}
         <h3>2 sentences to learn</h3>
         <p class="help">Short sentences work best, like "I like apples."</p>
         ${s.map((x, i) => `<div class="srow">
@@ -3052,6 +3123,9 @@ If no English words are visible, reply {"words":[],"sentences":[]}.`;
     switch (act) {
       case 'visit': visitPlanet(Number(b.dataset.i)); break;
       case 'theme-open': sfx.tap(); renderThemePick(false); break;
+      case 'rank-open': openRanking(); break;
+      case 'rank-toggle': toggleRanked(b.dataset.id, b.checked); break;
+      case 'modal-close': closeModal(); sfx.tap(); break;
       case 'ig-tab': igTab = b.dataset.os; refreshInstallGuide(); break;
       case 'ig-install': promptInstall(); break;
       case 'theme-sel': selectTheme(b.dataset.id); break;
