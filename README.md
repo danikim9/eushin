@@ -43,12 +43,16 @@ Parents can sign up with email and password, add several children (each with the
 Set up once:
 
 1. Create a Supabase project (Seoul region: `ap-northeast-2`).
-2. Run `supabase/migrations/20261016000000_space_words.sql` and then `20261016100000_child_theme.sql` in the SQL Editor. It creates the `families` and `children` tables with row level security, so each account sees only its own data, plus a `delete_my_account()` function for the in-app account deletion.
+2. Run `supabase/migrations/20261016000000_space_words.sql`, then `20261016100000_child_theme.sql`, then `20261017000000_star_ranking.sql` in the SQL Editor. It creates the `families` and `children` tables with row level security, so each account sees only its own data, plus a `delete_my_account()` function for the in-app account deletion.
 3. Authentication → URL Configuration: set **Site URL** to the app's address (`https://www.spelly.kr/app/`) and add it under **Redirect URLs** too. Sign-up confirmation and password reset emails link back there.
 4. Authentication → Emails: Supabase's built-in email sender only allows a few emails per hour. Before inviting other families, connect your own SMTP service (for example Resend) under **SMTP Settings**. You can also translate the email templates into Korean there.
 5. Put the project URL and its publishable (anon) key into `config.js`, then commit. The publishable key is safe to publish; row level security protects the data.
 
 How sync works: everything is saved on the device first, so the app works offline. When signed in, changes upload in the background, and the app downloads the family's data on start and whenever it comes back to the foreground. For each child and for the week's words, the most recent change wins. Signing up on a device that already has stars moves them into the new account.
+
+## Star ranking
+
+Signed-in families can compare stars with every other Spelly family. A parent opts each child in under **전체 별 랭킹** in the grown-ups menu (off by default); the trophy button on the home screen then shows the top 50 children plus the playing child's own place, with medals for the top three. Other families only see a child's first letter (유**), star count and theme; your own children show by full name. This needs `supabase/migrations/20261017000000_star_ranking.sql`, which adds the `ranked` column and the `star_ranking()` function. Stars are counted on each device, so the ranking trusts what the app uploads.
 
 ## Add to the home screen
 
